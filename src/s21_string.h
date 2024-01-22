@@ -2,11 +2,8 @@
 #define STRING_H
 
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <check.h>
-#include <locale.h>
 
 void *s21_memchr(const void *str, int c, size_t n);
 int s21_memcmp(const void *str1, const void *str2, size_t n);
@@ -23,7 +20,5 @@ char *s21_strpbrk(const char *str1, const char *str2);
 char *s21_strrchr(const char *str, int c);
 char *s21_strstr(const char *haystack, const char *needle);
 char *s21_strtok(char *str, const char *delim);
-
-
 
 #endif
