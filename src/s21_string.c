@@ -151,7 +151,7 @@ char *s21_strtok(char *str, const char *delim) {
     if (str != NULL) {
         last_token = str;
     } else if (last_token == NULL) {
-        return NULL; // Нет новых токенов
+        return NULL;
     }
 
     while (*last_token != '\0' && s21_strchr(delim, *last_token) != NULL) {
@@ -159,12 +159,11 @@ char *s21_strtok(char *str, const char *delim) {
     }
 
     if (*last_token == '\0') {
-        return NULL; // Достигнут конец строки
+        return NULL;
     }
 
     char *token_start = last_token;
 
-    // Ищем конец текущего токена
     while (*last_token != '\0' && s21_strchr(delim, *last_token) == NULL) {
         last_token++;
     }
@@ -180,7 +179,6 @@ char *s21_strtok(char *str, const char *delim) {
 #if defined(__APPLE__)
 #define MAX_ERRLIST 107
 #define MIN_ERRLIST -1
-#define ERROR "Unknown error: "
 
 static const char *error_list[] = {
     "Undefined error: 0",
@@ -445,84 +443,84 @@ char *s21_strerror(int errornum) {
   return result;
 }
 
-int main() {
-    char *test1 = "123123qwerty";
-    char *test2 = "v";
-    char *dest = malloc(7 * sizeof(char));
-    // char *x = s21_memchr("qwe", 'w', 2);
-    // char *y = memchr("qwe", 'w', 2);
-    // printf("impl - %str\n", x == NULL ? "NULL" : x);
-    // printf("orig - %str\n", y == NULL ? "NULL" : y);
+// int main() {
+//     char *test1 = "123123qwerty";
+//     char *test2 = "v";
+//     char *dest = malloc(7 * sizeof(char));
+//     // char *x = s21_memchr("qwe", 'w', 2);
+//     // char *y = memchr("qwe", 'w', 2);
+//     // printf("impl - %str\n", x == NULL ? "NULL" : x);
+//     // printf("orig - %str\n", y == NULL ? "NULL" : y);
     
-    // memcmp test
+//     // memcmp test
 
-    // printf("%d\n", s21_memcmp(test1, test2, 5));
-    // printf("%d\n", memcmp(test1, test2, 5));
+//     // printf("%d\n", s21_memcmp(test1, test2, 5));
+//     // printf("%d\n", memcmp(test1, test2, 5));
 
-    // memcpy test
+//     // memcpy test
 
-    // s21_memcpy(dest, test1, 3);
-    // printf("%str\n", dest);
-    // printf("%d\n", dest[6]);
+//     // s21_memcpy(dest, test1, 3);
+//     // printf("%str\n", dest);
+//     // printf("%d\n", dest[6]);
 
-    // memset test
+//     // memset test
 
-    // memset(dest, '1', 7);
-    // printf("%str\n", dest);
+//     // memset(dest, '1', 7);
+//     // printf("%str\n", dest);
 
-    // strncat test
+//     // strncat test
 
-    // s21_strncat(dest, test2, 3);
-    // // dest[3] = '\0';
-    // printf("%str\n", dest);
+//     // s21_strncat(dest, test2, 3);
+//     // // dest[3] = '\0';
+//     // printf("%str\n", dest);
 
-    // strchr test
+//     // strchr test
 
-    // printf("%str\n", s21_strchr(test1, 'e') == NULL ? "y" : s21_strchr(test1, 'e'));
+//     // printf("%str\n", s21_strchr(test1, 'e') == NULL ? "y" : s21_strchr(test1, 'e'));
 
-    // strncmp test
+//     // strncmp test
 
-    // printf("%d\n", s21_strncmp(test2, test1, 3));
+//     // printf("%d\n", s21_strncmp(test2, test1, 3));
 
-    // strcpy test
-    // char *tmp = s21_strncpy(dest, test2, 4);
-    // printf("%str\n", tmp);
+//     // strcpy test
+//     // char *tmp = s21_strncpy(dest, test2, 4);
+//     // printf("%str\n", tmp);
 
-    // strcspn test
+//     // strcspn test
 
-    // printf("%ld\n", strcspn(test1, test2));
+//     // printf("%ld\n", strcspn(test1, test2));
 
-    // strlen test
+//     // strlen test
 
-    // printf("%ld\n", s21_strlen(test2));
+//     // printf("%ld\n", s21_strlen(test2));
 
-    // strpbrk test
+//     // strpbrk test
 
-    // printf("%str\n", strpbrk(test1, test2));
+//     // printf("%str\n", strpbrk(test1, test2));
 
-    // strrchr test
+//     // strrchr test
 
-    // printf("%s\n", s21_strrchr(test1, '3'));
+//     // printf("%s\n", s21_strrchr(test1, '3'));
 
-    // strstr test
+//     // strstr test
 
-    // printf("%s\n", s21_strstr(test1, test2) == NULL ? "NULL" : "q   ");
+//     // printf("%s\n", s21_strstr(test1, test2) == NULL ? "NULL" : "q   ");
 
-    // strtok test
+//     // strtok test
 
-    // char str[] = "Hello, World! How,,, are you?";
-    // const char delimiters[] = " .,";
-    // // char str[] = "";
+//     // char str[] = "Hello, World! How,,, are you?";
+//     // const char delimiters[] = " .,";
+//     // // char str[] = "";
 
-    // char *token = s21_strtok(str, delimiters);
+//     // char *token = s21_strtok(str, delimiters);
 
-    // while (token != NULL) {
-    //     printf("Token: %s\n", token);
-    //     token = s21_strtok(NULL, delimiters);
-    // }
+//     // while (token != NULL) {
+//     //     printf("Token: %s\n", token);
+//     //     token = s21_strtok(NULL, delimiters);
+//     // }
 
-    for (int x = 0; x < 134; x++) printf("\"%s\",\n", strerror(x));
+//     for (int x = 0; x < 134; x++) printf("\"%s\",\n", strerror(x));
     
-    free(dest);
-    return 0;
-}
+//     free(dest);
+//     return 0;
+// }
