@@ -92,14 +92,14 @@ void ftoa(char *str, int *j, float f) {
         integer += flt.bits & mask ? pow(2, e--) : 0;
         mask >>= 1;
     }
-    e = 1;
+    e = abs(e);
     while (mask) {
         fraction += flt.bits & mask ? pow(5, e++) : 0;
         mask >>= 1;
     }
 
     char *int_str = doxtoa(integer, 10, true);
-    char *int_str = doxtoa(integer, 10, true);
+    char *frac_str = doxtoa(fraction, 10, true);
 }
 
 int extract_exp(unsigned bits) {
