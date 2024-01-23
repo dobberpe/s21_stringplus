@@ -16,40 +16,36 @@ int s21_sprintf(char *str, const char *format, ...) {
 }
 
 void specifier(const char *format, int i, char *str, int *j, va_list *params) {
-    if (format[i] >= '0' && format[i]) {
-    }
     if (format[i] == 'c') {
+        str[++(*j)] = va_arg(*params, char);
     } else if (format[i] == 'd' || format[i] == 'i') {
-        process_dox(va_arg(*params, int), 10, true);
+        char *di_str = doxtoa(va_arg(*params, int), 10, true);
+        strcpy(str + i + 1, di_str);
     } else if (format[i] == 'e' || format[i] == 'E') {
-        print_exp(str, j, va_arg(*params, float));
+        char *e_str = etoa(va_arg(*params, float));
+        strcpy(str + i + 1, e_str);
     } else if (format[i] == 'f') {
-        print_float(str, j, va_arg(*params, float));
+        char *f_str = ftoa(va_arg(*params, float));
+        strcpy(str + i + 1, f_str);
     } else if (format[i] == 'g' || format[i] == 'G') {
-        char e[256];
-        char f[256];
-        int je = -1;
-        int jf = -1;
-        print_exp(e, je, va_arg(*params, float));
-        print_float(f, jf, va_arg(*params, float));
-        print_str(str, j, je < jf ? e : f);
     } else if (format[i] == 'o') {
-        process_dox(va_arg(*params, int), 8, true);
+        char *o_str = doxtoa(va_arg(*params, unsigned), 8, true);
+        strcpy(str + i + 1, o_str);
     } else if (format[i] == 's') {
         print_str(str, j, va_arg(*params, char *));
     } else if (format[i] == 'u') {
-        process_dox(va_arg(*params, unsigned int), 10, true);
+        char *u_str = doxtoa(va_arg(*params, unsigned), 10, true);
+        strcpy(str + i + 1, u_str);
     } else if (format[i] == 'x' || format[i] == 'X') {
-        process_dox(va_arg(*params, int), 16, format[i] == 'X' ? true : false);
+        char *x_str = doxtoa(va_arg(*params, unsigned), 16, format[i] == 'X' ? true : false);
+        strcpy(str + i + 1, x_str);
     } else if (format[i] == 'p') {
-        print_address(str, j, va_arg(*params, void *));
+        void *p = va_arg(*params, void *);
+        char *p_str = doxtoa(p, 10, true);
+        strcpy(str + i + 1, p_str);
     } else if (format[i] == 'n') {
-        print_n(*j, va_arg(*params, int *));
+        get_num_of_printed(*j, va_arg(*params, int *));
     }
-}
-
-char* process_dox(int d, const int radix, const bool uppercase) {
-    char *dox = doxtoa(d, radix, uppercase);
 }
 
 int doxlen(int d, const int radix) {
@@ -77,29 +73,64 @@ char *doxtoa(int d, const int radix, const bool uppercase) {
     return str;
 }
 
-void print_exp(char *str, int *j, float e);
+char *etoa(const float e) {
+    char* f_str = ftoa(e);
+    int i = f_str[0] == '-' ? 0 : -1;
 
-void ftoa(char *str, int *j, float f) {
+    while (f_str[++i] != '.');
+    ++i;
+    int point_place = f_str[0] == '-' ? 2 : 1;
+    while (--i > point_place && f_str[i] != '-') {
+        f_str[i] = f_str[i - 1];
+    }
+    f_str[point_place] = '.';
+
+    return f_str;
+}
+
+char *ftoa(const float f) {
     f_representation flt;
     flt.full = f;
     bool negative = flt.bits & 0x80000000;
     int e = extract_exp(flt.bits);
     unsigned mask = 1 << 22;
-    int integer = 0;
-    int fraction = 0;
+    char *integer = doxtoa(e >= 0 ? pow(2, e) : 0, 10, true);
+    char *fraction = doxtoa(e < 0 ? pow(5, -e): 0, 10, true);
 
-    while (e >= 0) {
-        integer += flt.bits & mask ? pow(2, e--) : 0;
+    while (--e >= 0) {
+        if (flt.bits & mask) {
+            char *tmp = integer;
+            char *addendum = doxtoa(pow(2, e), 10, true);
+            integer = stradd(integer, addendum);
+            free(tmp);
+            free(addendum);
+        }
         mask >>= 1;
     }
     e = abs(e);
     while (mask) {
-        fraction += flt.bits & mask ? pow(5, e++) : 0;
+        if (flt.bits & mask) {
+            char *tmp = fraction;
+            char *addendum = doxtoa(pow(5, e), 10, true);
+            fraction = stradd(fraction, addendum);
+            free(tmp);
+            free(addendum);
+        }
         mask >>= 1;
+        ++e;
     }
 
-    char *int_str = doxtoa(integer, 10, true);
-    char *frac_str = doxtoa(fraction, 10, true);
+    int i = strlen(integer);
+    char* res_str = (char *)malloc((i + strlen(fraction) + 2 + negative) * sizeof(char));
+    res_str[0] = negative ? '-' : res_str[0];
+    strcpy(res_str + negative, integer);
+    res_str[i + negative] = '.';
+    strcpy(res_str + negative + i + 1, fraction);
+    // strcpy конец строки ставит?
+    free(integer);
+    free(fraction);
+
+    return res_str;
 }
 
 int extract_exp(unsigned bits) {
@@ -114,12 +145,35 @@ int extract_exp(unsigned bits) {
     return e;
 }
 
-void print_str(char *str, int *j, char *s) {
-    while (*s) str[++(*j)] = *s++;
+char* stradd(char *l_str, char *r_str) {
+    int i = strlen(l_str);
+    int j = strlen(r_str);
+    int k = max(i, j) + 1;
+    char *res = (char *)malloc(k * sizeof(char));
+    bool overflow = false;
+
+    res[--k] = '\0';
+    while (--k >= 0) {
+        res[k] = (i && j ? -48 : 0) + (i ? l_str[--i] : 0) + (j ? r_str[--j] : 0) + overflow;
+        overflow = res[k] > 57 ? true : false;
+        res[k] -= res[k] > 57 ? 10 : 0;
+    }
+
+    res = overflow ? increase_rank(res) : res;
+    
+    return res;
 }
 
-void print_address(char *str, int *j, void *p);
+char* increase_rank(char *str) {
+    int i = strlen(str) + 2;
+    str = (char *)realloc(str, i * sizeof(char));
 
-void print_n(int j, int *n) {
+    str[--i] = '\0';
+    while(--i) str[i] = str[i - 1];
+    str[i] = '1';
+    return str;
+}
+
+void get_num_of_printed(int j, int *n) {
     *n = j;
 }
