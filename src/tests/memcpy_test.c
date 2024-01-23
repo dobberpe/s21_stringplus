@@ -3,8 +3,8 @@
 START_TEST(test_s21_memcpy_basic)
 {
     const char src[] = "Hello, World!";
-    char dest[20];
-    char dest2[20];
+    char dest[20] = {0};
+    char dest2[20] = {0};
     size_t n = sizeof(src) - 1;
 
     void *result = s21_memcpy(dest, src, n);
@@ -34,13 +34,10 @@ Suite *s21_memcpy_suite()
 {
     Suite *suite;
     TCase *tc_core;
-
     suite = suite_create("s21_memcpy");
-
-    tc_core = tcase_create("Core");
+    tc_core = tcase_create("core");
     tcase_add_test(tc_core, test_s21_memcpy_basic);
     tcase_add_test(tc_core, test_s21_memcpy_overlap);
     suite_add_tcase(suite, tc_core);
-
     return suite;
 }

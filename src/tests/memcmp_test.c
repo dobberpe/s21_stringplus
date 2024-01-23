@@ -14,7 +14,7 @@ START_TEST(test_s21_memcmp_different)
     const char str1[] = "Hello, World!";
     const char str2[] = "Hallo, Welt!";
     size_t n = sizeof(str1) - 1;
-    ck_assert_int_lt(s21_memcmp(str1, str2, n), memcmp(str1, str2, n));
+    ck_assert_int_gt(s21_memcmp(str1, str2, n), 0);
 }
 END_TEST
 
@@ -37,6 +37,5 @@ Suite *s21_memcmp_suite()
     tcase_add_test(tc_core, test_s21_memcmp_different);
     tcase_add_test(tc_core, test_s21_memcmp_partial);
     suite_add_tcase(suite, tc_core);
-
     return suite;
 }

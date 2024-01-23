@@ -24,11 +24,9 @@ END_TEST
 Suite *s21_strlen_suite() {
     Suite *suite = suite_create("s21_strlen");
     TCase *tc_core = tcase_create("core");
-
     tcase_add_test(tc_core, test_s21_strlen_empty);
     tcase_add_test(tc_core, test_s21_strlen_letters);
     tcase_add_test(tc_core, test_s21_strlen_numbers);
     suite_add_tcase(suite, tc_core);
-
     return suite;
 }
