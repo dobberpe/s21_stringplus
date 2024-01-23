@@ -16,7 +16,7 @@ test: $(TEST_OBJ) $(LIB_NAME)
 	./test
 
 
-gcov_report:
+gcov_report: clean
 	gcc -o $(LIB_OBJ) -c $(GFLAGS) $(LIB_SRC)
 	ar rcs $(LIB_NAME) $(LIB_OBJ)
 	ranlib $(LIB_NAME)

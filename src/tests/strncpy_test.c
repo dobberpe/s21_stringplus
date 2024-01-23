@@ -20,6 +20,8 @@ START_TEST(test_s21_strncpy_partial)
     size_t n = 6;
     char *result = s21_strncpy(dest, src, n);
     ck_assert_ptr_eq(result, dest);
+    dest[6] = 0;
+    dest2[6] = 0;
     ck_assert_str_eq(dest, strncpy(dest2, src, n));
 }
 END_TEST

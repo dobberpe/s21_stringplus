@@ -17,6 +17,11 @@ Suite *s21_strchr_suite();
 Suite *s21_strncmp_suite();
 Suite *s21_strncpy_suite();
 Suite *s21_strcspn_suite();
+Suite *s21_strpbrk_suite();
+Suite *s21_strrchr_suite();
+Suite *s21_strstr_suite();
+Suite *s21_strtok_suite();
+Suite *s21_strerror_suite();
 
 
 #endif

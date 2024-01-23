@@ -432,7 +432,7 @@ char *s21_strerror(int errornum) {
   static char result[512] = {'\0'};
 
   if (errornum <= MIN_ERRLIST || errornum >= MAX_ERRLIST) {
-    sprintf(result, "Unknown error: %d", errornum);
+    sprintf(result, "Unknown error %d", errornum);
   } else {
     s21_strncpy(result, ((char *)error_list[errornum]), 512);
   }
