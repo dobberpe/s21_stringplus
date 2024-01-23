@@ -1,176 +1,175 @@
 #include "s21_string.h"
 
 void *s21_memchr(const void *str, int c, size_t n) {
-    const unsigned char *res = NULL, *tmp = str;
-    while (n-- != 0 && res == NULL) {
-        if (*tmp == (char)c)
-            res = tmp;
-        tmp++;
-    }
-    return (void *)res;
+  const unsigned char *res = NULL, *tmp = str;
+  while (n-- != 0 && res == NULL) {
+    if (*tmp == (char)c) res = tmp;
+    tmp++;
+  }
+  return (void *)res;
 }
 
 int s21_memcmp(const void *str1, const void *str2, size_t n) {
-    const unsigned char *tmp1 = str1, *tmp2 = str2;
-    int res = 0;
-    while (n-- != 0 && res == 0) {
-        res = *tmp1 - *tmp2;
-        tmp1++;
-        tmp2++;
-    }
-    return res;
+  const unsigned char *tmp1 = str1, *tmp2 = str2;
+  int res = 0;
+  while (n-- != 0 && res == 0) {
+    res = *tmp1 - *tmp2;
+    tmp1++;
+    tmp2++;
+  }
+  return res;
 }
 
 void *s21_memcpy(void *dest, const void *src, size_t n) {
-    char *d = dest;
-    const char *str = src;
-    while (n-- != 0) {
-        *d++ = *str++;
-    }
-    return dest;
+  char *d = dest;
+  const char *str = src;
+  while (n-- != 0) {
+    *d++ = *str++;
+  }
+  return dest;
 }
 
 void *s21_memset(void *str, int c, size_t n) {
-    unsigned char *tmp = str;
-    while (n-- != 0) {
-        *tmp++ = c;
-    }
-    return str;
+  unsigned char *tmp = str;
+  while (n-- != 0) {
+    *tmp++ = c;
+  }
+  return str;
 }
 
 char *s21_strncat(char *dest, const char *src, size_t n) {
-    char *tmp = dest;
-    while (*tmp != '\0') {
-        tmp++;
-    }
-    while (*src != '\0' && n-- > 0) {
-        *tmp++ = *src++;
-    }
-    *tmp = '\0';
-    return dest;
+  char *tmp = dest;
+  while (*tmp != '\0') {
+    tmp++;
+  }
+  while (*src != '\0' && n-- > 0) {
+    *tmp++ = *src++;
+  }
+  *tmp = '\0';
+  return dest;
 }
 
 char *s21_strchr(const char *str, int c) {
-    while (*str != '\0' && *str != (char)c) {
-        str++;
-    }
-    return (*str == (char)c) ? (char *)str : NULL;
+  while (*str != '\0' && *str != (char)c) {
+    str++;
+  }
+  return (*str == (char)c) ? (char *)str : NULL;
 }
 
 int s21_strncmp(const char *str1, const char *str2, size_t n) {
-    int res = 0;
-    while (res == 0 && n-- > 0 && (*str1 != '\0' || *str2 != '\0')) {
-        res = *str1 - *str2;
-        str1++;
-        str2++;
-    }
-    return res;
+  int res = 0;
+  while (res == 0 && n-- > 0 && (*str1 != '\0' || *str2 != '\0')) {
+    res = *str1 - *str2;
+    str1++;
+    str2++;
+  }
+  return res;
 }
 
 char *s21_strncpy(char *dest, const char *src, size_t n) {
-    char *tmp = dest;
-    while (n > 0 && *src != '\0') {
-        *tmp++ = *src++;
-        n--;
-    }
-    while (n-- > 0) {
-        *tmp++ = '\0';
-    }
-    return dest;
+  char *tmp = dest;
+  while (n > 0 && *src != '\0') {
+    *tmp++ = *src++;
+    n--;
+  }
+  while (n-- > 0) {
+    *tmp++ = '\0';
+  }
+  return dest;
 }
 
 size_t s21_strcspn(const char *str1, const char *str2) {
-    const char *p, *r;
-    size_t count = 0;
-    bool flag = true;
-    for (p = str1; *p != '\0' && flag; ++p) {
-        for (r = str2; *r != '\0' && flag; ++r) {
-            if (*p == *r) flag = false;
-        }
-        if (flag) count++;
+  const char *p, *r;
+  size_t count = 0;
+  bool flag = true;
+  for (p = str1; *p != '\0' && flag; ++p) {
+    for (r = str2; *r != '\0' && flag; ++r) {
+      if (*p == *r) flag = false;
     }
-    return count;
+    if (flag) count++;
+  }
+  return count;
 }
 
 size_t s21_strlen(const char *str) {
-    const char *tmp = str;
-    while (*tmp != '\0') {
-        tmp++;
-    }
-    return tmp - str;
+  const char *tmp = str;
+  while (*tmp != '\0') {
+    tmp++;
+  }
+  return tmp - str;
 }
 
 char *s21_strpbrk(const char *str1, const char *str2) {
-    const char *tmp;
-    char *res = NULL;
-    while (*str1 != '\0' && res == NULL) {
-        tmp = str2;
-        while (*tmp != '\0' && res == NULL) {
-            if (*str1 == *tmp) res = (char *)str1;
-            tmp++;
-        }
-        str1++;
+  const char *tmp;
+  char *res = NULL;
+  while (*str1 != '\0' && res == NULL) {
+    tmp = str2;
+    while (*tmp != '\0' && res == NULL) {
+      if (*str1 == *tmp) res = (char *)str1;
+      tmp++;
     }
-    return res;
+    str1++;
+  }
+  return res;
 }
 
 char *s21_strrchr(const char *str, int c) {
-    const char *last = NULL;
-    while (*str != '\0') {
-        if (*str == (char)c) last = str;
-        str++;
-    }
-    return *str == (char)c ? (char *)str : (char *)last;
+  const char *last = NULL;
+  while (*str != '\0') {
+    if (*str == (char)c) last = str;
+    str++;
+  }
+  return *str == (char)c ? (char *)str : (char *)last;
 }
 
 char *s21_strstr(const char *haystack, const char *needle) {
-    if (*needle != '\0') {
-        bool flag = true;
-        while (*haystack != '\0' && flag) {
-            const char *h = haystack;
-            const char *n = needle;
-            while (*n != '\0' && *h == *n) {
-                h++;
-                n++;
-            }
-            if (*n == '\0')
-                flag = false;
-            else
-                haystack++;
-        }
-        if (flag) haystack = NULL;
+  if (*needle != '\0') {
+    bool flag = true;
+    while (*haystack != '\0' && flag) {
+      const char *h = haystack;
+      const char *n = needle;
+      while (*n != '\0' && *h == *n) {
+        h++;
+        n++;
+      }
+      if (*n == '\0')
+        flag = false;
+      else
+        haystack++;
     }
-    return (char *)haystack; 
+    if (flag) haystack = NULL;
+  }
+  return (char *)haystack;
 }
 
 char *s21_strtok(char *str, const char *delim) {
-    static char *last_token = NULL;
-    if (str != NULL) {
-        last_token = str;
-    } else if (last_token == NULL) {
-        return NULL;
-    }
+  static char *last_token = NULL;
+  if (str != NULL) {
+    last_token = str;
+  } else if (last_token == NULL) {
+    return NULL;
+  }
 
-    while (*last_token != '\0' && s21_strchr(delim, *last_token) != NULL) {
-        last_token++;
-    }
+  while (*last_token != '\0' && s21_strchr(delim, *last_token) != NULL) {
+    last_token++;
+  }
 
-    if (*last_token == '\0') {
-        return NULL;
-    }
+  if (*last_token == '\0') {
+    return NULL;
+  }
 
-    char *token_start = last_token;
+  char *token_start = last_token;
 
-    while (*last_token != '\0' && s21_strchr(delim, *last_token) == NULL) {
-        last_token++;
-    }
+  while (*last_token != '\0' && s21_strchr(delim, *last_token) == NULL) {
+    last_token++;
+  }
 
-    if (*last_token != '\0') {
-        *last_token = '\0';
-        last_token++;
-    }
+  if (*last_token != '\0') {
+    *last_token = '\0';
+    last_token++;
+  }
 
-    return token_start;
+  return token_start;
 }
 
 #if defined(__APPLE__)
