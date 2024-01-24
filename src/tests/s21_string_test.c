@@ -1,6 +1,6 @@
 #include "s21_string_test.h"
 
-int main(void) {
+int main() {
   int number_failed;
   Suite *suite = NULL;
   SRunner *runner = srunner_create(suite);
@@ -12,7 +12,9 @@ int main(void) {
                          s21_strncpy_suite(),  s21_strcspn_suite(),
                          s21_strpbrk_suite(),  s21_strrchr_suite(),
                          s21_strstr_suite(),   s21_strtok_suite(),
-                         s21_strerror_suite(), NULL};
+                         s21_strerror_suite(), s21_to_upper_suite(),
+                         s21_to_lower_suite(), s21_insert_suite(),
+                         s21_trim_suite(),     NULL};
 
   for (Suite **current = suits_list; *current != NULL; current++)
     srunner_add_suite(runner, *current);

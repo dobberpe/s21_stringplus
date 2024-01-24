@@ -438,3 +438,82 @@ char *s21_strerror(int errornum) {
 
   return result;
 }
+
+void *s21_to_upper(const char *str) {
+  char *result = NULL;
+  if (str != NULL) {
+    size_t length = s21_strlen(str);
+    result = (char *)malloc(length + 1);
+    if (result != NULL) {
+      for (size_t i = 0; i < length; i++) {
+        if (str[i] >= 'a' && str[i] <= 'z') {
+          result[i] = str[i] - 32;
+        } else {
+          result[i] = str[i];
+        }
+      }
+      result[length] = '\0';
+    }
+  }
+  return result;
+}
+
+void *s21_to_lower(const char *str) {
+  char *result = NULL;
+  if (str != NULL) {
+    size_t length = s21_strlen(str);
+    result = (char *)malloc(length + 1);
+    if (result != NULL) {
+      for (size_t i = 0; i < length; i++) {
+        if (str[i] >= 'A' && str[i] <= 'Z') {
+          result[i] = str[i] + 32;
+        } else {
+          result[i] = str[i];
+        }
+      }
+      result[length] = '\0';
+    }
+  }
+  return result;
+}
+
+void *s21_insert(const char *src, const char *str, size_t start_index) {
+  char *result = NULL;
+  if (src != NULL && str != NULL && start_index <= s21_strlen(src)) {
+    size_t src_length = s21_strlen(src);
+    size_t str_length = s21_strlen(str);
+    result = (char *)malloc(src_length + str_length + 1);
+    if (result != NULL) {
+      s21_strncpy(result, src, start_index);
+      result[start_index] = '\0';
+      s21_strncat(result, str, str_length);
+      s21_strncat(result, src + start_index, src_length);
+    }
+  }
+  return result;
+}
+
+void *s21_trim(const char *src, const char *trim_chars) {
+  char *result = NULL;
+  if (src != NULL && trim_chars != NULL) {
+    size_t length = s21_strlen(src);
+    size_t start_pos = 0;
+    while (start_pos < length &&
+           s21_strchr(trim_chars, src[start_pos]) != NULL) {
+      start_pos++;
+    }
+    size_t end_pos = length;
+    while (end_pos > start_pos &&
+           s21_strchr(trim_chars, src[end_pos - 1]) != NULL) {
+      end_pos--;
+    }
+    size_t result_length = (end_pos > start_pos) ? (end_pos - start_pos) : 0;
+    result = (char *)malloc(result_length + 1);
+
+    if (result != NULL) {
+      s21_strncpy(result, src + start_pos, result_length);
+      result[result_length] = '\0';
+    }
+  }
+  return result;
+}
