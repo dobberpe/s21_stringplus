@@ -2,7 +2,6 @@
 #define S21_STRING_H
 
 #include <stdarg.h>
-#include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
@@ -12,6 +11,19 @@ typedef union {
 	double full;
 	unsigned long long bits;
 } f_representation;
+
+typedef struct {
+	bool left_alignment;
+	bool positive_sign;
+	bool space_instead_of_sign;
+	bool oct_hex_notation;
+	bool fill_with_nulls;
+	int width;
+	int precision;
+	bool h;
+	bool l;
+	bool ld;
+} modifiers;
 
 
 void *s21_memchr(const void *str, int c, size_t n);
@@ -35,16 +47,18 @@ void *s21_insert(const char *src, const char *str, size_t start_index);
 void *s21_trim(const char *src, const char *trim_chars);
 
 int s21_sprintf(char *str, const char *format, ...);
-void specifier(const char *format, int i, char *str, int *j, va_list *params);
+void init_str_n_mods(char *str, modifiers *format_modifiers);
+int process_format(const char *format, int i, char *str, const int j, va_list *params, modifiers *format_modifiers);
+char *process_specifier(char specifier, const int len, va_list *params, modifiers *format_modifiers);
 char *doxtoa(long long d, const int radix, const bool uppercase);
 int doxlen(long long d, const int radix);
-int etoa(char* f_str);
+char *etoa(char* f_str);
 char *ftoa(double f);
 int extract_exp(unsigned long long bits);
 char* add_rank(char *str, int num, char value);
 char *addnulles(char *str, int i, int j);
 char* stradd(char *l_str, char *r_str, bool fraction);
-void get_num_of_printed(int j, int *n);
+char *apply_format(char *str, modifiers *format_modifiers, char specifier);
 
 
 #endif
