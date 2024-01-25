@@ -26,5 +26,6 @@ Suite *s21_to_upper_suite();
 Suite *s21_to_lower_suite();
 Suite *s21_insert_suite();
 Suite *s21_trim_suite();
+Suite *s21_sprintf_suite();
 
 #endif

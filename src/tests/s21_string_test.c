@@ -14,7 +14,8 @@ int main() {
                          s21_strstr_suite(),   s21_strtok_suite(),
                          s21_strerror_suite(), s21_to_upper_suite(),
                          s21_to_lower_suite(), s21_insert_suite(),
-                         s21_trim_suite(),     NULL};
+                         s21_trim_suite(), s21_sprintf_suite(),
+                         NULL};
 
   for (Suite **current = suits_list; *current != NULL; current++)
     srunner_add_suite(runner, *current);

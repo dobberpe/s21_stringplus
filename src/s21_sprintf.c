@@ -1,15 +1,4 @@
 #include "s21_string.h"
-#include <stdio.h>
-
-int main() {
-	char str[100];
-	float a = 3.14;
-//    sprintf(str, "%f", a);
-	s21_sprintf(str, "%f", a);
-	printf("%s\n", str);
-	printf("%.22f", a);
-	return 0;
-}
 
 int s21_sprintf(char *str, const char *format, ...) {
 	va_list params;

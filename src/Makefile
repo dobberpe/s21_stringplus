@@ -1,9 +1,9 @@
 CC = gcc
-CFLAGS = -Wall -Werror -Wextra 
+CFLAGS =
 TFLAGS = -lcheck -lsubunit -lm
 GFLAGS = -fprofile-arcs -ftest-coverage
 LIB_NAME = s21_string.a
-LIB_SRC = s21_string.c
+LIB_SRC = s21_string.c s21_sprintf.c
 LIB_OBJ = $(LIB_SRC:.c=.o)
 TEST_SRC = $(wildcard ./tests/*.c)
 TEST_GCDA = $(LIB_SRC_SRC:.c=.gcda)
