@@ -257,6 +257,44 @@ char* stradd(char *l_str, char *r_str, bool fraction) {
 }
 
 char *apply_format(char *str, modifiers *format_modifiers, char specifier) {
-	// if (format_modifiers->width > s21_strlen(str));
+	size_t str_len = s21_strlen(str);
+	printf("len = %ld\n", str_len);
+
+
+	if (format_modifiers->positive_sign && s21_strchr("dieEfgG", specifier) && *str != '-') {
+		str = (char *)realloc(str, (str_len + 2) * sizeof(char));
+		for (int i = str_len; i >= 0; i--) str[i + 1] = str[i];
+		str[0] = '+';
+	}
+	if (format_modifiers->space_instead_of_sign && !format_modifiers->positive_sign && s21_strchr("dieEfgG", specifier) && *str != '-') {
+		str = (char *)realloc(str, (str_len + 2) * sizeof(char));
+		for (int i = str_len; i >= 0; i--) str[i + 1] = str[i];
+		str[0] = ' ';
+	}
+
+	str_len = s21_strlen(str);
+	printf("len = %ld\n", str_len);
 	return str;
+}
+
+int main() {
+	modifiers mod = {0};
+	mod.left_alignment = false;
+	mod.positive_sign = true;
+	mod.space_instead_of_sign = false;
+	mod.oct_hex_notation = false;
+	mod.fill_with_nulls = false;
+	mod.width = 0;
+	mod.precision = 6;
+	mod.length = 0;
+
+	char *src = "-124";
+	char *val = malloc(100);
+	s21_strncpy(val, src, 100);
+
+	printf("%+d\n", -124);
+	printf("%s\n", val = apply_format(val, &mod, 'd'));
+
+	free(val);
+	return 0;
 }
