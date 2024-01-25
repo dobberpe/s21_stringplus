@@ -1,9 +1,17 @@
-#ifndef STRING_H
-#define STRING_H
+#ifndef S21_STRING_H
+#define S21_STRING_H
 
-#include <stdbool.h>
-#include <stdio.h>
+#include <stdarg.h>
+#include <string.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <math.h>
+
+typedef union {
+	double full;
+	unsigned long long bits;
+} f_representation;
+
 
 void *s21_memchr(const void *str, int c, size_t n);
 int s21_memcmp(const void *str1, const void *str2, size_t n);
@@ -24,20 +32,6 @@ void *s21_to_upper(const char *str);
 void *s21_to_lower(const char *str);
 void *s21_insert(const char *src, const char *str, size_t start_index);
 void *s21_trim(const char *src, const char *trim_chars);
-
-#endif#ifndef S21_STRING_H
-#define S21_STRING_H
-
-#include <stdarg.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <math.h>
-
-typedef union {
-	double full;
-	unsigned long long bits;
-} f_representation;
 
 int s21_sprintf(char *str, const char *format, ...);
 void specifier(const char *format, int i, char *str, int *j, va_list *params);
