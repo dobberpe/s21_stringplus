@@ -20,8 +20,9 @@ START_TEST(test_s21_sprintf_f) {
     int src = 4;
     char res[100];
     char res2[100];
-    s21_sprintf(res, "%f", 3.14);
-    sprintf(res2, "%f", 3.14);
+    float a = 3.14;
+    s21_sprintf(res, "%f", a);
+    sprintf(res2, "%.22f", a);
     ck_assert_str_eq(res, res2);
 }
 END_TEST

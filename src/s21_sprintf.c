@@ -30,9 +30,7 @@ void init_str_n_mods(char *str, modifiers *format_modifiers) {
 	format_modifiers->fill_with_nulls = false;
 	format_modifiers->width = 0;
 	format_modifiers->precision = 6;
-	format_modifiers->h = false;
-	format_modifiers->l = false;
-	format_modifiers->ld = false;
+	format_modifiers->length = 0;
 }
 
 int process_format(const char *format, int i, char *str, const int j, va_list *params, modifiers *format_modifiers) {
@@ -53,10 +51,10 @@ int process_format(const char *format, int i, char *str, const int j, va_list *p
 		format_modifiers->precision = atoi(format + i + 1);
 		while (format[++i] && format[i] >= '0' && format[i] <= '9');
 	}
-	if (format[i] == 'h') format_modifiers->h = true;
-	else if (format[i] == 'l') format_modifiers->l = true;
-	else if (format[i] == 'L') format_modifiers->ld = true;
-	if (format[i] == 'h' || format[i] == 'l' || format[i] == 'L') ++i;
+	if (format[i] == 'h' || format[i] == 'l' || format[i] == 'L') {
+		format_modifiers->length = format[i];
+		++i;
+	}
 
 	char *res = process_specifier(format[i], s21_strlen(str), params, format_modifiers);
 	if (res) {
@@ -186,7 +184,7 @@ char *ftoa(double f) {
 			addendum = prevnulls ? add_width(addendum, prevnulls, '0', true) : addendum;
 			int addlen = s21_strlen(addendum);
 			int fraclen = s21_strlen(fraction);
-			fraction = fraclen < addlen ? addnulles(fraction, fraclen - 1, addlen) : fraction;
+			fraction = fraclen < addlen ? add_width(fraction, addlen - fraclen, '0', false) : fraction;
 			char *tmp = fraction;
 			fraction = stradd(fraction, addendum, true);
 			free(tmp);
@@ -240,15 +238,6 @@ char* add_width(char *str, int num, char value, bool right_alignment) {
 	return str;
 }
 
-char *addnulles(char *str, int i, int j) {
-	str = (char *)realloc(str, (j + 1) * sizeof(char));
-
-	while (++i < j) str[i] = '0';
-	str[j] = '\0';
-
-	return str;
-}
-
 char* stradd(char *l_str, char *r_str, bool fraction) {
 	int i = s21_strlen(l_str);
 	int j = s21_strlen(r_str);
@@ -268,6 +257,6 @@ char* stradd(char *l_str, char *r_str, bool fraction) {
 }
 
 char *apply_format(char *str, modifiers *format_modifiers, char specifier) {
-	// if (format_modifiers->width > s21_strlen(str))
+	// if (format_modifiers->width > s21_strlen(str));
 	return str;
 }
