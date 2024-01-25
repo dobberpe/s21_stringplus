@@ -55,7 +55,7 @@ int doxlen(long long d, const int radix);
 char *etoa(char* f_str);
 char *ftoa(double f);
 int extract_exp(unsigned long long bits);
-char* add_rank(char *str, int num, char value);
+char* add_width(char *str, int num, char value, bool right_alignment);
 char *addnulles(char *str, int i, int j);
 char* stradd(char *l_str, char *r_str, bool fraction);
 char *apply_format(char *str, modifiers *format_modifiers, char specifier);

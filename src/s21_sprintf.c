@@ -149,7 +149,7 @@ char *etoa(char* f_str) {
 
 	int flen = s21_strlen(f_str);
 	char *e_str = doxtoa(abs(exp), 10, false);
-	e_str = s21_strlen(e_str) > 1 ? e_str : add_rank(e_str, 1, '0');
+	e_str = s21_strlen(e_str) > 1 ? e_str : add_width(e_str, 1, '0', true);
 	int elen = s21_strlen(e_str);
 	f_str = (char *)realloc(f_str, (flen + elen + 3) * sizeof(char));
 	s21_strncat(f_str, "e", 1);
@@ -183,7 +183,7 @@ char *ftoa(double f) {
 		if (flt.bits & mask) {
 			char *addendum = doxtoa(pow(5, e), 10, true);
 			int prevnulls = (int)round(0.30103 * (float)e - 0.49732);
-			addendum = prevnulls ? add_rank(addendum, prevnulls, '0') : addendum;
+			addendum = prevnulls ? add_width(addendum, prevnulls, '0', true) : addendum;
 			int addlen = s21_strlen(addendum);
 			int fraclen = s21_strlen(fraction);
 			fraction = fraclen < addlen ? addnulles(fraction, fraclen - 1, addlen) : fraction;
@@ -222,14 +222,20 @@ int extract_exp(unsigned long long bits) {
 	return e;
 }
 
-char* add_rank(char *str, int num, char value) {
-	int i = s21_strlen(str) + num + 1;
+char* add_width(char *str, int num, char value, bool right_alignment) {
+    int j = strlen(str);
+	int i = j + num + 1;
 	str = (char *)realloc(str, i * sizeof(char));
 
 	str[--i] = '\0';
-	while(--i >= num) str[i] = str[i - num];
-	++i;
-	while (--i >= 0) str[i] = value;
+	if (right_alignment) {
+		while(--i >= num) str[i] = str[i - num];
+		++i;
+		while (--i >= 0) str[i] = value;
+	} else {
+	    --j;
+		while (++j < i) str[j] = value;
+	}
 
 	return str;
 }
@@ -256,11 +262,12 @@ char* stradd(char *l_str, char *r_str, bool fraction) {
 		overflow = res[k] > 57 ? true : false;
 		res[k] -= res[k] > 57 ? 10 : 0;
 	}
-	res = overflow ? add_rank(res, 1, '1') : res;
+	res = overflow ? add_width(res, 1, '1', true) : res;
 
 	return res;
 }
 
 char *apply_format(char *str, modifiers *format_modifiers, char specifier) {
+	// if (format_modifiers->width > s21_strlen(str))
 	return str;
 }
