@@ -6,6 +6,7 @@ LIB_NAME = s21_string.a
 LIB_SRC = s21_string.c
 LIB_OBJ = $(LIB_SRC:.c=.o)
 TEST_SRC = $(wildcard ./tests/*.c)
+TEST_GCDA = $(LIB_SRC_SRC:.c=.gcda)
 TEST_OBJ = $(TEST_SRC:.c=.o)
 
 all: $(LIB_NAME) test
@@ -17,16 +18,18 @@ test: $(TEST_OBJ) $(LIB_NAME)
 
 
 gcov_report: clean
+	@command -v lcov >/dev/null 2>&1 || { echo >&2 "Error: lcov not found. Please install lcov."; exit 1; }
 	gcc -o $(LIB_OBJ) -c $(GFLAGS) $(LIB_SRC)
 	ar rcs $(LIB_NAME) $(LIB_OBJ)
 	ranlib $(LIB_NAME)
 	rm -f $(LIB_OBJ)
 	$(CC) $(CFLAGS) -o gcov_r $(GFLAGS) $(TEST_SRC) -L. -l:$(LIB_NAME) $(TFLAGS)
 	./gcov_r
-	geninfo s21_string.gcda $(LIB_SRC) -o ./coverage.info
+	geninfo $(TEST_GCDA) $(LIB_SRC) -o ./coverage.info
 	genhtml coverage.info -o coverage_report
+	rm -rf gcov_r* coverage.info
 	open coverage_report/index.html
-
+	endif
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
