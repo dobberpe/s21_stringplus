@@ -75,14 +75,14 @@ char *process_specifier(char specifier, const int len, va_list *params, modifier
 		res[0] = (char)va_arg(*params, int);;
 		res[1] = '\0';
 	} else if (specifier == 'd' || specifier == 'i') {
-		res = doxtoa(va_arg(*params, int), 10, false);
+		res = doxtoa(format_modifiers->length == 'h' ? va_arg(*params, short) : format_modifiers->length == 'l' ? va_arg(*params, long) : va_arg(*params, int), 10, false);
 	} else if (specifier == 'e' || specifier == 'E') {
 		res = etoa(ftoa(va_arg(*params, double)));
 	} else if (specifier == 'f') {
 		res = ftoa(va_arg(*params, double));
 	} else if (specifier == 'g' || specifier == 'G') {
 	} else if (specifier == 'o' || specifier == 'u' || specifier == 'x' || specifier == 'X') {
-		res = doxtoa(va_arg(*params, unsigned), specifier == 'o' ? 8 : specifier == 'u' ? 10 : 16, specifier == 'X' ? true : false);
+		res = doxtoa(format_modifiers->length == 'h' ? va_arg(*params, unsigned short) : format_modifiers->length == 'l' ? va_arg(*params, unsigned long) : va_arg(*params, unsigned), specifier == 'o' ? 8 : specifier == 'u' ? 10 : 16, specifier == 'X' ? true : false);
 	} else if (specifier == 's') {
 		res = va_arg(*params, char *);
 	} else if (specifier == 'p') {
@@ -213,6 +213,7 @@ char *calculate_int_part(char *integer, const int e, const unsigned long long bi
 			power_of_2 = s21_strncpy(power_of_2, addendum, addlen);
 			power_of_2[addlen] = '\0';
 			prev_p = e;
+
 			integer = stradd(integer, addendum);
 			free(tmp);
 			if (p <= 63) free(addendum);
