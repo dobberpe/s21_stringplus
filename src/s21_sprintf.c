@@ -166,33 +166,10 @@ char *ftoa(double f) {
 	char *integer = doxtoa(e >= 0 ? pow(2, e) : 0, 10, true);
 	char *fraction = doxtoa(e < 0 ? pow(5, -e) : 0, 10, true);
 
-	while (--e >= 0) {
-		if (flt.bits & mask) {
-			char *tmp = integer;
-			char *addendum = doxtoa(pow(2, e), 10, true);
-			integer = stradd(integer, addendum, false);
-			free(tmp);
-			free(addendum);
-		}
-		mask >>= 1;
-	}
-	e = abs(e);
-	while (mask) {
-		if (flt.bits & mask) {
-			char *addendum = doxtoa(pow(5, e), 10, true);
-			int prevnulls = (int)round(0.30103 * (float)e - 0.49732);
-			addendum = prevnulls ? add_width(addendum, prevnulls, '0', true) : addendum;
-			int addlen = s21_strlen(addendum);
-			int fraclen = s21_strlen(fraction);
-			fraction = fraclen < addlen ? add_width(fraction, addlen - fraclen, '0', false) : fraction;
-			char *tmp = fraction;
-			fraction = stradd(fraction, addendum, true);
-			free(tmp);
-			free(addendum);
-		}
-		mask >>= 1;
-		++e;
-	}
+	integer = e > 0 ? calculate_int_part(integer, e, flt.bits, mask >> (e - 1)) : integer;
+	mask >>= e;
+	e = e >= 0 ? 1 : e;
+	fraction = mask ? calculate_frac_part(fraction, abs(e), flt.bits, mask) : fraction;
 
 	int i = s21_strlen(integer);
 	char* res_str = (char *)malloc((i + s21_strlen(fraction) + 2 + negative) * sizeof(char));
@@ -218,6 +195,43 @@ int extract_exp(unsigned long long bits) {
 	}
 
 	return e;
+}
+
+char *calculate_int_part(char *integer, const int e, const unsigned long long bits, unsigned long long mask) {
+	int p = -1;
+	while (++p < e) {
+		if (bits & mask) {
+			char *tmp = integer;
+			char *addendum = doxtoa(pow(2, p), 10, true);
+			integer = stradd(integer, addendum, false);
+			free(tmp);
+			free(addendum);
+		}
+		mask <<= 1;
+	}
+
+	return integer;
+}
+
+char *calculate_frac_part(char *fraction, int e, const unsigned long long bits, unsigned long long mask) {
+	while (mask) {
+		if (bits & mask) {
+			char *addendum = doxtoa(pow(5, e), 10, true);
+			int prevnulls = (int)round(0.30103 * (float)(e) - 0.49732);
+			addendum = prevnulls ? add_width(addendum, prevnulls, '0', true) : addendum;
+			int addlen = s21_strlen(addendum);
+			int fraclen = s21_strlen(fraction);
+			fraction = fraclen < addlen ? add_width(fraction, addlen - fraclen, '0', false) : fraction;
+			char *tmp = fraction;
+			fraction = stradd(fraction, addendum, true);
+			free(tmp);
+			free(addendum);
+		}
+		mask >>= 1;
+		++e;
+	}
+
+	return fraction;
 }
 
 char* add_width(char *str, int num, char value, bool right_alignment) {
