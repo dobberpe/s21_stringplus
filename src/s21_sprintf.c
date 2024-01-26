@@ -17,6 +17,9 @@ int s21_sprintf(char *str, const char *format, ...) {
 			str[++j] = format[i];
 		}
 	}
+	va_end(params);
+
+	return 0;
 }
 
 void init_str_n_mods(char *str, modifiers *format_modifiers) {
@@ -162,11 +165,11 @@ char *ftoa(double f) {
 	flt.full = f;
 	bool negative = flt.bits & 0x8000000000000000;
 	int e = extract_exp(flt.bits);
-	unsigned long long mask = (long long)1 << 51;
-	char *integer = doxtoa(e >= 0 ? pow(2, e) : 0, 10, true);
-	char *fraction = doxtoa(e < 0 ? pow(5, -e) : 0, 10, true);
+	unsigned long long mask = (unsigned long long)1 << 51;
+	char *integer = doxtoa(0, 10, false);
+	char *fraction = doxtoa(0, 10, false);
 
-	integer = e > 0 ? calculate_int_part(integer, e, flt.bits, mask >> (e - 1)) : integer;
+	integer = e > 0 ? calculate_int_part(integer, e, flt.bits, e > 52 ? 1 : mask >> (e - 1)) : integer;
 	mask >>= e;
 	e = e >= 0 ? 1 : e;
 	fraction = mask ? calculate_frac_part(fraction, abs(e), flt.bits, mask) : fraction;
@@ -198,40 +201,78 @@ int extract_exp(unsigned long long bits) {
 }
 
 char *calculate_int_part(char *integer, const int e, const unsigned long long bits, unsigned long long mask) {
-	int p = -1;
-	while (++p < e) {
-		if (bits & mask) {
+	int p = e > 52 ? e - 52 - 1 : -1;
+	char* power_of_2 = doxtoa(2, 10, false);
+	int prev_p = 1;
+	while (++p <= e) {
+		if (bits & mask || p == e) {
 			char *tmp = integer;
-			char *addendum = doxtoa(pow(2, p), 10, true);
-			integer = stradd(integer, addendum, false);
+			char *addendum = raise_power_of_2(power_of_2, p - prev_p + 1);
+			int addlen = s21_strlen(addendum);
+			power_of_2 = (char *)malloc((addlen + 1) * sizeof(char));
+			power_of_2 = s21_strncpy(power_of_2, addendum, addlen);
+			power_of_2[addlen] = '\0';
+			prev_p = e;
+			integer = stradd(integer, addendum);
 			free(tmp);
-			free(addendum);
+			if (p <= 63) free(addendum);
 		}
 		mask <<= 1;
 	}
+	free(power_of_2);
 
 	return integer;
 }
 
+char* raise_power_of_2(char *str, int n) {
+	while (--n) {
+		char *tmp = str;
+		str = stradd(str, str);
+		free(tmp);
+	}
+	return str;
+}
+
 char *calculate_frac_part(char *fraction, int e, const unsigned long long bits, unsigned long long mask) {
+	char* power_of_5 = doxtoa(5, 10, false);
+	int prev_p = 1;
 	while (mask) {
 		if (bits & mask) {
-			char *addendum = doxtoa(pow(5, e), 10, true);
-			int prevnulls = (int)round(0.30103 * (float)(e) - 0.49732);
-			addendum = prevnulls ? add_width(addendum, prevnulls, '0', true) : addendum;
+			char *addendum = raise_power_of_5(power_of_5, e - prev_p + 1);
 			int addlen = s21_strlen(addendum);
+			power_of_5 = (char *)malloc((addlen + 1) * sizeof(char));
+			power_of_5 = s21_strncpy(power_of_5, addendum, addlen);
+			power_of_5[addlen] = '\0';
+			prev_p = e;
+			// int prevnulls = (int)round(0.30103 * (float)(e) - 0.49732);
+			int prevnulls = e - addlen;
+			addendum = prevnulls ? add_width(addendum, prevnulls, '0', true) : addendum;
+			addlen = s21_strlen(addendum);
 			int fraclen = s21_strlen(fraction);
 			fraction = fraclen < addlen ? add_width(fraction, addlen - fraclen, '0', false) : fraction;
 			char *tmp = fraction;
-			fraction = stradd(fraction, addendum, true);
+			fraction = stradd(fraction, addendum);
 			free(tmp);
-			free(addendum);
 		}
 		mask >>= 1;
 		++e;
 	}
+	free(power_of_5);
 
 	return fraction;
+}
+
+char* raise_power_of_5(char *str, int n) {
+	while (--n) {
+		char *tmp = str;
+		char *tmp_times_2 = stradd(str, str);
+		char *tmp_times_4 = stradd(tmp_times_2, tmp_times_2);
+		free(tmp_times_2);
+		str = stradd(tmp_times_4, tmp);
+		free(tmp_times_4);
+		free(tmp);
+	}
+	return str;
 }
 
 char* add_width(char *str, int num, char value, bool right_alignment) {
@@ -252,7 +293,7 @@ char* add_width(char *str, int num, char value, bool right_alignment) {
 	return str;
 }
 
-char* stradd(char *l_str, char *r_str, bool fraction) {
+char* stradd(char *l_str, char *r_str) {
 	int i = s21_strlen(l_str);
 	int j = s21_strlen(r_str);
 	int k = (i > j ? i : j) + 1;

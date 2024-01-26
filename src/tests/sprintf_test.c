@@ -18,11 +18,11 @@ END_TEST
 
 START_TEST(test_s21_sprintf_f) {
     int src = 4;
-    char res[100];
-    char res2[100];
-    float a = 3.14;
+    char res[1000];
+    char res2[1000];
+    double a = pow(2, 1000);
     s21_sprintf(res, "%f", a);
-    sprintf(res2, "%.22f", a);
+    sprintf(res2, "%.1f", a);
     ck_assert_str_eq(res, res2);
 }
 END_TEST
