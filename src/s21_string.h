@@ -8,8 +8,8 @@
 #include <stdio.h>
 
 typedef union {
-	double full;
-	unsigned long long bits;
+	long double full;
+	short bits[5];
 } f_representation;
 
 typedef struct {
@@ -51,11 +51,11 @@ char *process_specifier(char specifier, const int len, va_list *params, modifier
 char *doxtoa(long long d, const int radix, const bool uppercase);
 int doxlen(long long d, const int radix);
 char *etoa(char* f_str);
-char *ftoa(double f);
-int extract_exp(unsigned long long bits);
-char *calculate_int_part(char *integer, const int e, const unsigned long long bits, unsigned long long mask);
+char *ftoa(long double f);
+int extract_exp(short bits);
+char *calculate_int_part(char *integer, const int e, const short *bits, unsigned long long mask);
 char* raise_power_of_2(char *str, int n);
-char *calculate_frac_part(char *fraction, int e, const unsigned long long bits, unsigned long long mask);
+char *calculate_frac_part(char *fraction, int e, const short *bits, unsigned long long mask);
 char* raise_power_of_5(char *str, int n);
 char* add_width(char *str, int num, char value, bool right_alignment);
 char* stradd(char *l_str, char *r_str);
