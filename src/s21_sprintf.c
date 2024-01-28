@@ -258,20 +258,24 @@ char* stradd(char *l_str, char *r_str, bool fraction) {
 
 char *apply_format(char *str, modifiers *format_modifiers, char specifier) {
 
-	// точность
-
+	// убираем минус
 	size_t str_len = s21_strlen(str);
-	// printf("len = %ld\n", str_len);
+	bool negative = *str == '-' ? true : false;
+	if (negative) {
+		memmove(str, str + 1, str_len);
+		str = (char *)realloc(str, str_len);
+	}
+
+
+	// точность
+	str_len = s21_strlen(str);
 	if (specifier == 's' && str_len > format_modifiers->precision) {
 		str[format_modifiers->precision] = '\0';
-	}
-	if (s21_strchr("diouxX", specifier) && str_len < format_modifiers->precision) {
+	} else if (s21_strchr("diouxX", specifier) && str_len < format_modifiers->precision) {
 		str = add_width(str, format_modifiers->precision - str_len, '0', true);
-	}
-	if (s21_strchr("diouxX", specifier) && *str == '0' && format_modifiers->precision == 0) {
+	} else if (s21_strchr("diouxX", specifier) && *str == '0' && format_modifiers->precision == 0) {
 		*str = '\0';
-	}
-	if (s21_strchr("eEfgG", specifier)) {
+	} else if (s21_strchr("eEfgG", specifier)) {
 		char *tmp = s21_strchr(str, '.') + 1;
 		if (s21_strchr("gG", specifier)) format_modifiers->precision -= tmp - 1 - str;
 		int i = 0;
@@ -312,7 +316,7 @@ char *apply_format(char *str, modifiers *format_modifiers, char specifier) {
 				str = tmp;
 			}
 		}
-	}
+	} 
 	if (s21_strchr("gG", specifier)) {
 		char *tail = NULL;
 		char *tmp = s21_strchr(str, 'e');
@@ -329,19 +333,8 @@ char *apply_format(char *str, modifiers *format_modifiers, char specifier) {
 	}
 	
 
-	// знак
-
-	if (format_modifiers->positive_sign && s21_strchr("dieEfgG", specifier) && *str != '-') {
-		str = add_width(str, 1, '+', true);
-	}
-
-	if (format_modifiers->space_instead_of_sign && !format_modifiers->positive_sign && s21_strchr("dieEfgG", specifier) && *str != '-') {
-		str = add_width(str, 1, ' ', true);
-	}
-
 
 	// префикс и точка
-
 	str_len = s21_strlen(str);
 	if (format_modifiers->oct_hex_notation && s21_strchr("oxXeEfgG", specifier)) {
 		if (specifier == 'o' && *str != 0 && *str != '0') {
@@ -367,8 +360,20 @@ char *apply_format(char *str, modifiers *format_modifiers, char specifier) {
 		}
 	}
 
+	// знак
+	str_len = s21_strlen(str);
+	if (negative) {
+		str = add_width(str, 1, '-', true);
+	} else if (format_modifiers->positive_sign && s21_strchr("dieEfgG", specifier)) {
+		str = add_width(str, 1, '+', true);
+	} else if (format_modifiers->space_instead_of_sign && !format_modifiers->positive_sign && s21_strchr("dieEfgG", specifier)) {
+		str = add_width(str, 1, ' ', true);
+	}
 
 	// ширина
+	// if (format_modifiers->width && (negative || format_modifiers->positive_sign || format_modifiers->space_instead_of_sign) && format_modifiers->fill_with_nulls)
+	// 	format_modifiers->width--;
+
 	str_len = s21_strlen(str);
 	if (format_modifiers->width > str_len && !format_modifiers->fill_with_nulls) {
 		str = add_width(str, format_modifiers->width - str_len, ' ', !format_modifiers->left_alignment);
@@ -387,31 +392,38 @@ char *apply_format(char *str, modifiers *format_modifiers, char specifier) {
 		}
 	}
 
+
+
 	// str_len = s21_strlen(str);
 	// printf("len = %ld\n", str_len);
 	return str;
 }
 
 
-int main() {
-	modifiers mod = {0};
-	mod.left_alignment = false;
-	mod.positive_sign = false;
-	mod.space_instead_of_sign = false;
-	mod.oct_hex_notation = true;
-	mod.fill_with_nulls = true;
-	mod.width = 5;
-	mod.precision = 1;
-	mod.length = 0;
 
-	char *src = "1d";
-	char *val = malloc(100);
-	s21_strncpy(val, src, 100);
+// int main() {
+// 	modifiers mod = {0};
+// 	mod.left_alignment = false;
+// 	mod.positive_sign = true;
+// 	mod.space_instead_of_sign = false;
+// 	mod.oct_hex_notation = true;
+// 	mod.fill_with_nulls = true;
+// 	mod.width = 0;
+// 	mod.precision = 5;
+// 	mod.length = 0;
 
-	printf("%#05x\n", 29);
-	// printf("%.17f\n", 412.2127);
-	printf("%s\n", val = apply_format(val, &mod, 'x'));
+// 	printf("%s\n", format_maker(mod, 'd'));
 
-	free(val);
-	return 0;
-}
+	// char *src = "-14";
+	// char *val = malloc(100);
+	// s21_strncpy(val, src, 100);
+
+	// printf("%#05x\n", 29);
+	// // printf("%.17f\n", 412.2127);
+	// printf("%s\n", val = apply_format(val, &mod, 'd'));
+
+	// // printf("%s\n", stradd("5.99", "0.01", false));
+
+	// free(val);
+// 	return 0;
+// }

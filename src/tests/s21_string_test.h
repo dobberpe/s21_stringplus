@@ -7,6 +7,9 @@
 
 #include "../s21_string.h"
 
+char *format_maker(modifiers *mod, char ch);
+void test_all_falgs_d(modifiers mod, char *src, int src2, char spec);
+
 Suite *s21_strlen_suite();
 Suite *s21_memchr_suite();
 Suite *s21_memcmp_suite();
@@ -27,5 +30,6 @@ Suite *s21_to_lower_suite();
 Suite *s21_insert_suite();
 Suite *s21_trim_suite();
 Suite *s21_sprintf_suite();
+Suite *s21_apply_format_suite();
 
 #endif
