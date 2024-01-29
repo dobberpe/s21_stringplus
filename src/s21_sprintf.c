@@ -303,21 +303,42 @@ char* add_width(char *str, int num, char value, bool right_alignment) {
 }
 
 char* stradd(char *l_str, char *r_str) {
-	int i = s21_strlen(l_str);
-	int j = s21_strlen(r_str);
-	int k = (i > j ? i : j) + 1;
+    int l_len = strlen(l_str);
+    int r_len = strlen(r_str);
+	int i = l_len - 1;
+	int j = r_len - 1;
+	int k = max(l_len, r_len) + 1;
+	if (point_position(l_str)) {
+	    int l_frac = l_len - point_position(l_str);
+	    int r_frac = r_len - point_position(r_str);
+	    i = l_frac < r_frac ? i + r_frac - l_frac: i;
+	    j = r_frac < l_frac ? j + l_frac - r_frac : j;
+	}
 	char *res = (char *)malloc(k * sizeof(char));
 	bool overflow = false;
 
 	res[--k] = '\0';
 	while (--k >= 0) {
-		res[k] = (i && j ? -48 : 0) + (i ? l_str[--i] : 0) + (j ? r_str[--j] : 0) + overflow;
-		overflow = res[k] > 57 ? true : false;
-		res[k] -= res[k] > 57 ? 10 : 0;
+	    if (i >= 0 && i < l_len && l_str[i] == '.') {
+		    res[k] = '.';
+	    } else {
+	        res[k] = (i >= 0 && i < l_len && j >= 0 && j < r_len ? -48 : 0) + (i >= 0 && i < l_len ? l_str[i] : 0) + (j >= 0 && j < r_len ? r_str[j] : 0) + overflow;
+		    overflow = res[k] > 57 ? true : false;
+		    res[k] -= res[k] > 57 ? 10 : 0;
+	    }
+	    --i;
+	    --j;
 	}
 	res = overflow ? add_width(res, 1, '1', true) : res;
 
 	return res;
+}
+
+int point_position(char *str) {
+    int i = -1;
+    while (str[++i] && str[i] != '.');
+    
+    return str[i] ? i : 0;
 }
 
 char *apply_format(char *str, modifiers *format_modifiers, char specifier) {

@@ -7,6 +7,9 @@
 #include <math.h>
 #include <stdio.h>
 
+#define min(X,Y) ((X) < (Y) ? (X) : (Y))
+#define max(X,Y) ((X) > (Y) ? (X) : (Y))
+
 typedef union {
 	long double full;
 	unsigned short bits[5];
@@ -59,6 +62,7 @@ char *calculate_frac_part(char *fraction, int e, const unsigned short *bits, uns
 char* raise_power_of_5(char *str, int n);
 char* add_width(char *str, int num, char value, bool right_alignment);
 char* stradd(char *l_str, char *r_str);
+int point_position(char *str);
 char *apply_format(char *str, modifiers *format_modifiers, char specifier);
 
 
