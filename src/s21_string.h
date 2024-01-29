@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include <wchar.h>
 #include <stdio.h>
 
 #define min(X,Y) ((X) < (Y) ? (X) : (Y))

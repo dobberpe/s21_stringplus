@@ -71,9 +71,15 @@ int process_format(const char *format, int i, char *str, const int j, va_list *p
 char *process_specifier(char specifier, const int len, va_list *params, modifiers *format_modifiers) {
 	char *res = NULL;
 	if (specifier == 'c') {
-		res = (char *)malloc(2 * sizeof(char));
-		res[0] = (char)va_arg(*params, int);;
-		res[1] = '\0';
+		if (format_modifiers->length == 'l') {
+			wchar_t c = va_arg(*params, wchar_t);
+			res = (char*)malloc(sizeof(wchar_t) + sizeof(char));
+			wcstombs(res, &c, sizeof(wchar_t));
+		} else {
+			res = (char *)malloc(2 * sizeof(char));
+			res[0] = (char)va_arg(*params, int);;
+			res[1] = '\0';
+		}
 	} else if (specifier == 'd' || specifier == 'i') {
 		res = doxtoa(format_modifiers->length == 'h' ? va_arg(*params, short) : format_modifiers->length == 'l' ? va_arg(*params, long) : va_arg(*params, int), 10, false);
 	} else if (specifier == 'e' || specifier == 'E') {
@@ -93,7 +99,15 @@ char *process_specifier(char specifier, const int len, va_list *params, modifier
 	} else if (specifier == 'o' || specifier == 'u' || specifier == 'x' || specifier == 'X') {
 		res = doxtoa(format_modifiers->length == 'h' ? va_arg(*params, unsigned short) : format_modifiers->length == 'l' ? va_arg(*params, unsigned long) : va_arg(*params, unsigned), specifier == 'o' ? 8 : specifier == 'u' ? 10 : 16, specifier == 'X' ? true : false);
 	} else if (specifier == 's') {
-		res = va_arg(*params, char *);
+		if (format_modifiers->length == 'l') {
+			wchar_t* s = va_arg(*params, wchar_t*);
+			res = (char*)malloc((wcslen(s) * sizeof(wchar_t) + 1) * sizeof(char));
+			wcstombs(res, s, wcslen(s) * sizeof(wchar_t));
+		} else {
+			char* s = va_arg(*params, char*);
+			res = (char*)malloc((s21_strlen(s) + 1) * sizeof(char));
+			res = s21_strncpy(res, s, s21_strlen(s));
+		}
 	} else if (specifier == 'p') {
 		res = doxtoa(va_arg(*params, unsigned long), 16, false);
 	} else if (specifier == 'n') {
