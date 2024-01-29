@@ -55,8 +55,9 @@ char *etoa(char* f_str);
 char *ftoa(double f);
 int extract_exp(unsigned long long bits);
 char* add_width(char *str, int num, char value, bool right_alignment);
-char* stradd(char *l_str, char *r_str, bool fraction);
+char* stradd(char *l_str, char *r_str);
 char *apply_format(char *str, modifiers *format_modifiers, char specifier);
+int point_position(char *str);
 
 
 #endif

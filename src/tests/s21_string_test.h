@@ -9,6 +9,7 @@
 
 char *format_maker(modifiers *mod, char ch);
 void test_all_falgs_d(modifiers mod, char *src, int src2, char spec);
+void test_all_falgs_double(modifiers mod, char *src, double src2, char spec);
 
 Suite *s21_strlen_suite();
 Suite *s21_memchr_suite();

@@ -170,7 +170,7 @@ char *ftoa(double f) {
 		if (flt.bits & mask) {
 			char *tmp = integer;
 			char *addendum = doxtoa(pow(2, e), 10, true);
-			integer = stradd(integer, addendum, false);
+			integer = stradd(integer, addendum);
 			free(tmp);
 			free(addendum);
 		}
@@ -186,7 +186,7 @@ char *ftoa(double f) {
 			int fraclen = s21_strlen(fraction);
 			fraction = fraclen < addlen ? add_width(fraction, addlen - fraclen, '0', false) : fraction;
 			char *tmp = fraction;
-			fraction = stradd(fraction, addendum, true);
+			fraction = stradd(fraction, addendum);
 			free(tmp);
 			free(addendum);
 		}
@@ -238,25 +238,50 @@ char* add_width(char *str, int num, char value, bool right_alignment) {
 	return str;
 }
 
-char* stradd(char *l_str, char *r_str, bool fraction) {
-	int i = s21_strlen(l_str);
-	int j = s21_strlen(r_str);
-	int k = (i > j ? i : j) + 1;
+int point_position(char *str) {
+    int i = -1;
+    while (str[++i] && str[i] != '.');
+    
+    return str[i] ? i : 0;
+}
+
+
+char* stradd(char *l_str, char *r_str) {
+    int l_len = strlen(l_str);
+    int r_len = strlen(r_str);
+	int i = l_len - 1;
+	int j = r_len - 1;
+	int k = (l_len > r_len ? l_len : r_len) + 1;
+	if (point_position(l_str)) {
+	    int l_frac = l_len - point_position(l_str);
+	    int r_frac = r_len - point_position(r_str);
+	    i = l_frac < r_frac ? i + r_frac - l_frac: i;
+	    j = r_frac < l_frac ? j + l_frac - r_frac : j;
+	}
 	char *res = (char *)malloc(k * sizeof(char));
 	bool overflow = false;
 
 	res[--k] = '\0';
 	while (--k >= 0) {
-		res[k] = (i && j ? -48 : 0) + (i ? l_str[--i] : 0) + (j ? r_str[--j] : 0) + overflow;
-		overflow = res[k] > 57 ? true : false;
-		res[k] -= res[k] > 57 ? 10 : 0;
+	    if (i >= 0 && i < l_len && l_str[i] == '.') {
+		    res[k] = '.';
+	    } else {
+	        res[k] = (i >= 0 && i < l_len && j >= 0 && j < r_len ? -48 : 0) + (i >= 0 && i < l_len ? l_str[i] : 0) + (j >= 0 && j < r_len ? r_str[j] : 0) + overflow;
+		    overflow = res[k] > 57 ? true : false;
+		    res[k] -= res[k] > 57 ? 10 : 0;
+	    }
+	    --i;
+	    --j;
 	}
 	res = overflow ? add_width(res, 1, '1', true) : res;
 
 	return res;
 }
 
+
 char *apply_format(char *str, modifiers *format_modifiers, char specifier) {
+
+	char is_zero = *str;
 
 	// убираем минус
 	size_t str_len = s21_strlen(str);
@@ -276,7 +301,7 @@ char *apply_format(char *str, modifiers *format_modifiers, char specifier) {
 	} else if (s21_strchr("diouxX", specifier) && *str == '0' && format_modifiers->precision == 0) {
 		*str = '\0';
 	} else if (s21_strchr("eEfgG", specifier)) {
-		char *tmp = s21_strchr(str, '.') + 1;
+		char *tmp = (char *)s21_strchr(str, '.') + 1;
 		if (s21_strchr("gG", specifier)) format_modifiers->precision -= tmp - 1 - str;
 		int i = 0;
 		while (*tmp >= '0' && *tmp <= '9') {
@@ -289,8 +314,7 @@ char *apply_format(char *str, modifiers *format_modifiers, char specifier) {
 				str = add_width(str, offset, '0', false);
 			} else {
 				str = (char *)realloc(str, (str_len + 1 + offset) * sizeof(char));
-				tmp = s21_strchr(str, 'e');
-				if (tmp == NULL) tmp = s21_strchr(str, 'E');
+				tmp = s21_strpbrk(str, "eE");
 				for (int j = str_len; j >= tmp - str; j--) str[j + offset] = str[j];
 				for (int j = 0; j < offset; j++) str[(tmp - str) + j] = '0';
 			}
@@ -298,23 +322,31 @@ char *apply_format(char *str, modifiers *format_modifiers, char specifier) {
 			tmp = s21_strchr(str, '.') + 1 + format_modifiers->precision;
 			char val = *tmp;
 			*tmp = '\0';
-			if (val > '4') {
-				char *tail = s21_strchr(tmp + 1, 'e');
-				if (tail == NULL) tail = s21_strchr(tmp + 1, 'E');
+			char *tail = !s21_strpbrk(tmp + 1, "eE") ? "" : s21_strpbrk(tmp + 1, "eE");
+			size_t tail_len = s21_strlen(tail);
+			char *tail2 = (char *)malloc(tail_len + 1);
+			s21_strncpy(tail2, tail, tail_len + 1);
+
+			if (val > '4' && val <= '9') {
 				char *str2 = malloc((3 + format_modifiers->precision) * sizeof(char));
 				s21_memset(str2, '0', format_modifiers->precision + 1);
 				str2[1] = '.';
 				str2[format_modifiers->precision + 1] = '1';
 				str2[format_modifiers->precision + 2] = '\0';
-				tmp = stradd(str, str2, true);
-				if (s21_strchr(tail, 'e') || s21_strchr(tail, 'E')) {
-					tmp = (char *)realloc(tmp, (s21_strlen(tmp) + s21_strlen(tail) + 1) * sizeof(char));
-					s21_strncat(tmp, tail, s21_strlen(tail) + 1);
-				}
+				tmp = stradd(str, str2);
+
 				free(str);
 				free(str2);
 				str = tmp;
 			}
+			
+
+			str_len = s21_strlen(str);
+			if (tail_len != 0) {
+				str = (char *)realloc(str, (str_len + tail_len + 1) * sizeof(char));
+				s21_strncat(str, tail2, tail_len + 1);
+			}
+			free(tail2);
 		}
 	} 
 	if (s21_strchr("gG", specifier)) {
@@ -334,24 +366,25 @@ char *apply_format(char *str, modifiers *format_modifiers, char specifier) {
 	
 
 
+
 	// префикс и точка
 	str_len = s21_strlen(str);
 	if (format_modifiers->oct_hex_notation && s21_strchr("oxXeEfgG", specifier)) {
 		if (specifier == 'o' && *str != 0 && *str != '0') {
 			str = add_width(str, 1, '0', true);
 		}
-		if (specifier == 'x' && *str != 0 && *str != '0') {
+		if (specifier == 'x' && *str != 0 && is_zero != '0') {
 			str = add_width(str, 1, 'x', true);
 			str = add_width(str, 1, '0', true);
 		}
-		if (specifier == 'X' && *str != 0 && *str != '0') {
+		if (specifier == 'X' && *str != 0 && is_zero != '0') {
 			str = add_width(str, 1, 'X', true);
 			str = add_width(str, 1, '0', true);
 		}
-		if (specifier == 'f' && !s21_strchr(str, '.')) {
+		if (specifier == 'f' && !s21_strpbrk(str, ",.")) {
 			str = add_width(str, 1, '.', false);
 		}
-		if (s21_strchr("eEgG", specifier) && !s21_strchr(str, '.')) {
+		if (s21_strchr("eEgG", specifier) && !s21_strpbrk(str, ",.")) {
 			str = (char *)realloc(str, (str_len + 2) * sizeof(char));
 			char *tmp = s21_strchr(str, 'e');
 			if (tmp == NULL) tmp = s21_strchr(str, 'E');
@@ -375,27 +408,37 @@ char *apply_format(char *str, modifiers *format_modifiers, char specifier) {
 	// 	format_modifiers->width--;
 
 	str_len = s21_strlen(str);
+	if (*str == '\0' && format_modifiers->width) format_modifiers->width--; 
 	if (format_modifiers->width > str_len && !format_modifiers->fill_with_nulls) {
 		str = add_width(str, format_modifiers->width - str_len, ' ', !format_modifiers->left_alignment);
 	}
 	else if (format_modifiers->width > str_len && format_modifiers->fill_with_nulls) {
-		if (*str >= '0' && *str <= '9') {
+		if (s21_strchr("0123456789abcdefABCDEF", *str) && !s21_strpbrk(str, "xX")) {
 			str = add_width(str, format_modifiers->width - str_len, '0', true);
 		} else {
 			char *tmp = str;
-			while (*tmp < '0' || *tmp > '9') tmp++;
+			if (!(s21_strpbrk(str, "xX"))) {
+				while (*tmp < '0' || *tmp > '9') tmp++;
+			} else {
+				tmp = s21_strpbrk(str, "xX") + 1;
+			}
+			size_t diff = tmp - str;
 			size_t offset = format_modifiers->width - str_len;
 			str = (char *)realloc(str, (str_len + 1 + offset) * sizeof(char));
-			for (int j = str_len; j >= tmp - str; j--) str[j + offset] = str[j];
-			for (int j = 0; j < offset; j++) str[(tmp - str) + j] = '0';
-
+			for (int j = str_len; j >= diff; j--) str[j + offset] = str[j];
+			for (int j = 0; j < offset; j++) str[(diff) + j] = '0';
 		}
 	}
 
-
+	
 
 	// str_len = s21_strlen(str);
 	// printf("len = %ld\n", str_len);
+
+
+	// if (s21_strchr(str, ',')) {
+	// 	*s21_strchr(str, ',') = '.';
+	// }
 	return str;
 }
 
@@ -404,26 +447,22 @@ char *apply_format(char *str, modifiers *format_modifiers, char specifier) {
 // int main() {
 // 	modifiers mod = {0};
 // 	mod.left_alignment = false;
-// 	mod.positive_sign = true;
+// 	mod.positive_sign = false;
 // 	mod.space_instead_of_sign = false;
-// 	mod.oct_hex_notation = true;
-// 	mod.fill_with_nulls = true;
+// 	mod.oct_hex_notation = false;
+// 	mod.fill_with_nulls = false;
 // 	mod.width = 0;
-// 	mod.precision = 5;
+// 	mod.precision = 6;
 // 	mod.length = 0;
 
-// 	printf("%s\n", format_maker(mod, 'd'));
 
-	// char *src = "-14";
-	// char *val = malloc(100);
-	// s21_strncpy(val, src, 100);
+// 	char *src = "1.3121257e+02";
+// 	char *val = malloc(100);
+// 	s21_strncpy(val, src, 100);
 
-	// printf("%#05x\n", 29);
-	// // printf("%.17f\n", 412.2127);
-	// printf("%s\n", val = apply_format(val, &mod, 'd'));
+// 	printf("%s\n", val = apply_format(val, &mod, 'e'));
 
-	// // printf("%s\n", stradd("5.99", "0.01", false));
 
-	// free(val);
+// 	free(val);
 // 	return 0;
 // }
