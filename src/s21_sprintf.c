@@ -77,10 +77,19 @@ char *process_specifier(char specifier, const int len, va_list *params, modifier
 	} else if (specifier == 'd' || specifier == 'i') {
 		res = doxtoa(format_modifiers->length == 'h' ? va_arg(*params, short) : format_modifiers->length == 'l' ? va_arg(*params, long) : va_arg(*params, int), 10, false);
 	} else if (specifier == 'e' || specifier == 'E') {
-		res = etoa(ftoa(va_arg(*params, double)));
+		res = etoa(ftoa(format_modifiers->length == 'L' ? va_arg(*params, long double) : va_arg(*params, double)));
 	} else if (specifier == 'f') {
-		res = ftoa(va_arg(*params, double));
+		res = ftoa(format_modifiers->length == 'L' ? va_arg(*params, long double) : va_arg(*params, double));
 	} else if (specifier == 'g' || specifier == 'G') {
+		if (format_modifiers->length == 'L') {
+			long double g = va_arg(*params, long double);
+			res = ftoa(g);
+			res = doxlen(round(g), 10) > format_modifiers->precision ? etoa(res) : res;
+		} else {
+			double g = va_arg(*params, double);
+			res = ftoa(g);
+			res = doxlen(round(g), 10) > format_modifiers->precision ? etoa(res) : res;
+		}
 	} else if (specifier == 'o' || specifier == 'u' || specifier == 'x' || specifier == 'X') {
 		res = doxtoa(format_modifiers->length == 'h' ? va_arg(*params, unsigned short) : format_modifiers->length == 'l' ? va_arg(*params, unsigned long) : va_arg(*params, unsigned), specifier == 'o' ? 8 : specifier == 'u' ? 10 : 16, specifier == 'X' ? true : false);
 	} else if (specifier == 's') {
