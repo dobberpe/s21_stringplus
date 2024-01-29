@@ -20,9 +20,34 @@ START_TEST(test_s21_sprintf_f) {
     int src = 4;
     char res[1000];
     char res2[1000];
+    // double a = pow(2, 1000);
+    double a = 3.14;
+    s21_sprintf(res, "%f", a);
+    sprintf(res2, "%.51f", a);
+    ck_assert_str_eq(res, res2);
+}
+END_TEST
+
+START_TEST(test_s21_sprintf_f2) {
+    int src = 4;
+    char res[1000];
+    char res2[1000];
     double a = pow(2, 1000);
+    // double a = 3.14;
     s21_sprintf(res, "%f", a);
     sprintf(res2, "%.1f", a);
+    ck_assert_str_eq(res, res2);
+}
+END_TEST
+
+START_TEST(test_s21_sprintf_f3) {
+    int src = 4;
+    char res[1010];
+    char res2[1010];
+    double a = pow(2, -1000);
+    // double a = 3.14;
+    s21_sprintf(res, "%f", a);
+    sprintf(res2, "%.1000f", a);
     ck_assert_str_eq(res, res2);
 }
 END_TEST
@@ -35,6 +60,8 @@ Suite *s21_sprintf_suite() {
   tcase_add_test(tc_core, test_s21_sprintf_d);
   tcase_add_test(tc_core, test_s21_sprintf_d2);
   tcase_add_test(tc_core, test_s21_sprintf_f);
+  tcase_add_test(tc_core, test_s21_sprintf_f2);
+  tcase_add_test(tc_core, test_s21_sprintf_f3);
   suite_add_tcase(suite, tc_core);
   return suite;
 }
