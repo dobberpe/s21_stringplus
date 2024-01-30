@@ -5,12 +5,16 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include <wchar.h>
 #include <stdio.h>
 #include <string.h>
 
+#define min(X,Y) ((X) < (Y) ? (X) : (Y))
+#define max(X,Y) ((X) > (Y) ? (X) : (Y))
+
 typedef union {
-	double full;
-	unsigned long long bits;
+	long double full;
+	unsigned short bits[5];
 } f_representation;
 
 typedef struct {
@@ -46,18 +50,23 @@ void *s21_insert(const char *src, const char *str, size_t start_index);
 void *s21_trim(const char *src, const char *trim_chars);
 
 int s21_sprintf(char *str, const char *format, ...);
-void init_str_n_mods(char *str, modifiers *format_modifiers);
+void init_str(char* str);
+void reset_mods(modifiers *format_modifiers);
 int process_format(const char *format, int i, char *str, const int j, va_list *params, modifiers *format_modifiers);
 char *process_specifier(char specifier, const int len, va_list *params, modifiers *format_modifiers);
 char *doxtoa(long long d, const int radix, const bool uppercase);
 int doxlen(long long d, const int radix);
 char *etoa(char* f_str);
-char *ftoa(double f);
-int extract_exp(unsigned long long bits);
+char *ftoa(long double f);
+int extract_exp(const unsigned short bits);
+char *calculate_int_part(char *integer, const int e, const unsigned short *bits, unsigned short mask);
+char* raise_power_of_2(char *str, int n);
+char *calculate_frac_part(char *fraction, int e, const unsigned short *bits, unsigned short mask);
+char* raise_power_of_5(char *str, int n);
 char* add_width(char *str, int num, char value, bool right_alignment);
 char* stradd(char *l_str, char *r_str);
-char *apply_format(char *str, modifiers *format_modifiers, char specifier);
 int point_position(char *str);
+char *apply_format(char *str, modifiers *format_modifiers, char specifier);
 
 
 #endif
