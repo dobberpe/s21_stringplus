@@ -183,9 +183,9 @@ char *ftoa(long double f) {
 	flt.full = f;
 	bool negative = flt.bits[4] & 0x8000;
 	int e = extract_exp(flt.bits[4]);
-	char* res_str;
+	char* res;
 	if (e == 16384) {
-		res_str = edge_case(flt.bits, negative);
+		res = edge_case(flt.bits, negative);
 	} else {
 		char *integer = doxtoa(0, 10, false);
 		char *fraction = doxtoa(0, 10, false);
@@ -195,17 +195,14 @@ char *ftoa(long double f) {
 		fraction = e < 63 ? calculate_frac_part(fraction, e, flt.bits, mask ? mask : 0x8000) : fraction;
 
 		int i = s21_strlen(integer);
-		res_str = (char *)malloc((i + s21_strlen(fraction) + 2 + negative) * sizeof(char));
-		res_str[0] = negative ? '-' : res_str[0];
-		strcpy(res_str + negative, integer);
-		res_str[i + negative] = '.';
-		strcpy(res_str + negative + i + 1, fraction);
-		res_str[i + negative + 1 + s21_strlen(fraction)] = '\0';
-		free(integer);
+		res = negative ? add_width(integer, 1, '-', true) : integer;
+		res = add_width(res, 1, '.', false);
+		res = (char*)realloc(res, (s21_strlen(res) + s21_strlen(fraction) + 1) * sizeof(char));
+		s21_strncat(res, fraction, s21_strlen(fraction));
 		free(fraction);
 	}
 
-	return res_str;
+	return res;
 }
 
 int extract_exp(const unsigned short bits) {
