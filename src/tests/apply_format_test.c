@@ -458,8 +458,12 @@ char *format_maker(modifiers *mod, char ch) {
         if (mod->oct_hex_notation) res[i++] = '#';
     }
     if (mod->left_alignment) {
-        res[i++] = '-';
-        mod->fill_with_nulls = false;
+        if (mod->width != 0) {
+            res[i++] = '-';
+            mod->fill_with_nulls = false;
+        } else {
+            mod->left_alignment = false;
+        }
     } else if (mod->fill_with_nulls && s21_strchr("dieEfgGouxX", ch) && !(s21_strchr("idouxX", ch) && mod->precision != 1)) {
         res[i++] = '0';
     } else {
