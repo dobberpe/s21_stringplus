@@ -88,25 +88,9 @@ char *process_specifier(char specifier, const int len, va_list *params, modifier
 	} else if (specifier == 'd' || specifier == 'i') {
 		format_modifiers->precision = format_modifiers->precision == -1 ? 1 : format_modifiers->precision;
 		res = doxtoa(format_modifiers->length == 'h' ? va_arg(*params, short) : format_modifiers->length == 'l' ? va_arg(*params, long) : va_arg(*params, int), 10, false);
-	} else if (specifier == 'e' || specifier == 'E') {
-		format_modifiers->precision = format_modifiers->precision == -1 ? 6 : format_modifiers->precision;
-		res = etoa(ftoa(format_modifiers->length == 'L' ? va_arg(*params, long double) : va_arg(*params, double)));
-		res = specifier == 'E' ? s21_to_upper(res) : res;
-	} else if (specifier == 'f') {
+	} else if (specifier == 'e' || specifier == 'E' || specifier == 'f' || specifier == 'g' || specifier == 'G') {
 		format_modifiers->precision = format_modifiers->precision == -1 ? 6 : format_modifiers->precision;
 		res = ftoa(format_modifiers->length == 'L' ? va_arg(*params, long double) : va_arg(*params, double));
-	} else if (specifier == 'g' || specifier == 'G') {
-		format_modifiers->precision = format_modifiers->precision == -1 ? 6 : format_modifiers->precision;
-		if (format_modifiers->length == 'L') {
-			long double g = va_arg(*params, long double);
-			res = ftoa(g);
-			res = doxlen(round(g), 10) > format_modifiers->precision ? etoa(res) : res;
-			res = specifier == 'G' ? s21_to_upper(res) : res;
-		} else {
-			double g = va_arg(*params, double);
-			res = ftoa(g);
-			res = doxlen(round(g), 10) > format_modifiers->precision ? etoa(res) : res;
-		}
 	} else if (specifier == 'o' || specifier == 'u' || specifier == 'x' || specifier == 'X') {
 		format_modifiers->precision = format_modifiers->precision == -1 ? 1 : format_modifiers->precision;
 		res = doxtoa(format_modifiers->length == 'h' ? va_arg(*params, unsigned short) : format_modifiers->length == 'l' ? va_arg(*params, unsigned long) : va_arg(*params, unsigned), specifier == 'o' ? 8 : specifier == 'u' ? 10 : 16, specifier == 'X' ? true : false);
@@ -163,13 +147,11 @@ int doxlen(long long d, const int radix) {
 	return i;
 }
 
-char *etoa(char* f_str) {
+char *etoa(char* f_str, int exp) {
 	int point = s21_strchr(f_str, '.') - f_str;
 	int integer_part = -1;
 
 	while (f_str[++integer_part] && f_str[integer_part] < '1');
-
-	int exp = point > integer_part ? point - integer_part - 1 : point - integer_part;
 
 	if (point > integer_part + 1) {
 		++point;
@@ -201,9 +183,9 @@ char *ftoa(long double f) {
 	flt.full = f;
 	bool negative = flt.bits[4] & 0x8000;
 	int e = extract_exp(flt.bits[4]);
-	char* res_str;
+	char* res;
 	if (e == 16384) {
-		res_str = edge_case(flt.bits, negative);
+		res = edge_case(flt.bits, negative);
 	} else {
 		char *integer = doxtoa(0, 10, false);
 		char *fraction = doxtoa(0, 10, false);
@@ -213,17 +195,14 @@ char *ftoa(long double f) {
 		fraction = e < 63 ? calculate_frac_part(fraction, e, flt.bits, mask ? mask : 0x8000) : fraction;
 
 		int i = s21_strlen(integer);
-		res_str = (char *)malloc((i + s21_strlen(fraction) + 2 + negative) * sizeof(char));
-		res_str[0] = negative ? '-' : res_str[0];
-		strcpy(res_str + negative, integer);
-		res_str[i + negative] = '.';
-		strcpy(res_str + negative + i + 1, fraction);
-		res_str[i + negative + 1 + s21_strlen(fraction)] = '\0';
-		free(integer);
+		res = negative ? add_width(integer, 1, '-', true) : integer;
+		res = add_width(res, 1, '.', false);
+		res = (char*)realloc(res, (s21_strlen(res) + s21_strlen(fraction) + 1) * sizeof(char));
+		s21_strncat(res, fraction, s21_strlen(fraction));
 		free(fraction);
 	}
 
-	return res_str;
+	return res;
 }
 
 int extract_exp(const unsigned short bits) {

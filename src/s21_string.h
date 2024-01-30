@@ -56,7 +56,7 @@ int process_format(const char *format, int i, char *str, const int j, va_list *p
 char *process_specifier(char specifier, const int len, va_list *params, modifiers *format_modifiers);
 char *doxtoa(long long d, const int radix, const bool uppercase);
 int doxlen(long long d, const int radix);
-char *etoa(char* f_str);
+char *etoa(char* f_str, int exp);
 char *ftoa(long double f);
 int extract_exp(const unsigned short bits);
 char* edge_case(unsigned short* bits, bool negative);

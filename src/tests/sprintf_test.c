@@ -48,6 +48,16 @@ START_TEST(test_s21_sprintf_f3) {
 }
 END_TEST
 
+START_TEST(test_s21_sprintf_E_precision) {
+    char s21_res[100];
+    char io_res[100];
+    double a = -0.000999999;
+    s21_sprintf(s21_res, "%.3E", a);
+    sprintf(io_res, "%.3E", a);
+    ck_assert_str_eq(s21_res, io_res);
+}
+END_TEST
+
 Suite *s21_sprintf_suite() {
   Suite *suite;
   TCase *tc_core;
@@ -58,6 +68,7 @@ Suite *s21_sprintf_suite() {
   tcase_add_test(tc_core, test_s21_sprintf_f);
   tcase_add_test(tc_core, test_s21_sprintf_f2);
   tcase_add_test(tc_core, test_s21_sprintf_f3);
+  tcase_add_test(tc_core, test_s21_sprintf_E_precision);
   suite_add_tcase(suite, tc_core);
   return suite;
 }
