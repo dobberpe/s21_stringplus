@@ -365,41 +365,111 @@ int point_position(char *str) {
 }
 
 char *apply_format(char *str, modifiers *format_modifiers, char specifier) {
-	size_t str_len = s21_strlen(str);
-	printf("len = %ld\n", str_len);
 
-	if (s21_strchr("diouxX", specifier) && str_len < format_modifiers->precision) {
-		str = add_width(str, format_modifiers->precision - str_len, '0', true);
+	char is_zero = *str;
+
+	// убираем минус
+	size_t str_len = s21_strlen(str);
+	bool negative = *str == '-' ? true : false;
+	if (negative) {
+		memmove(str, str + 1, str_len);
+		str = (char *)realloc(str, str_len);
 	}
-	if (s21_strchr("diouxX", specifier) && *str == '0' && format_modifiers->precision == 0) {
+
+
+	// точность
+	str_len = s21_strlen(str);
+	if (specifier == 's' && str_len > format_modifiers->precision) {
+		str[format_modifiers->precision] = '\0';
+	} else if (s21_strchr("diouxX", specifier) && str_len < format_modifiers->precision) {
+		str = add_width(str, format_modifiers->precision - str_len, '0', true);
+	} else if (s21_strchr("diouxX", specifier) && *str == '0' && format_modifiers->precision == 0) {
 		*str = '\0';
+	} else if (s21_strchr("eEfgG", specifier)) {
+		char *tmp = (char *)s21_strchr(str, '.') + 1;
+		if (s21_strchr("gG", specifier)) format_modifiers->precision -= tmp - 1 - str;
+		int i = 0;
+		while (*tmp >= '0' && *tmp <= '9') {
+			i++;
+			tmp++;
+		}
+		if (i < format_modifiers->precision) {
+			size_t offset = format_modifiers->precision - i;
+			if (!s21_strchr(str, 'e') && !s21_strchr(str, 'E')) {
+				str = add_width(str, offset, '0', false);
+			} else {
+				str = (char *)realloc(str, (str_len + 1 + offset) * sizeof(char));
+				tmp = s21_strpbrk(str, "eE");
+				for (int j = str_len; j >= tmp - str; j--) str[j + offset] = str[j];
+				for (int j = 0; j < offset; j++) str[(tmp - str) + j] = '0';
+			}
+		} else if (i > format_modifiers->precision) {
+			tmp = s21_strchr(str, '.') + 1 + format_modifiers->precision;
+			char val = *tmp;
+			*tmp = '\0';
+			char *tail = !s21_strpbrk(tmp + 1, "eE") ? "" : s21_strpbrk(tmp + 1, "eE");
+			size_t tail_len = s21_strlen(tail);
+			char *tail2 = (char *)malloc(tail_len + 1);
+			s21_strncpy(tail2, tail, tail_len + 1);
+
+			if (val > '4' && val <= '9') {
+				char *str2 = malloc((3 + format_modifiers->precision) * sizeof(char));
+				s21_memset(str2, '0', format_modifiers->precision + 1);
+				str2[1] = '.';
+				str2[format_modifiers->precision + 1] = '1';
+				str2[format_modifiers->precision + 2] = '\0';
+				tmp = stradd(str, str2);
+
+				free(str);
+				free(str2);
+				str = tmp;
+			}
+			
+
+			str_len = s21_strlen(str);
+			if (tail_len != 0) {
+				str = (char *)realloc(str, (str_len + tail_len + 1) * sizeof(char));
+				s21_strncat(str, tail2, tail_len + 1);
+			}
+			free(tail2);
+		}
+	} 
+	if (s21_strchr("gG", specifier)) {
+		char *tail = NULL;
+		char *tmp = s21_strchr(str, 'e');
+		if (tmp == NULL) tmp = s21_strchr(str, 'E');
+		if (tmp != NULL) tail = tmp;
+		else tmp = &str[s21_strlen(str)];
+		tmp--;
+		while (*tmp == '0') {
+			*tmp = '\0';
+			tmp--;
+		}
+		if (*tmp == ',') *tmp = '\0';
+		if (tail) s21_strncat(str, tail, s21_strlen(tail) + 1);
 	}
 	
 
-	if (format_modifiers->positive_sign && s21_strchr("dieEfgG", specifier) && *str != '-') {
-		str = add_width(str, 1, '+', true);
-	}
 
-	if (format_modifiers->space_instead_of_sign && !format_modifiers->positive_sign && s21_strchr("dieEfgG", specifier) && *str != '-') {
-		str = add_width(str, 1, ' ', true);
-	}
 
+	// префикс и точка
+	str_len = s21_strlen(str);
 	if (format_modifiers->oct_hex_notation && s21_strchr("oxXeEfgG", specifier)) {
-		if (specifier == 'o' && *str != 0) {
+		if (specifier == 'o' && *str != 0 && *str != '0') {
 			str = add_width(str, 1, '0', true);
 		}
-		if (specifier == 'x' && *str != 0) {
+		if (specifier == 'x' && *str != 0 && is_zero != '0') {
 			str = add_width(str, 1, 'x', true);
 			str = add_width(str, 1, '0', true);
 		}
-		if (specifier == 'X' && *str != 0) {
+		if (specifier == 'X' && *str != 0 && is_zero != '0') {
 			str = add_width(str, 1, 'X', true);
 			str = add_width(str, 1, '0', true);
 		}
-		if (specifier == 'f' && !s21_strchr(str, '.')) {
+		if (specifier == 'f' && !s21_strpbrk(str, ",.")) {
 			str = add_width(str, 1, '.', false);
 		}
-		if (s21_strchr("eEgG", specifier) && !s21_strchr(str, '.')) {
+		if (s21_strchr("eEgG", specifier) && !s21_strpbrk(str, ",.")) {
 			str = (char *)realloc(str, (str_len + 2) * sizeof(char));
 			char *tmp = s21_strchr(str, 'e');
 			if (tmp == NULL) tmp = s21_strchr(str, 'E');
@@ -408,35 +478,76 @@ char *apply_format(char *str, modifiers *format_modifiers, char specifier) {
 		}
 	}
 
-	if (format_modifiers->width > str_len) {
-
+	// знак
+	str_len = s21_strlen(str);
+	if (negative) {
+		str = add_width(str, 1, '-', true);
+	} else if (format_modifiers->positive_sign && s21_strchr("dieEfgG", specifier)) {
+		str = add_width(str, 1, '+', true);
+	} else if (format_modifiers->space_instead_of_sign && !format_modifiers->positive_sign && s21_strchr("dieEfgG", specifier)) {
+		str = add_width(str, 1, ' ', true);
 	}
 
+	// ширина
+	// if (format_modifiers->width && (negative || format_modifiers->positive_sign || format_modifiers->space_instead_of_sign) && format_modifiers->fill_with_nulls)
+	// 	format_modifiers->width--;
+
 	str_len = s21_strlen(str);
-	printf("len = %ld\n", str_len);
+	if (*str == '\0' && format_modifiers->width) format_modifiers->width--; 
+	if (format_modifiers->width > str_len && !format_modifiers->fill_with_nulls) {
+		str = add_width(str, format_modifiers->width - str_len, ' ', !format_modifiers->left_alignment);
+	}
+	else if (format_modifiers->width > str_len && format_modifiers->fill_with_nulls) {
+		if (s21_strchr("0123456789abcdefABCDEF", *str) && !s21_strpbrk(str, "xX")) {
+			str = add_width(str, format_modifiers->width - str_len, '0', true);
+		} else {
+			char *tmp = str;
+			if (!(s21_strpbrk(str, "xX"))) {
+				while (*tmp < '0' || *tmp > '9') tmp++;
+			} else {
+				tmp = s21_strpbrk(str, "xX") + 1;
+			}
+			size_t diff = tmp - str;
+			size_t offset = format_modifiers->width - str_len;
+			str = (char *)realloc(str, (str_len + 1 + offset) * sizeof(char));
+			for (int j = str_len; j >= diff; j--) str[j + offset] = str[j];
+			for (int j = 0; j < offset; j++) str[(diff) + j] = '0';
+		}
+	}
+
+	
+
+	// str_len = s21_strlen(str);
+	// printf("len = %ld\n", str_len);
+
+
+	// if (s21_strchr(str, ',')) {
+	// 	*s21_strchr(str, ',') = '.';
+	// }
 	return str;
 }
 
 
-int main() {
-	modifiers mod = {0};
-	mod.left_alignment = false;
-	mod.positive_sign = true;
-	mod.space_instead_of_sign = false;
-	mod.oct_hex_notation = false;
-	mod.fill_with_nulls = false;
-	mod.width = 0;
-	mod.precision = 4;
-	mod.length = 0;
 
-	char *src = "0";
-	char *val = malloc(100);
-	s21_strncpy(val, src, 100);
+// int main() {
+// 	modifiers mod = {0};
+// 	mod.left_alignment = false;
+// 	mod.positive_sign = false;
+// 	mod.space_instead_of_sign = false;
+// 	mod.oct_hex_notation = false;
+// 	mod.fill_with_nulls = false;
+// 	mod.width = 0;
+// 	mod.precision = 6;
+// 	mod.length = 0;
 
-	printf("%+.d\n", 0);
-	printf("%.0G\n", 412.);
-	printf("%s\n", val = apply_format(val, &mod, 'd'));
 
-	free(val);
-	return 0;
-}
+// 	char *src = "1.3121257e+02";
+// 	char *val = malloc(100);
+// 	s21_strncpy(val, src, 100);
+
+// 	printf("%s\n", val = apply_format(val, &mod, 'e'));
+
+
+// 	free(val);
+// 	return 0;
+// }
