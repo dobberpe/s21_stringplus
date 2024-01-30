@@ -90,7 +90,13 @@ char *process_specifier(char specifier, const int len, va_list *params, modifier
 		res = doxtoa(format_modifiers->length == 'h' ? va_arg(*params, short) : format_modifiers->length == 'l' ? va_arg(*params, long) : va_arg(*params, int), 10, false);
 	} else if (specifier == 'e' || specifier == 'E') {
 		format_modifiers->precision = format_modifiers->precision == -1 ? 6 : format_modifiers->precision;
-		res = etoa(ftoa(format_modifiers->length == 'L' ? va_arg(*params, long double) : va_arg(*params, double)));
+		if (format_modifiers->length == 'L') {
+			long double f = va_arg(*params, long double);
+			res = etoa(ftoa(f), doxlen(round(f), 10));
+		} else {
+			double f = va_arg(*params, double);
+			res = etoa(ftoa(f), doxlen(round(f), 10));
+		}
 		res = specifier == 'E' ? s21_to_upper(res) : res;
 	} else if (specifier == 'f') {
 		format_modifiers->precision = format_modifiers->precision == -1 ? 6 : format_modifiers->precision;
@@ -100,13 +106,15 @@ char *process_specifier(char specifier, const int len, va_list *params, modifier
 		if (format_modifiers->length == 'L') {
 			long double g = va_arg(*params, long double);
 			res = ftoa(g);
-			res = doxlen(round(g), 10) > format_modifiers->precision ? etoa(res) : res;
-			res = specifier == 'G' ? s21_to_upper(res) : res;
+			int exp = doxlen(round(g), 10);
+			res = exp > format_modifiers->precision ? etoa(res, exp) : res;
 		} else {
 			double g = va_arg(*params, double);
 			res = ftoa(g);
-			res = doxlen(round(g), 10) > format_modifiers->precision ? etoa(res) : res;
+			int exp = doxlen(round(g), 10);
+			res = exp > format_modifiers->precision ? etoa(res, exp) : res;
 		}
+		res = specifier == 'G' ? s21_to_upper(res) : res;
 	} else if (specifier == 'o' || specifier == 'u' || specifier == 'x' || specifier == 'X') {
 		format_modifiers->precision = format_modifiers->precision == -1 ? 1 : format_modifiers->precision;
 		res = doxtoa(format_modifiers->length == 'h' ? va_arg(*params, unsigned short) : format_modifiers->length == 'l' ? va_arg(*params, unsigned long) : va_arg(*params, unsigned), specifier == 'o' ? 8 : specifier == 'u' ? 10 : 16, specifier == 'X' ? true : false);
@@ -163,13 +171,11 @@ int doxlen(long long d, const int radix) {
 	return i;
 }
 
-char *etoa(char* f_str) {
+char *etoa(char* f_str, int exp) {
 	int point = s21_strchr(f_str, '.') - f_str;
 	int integer_part = -1;
 
 	while (f_str[++integer_part] && f_str[integer_part] < '1');
-
-	int exp = point > integer_part ? point - integer_part - 1 : point - integer_part;
 
 	if (point > integer_part + 1) {
 		++point;
