@@ -88,33 +88,9 @@ char *process_specifier(char specifier, const int len, va_list *params, modifier
 	} else if (specifier == 'd' || specifier == 'i') {
 		format_modifiers->precision = format_modifiers->precision == -1 ? 1 : format_modifiers->precision;
 		res = doxtoa(format_modifiers->length == 'h' ? va_arg(*params, short) : format_modifiers->length == 'l' ? va_arg(*params, long) : va_arg(*params, int), 10, false);
-	} else if (specifier == 'e' || specifier == 'E') {
-		format_modifiers->precision = format_modifiers->precision == -1 ? 6 : format_modifiers->precision;
-		if (format_modifiers->length == 'L') {
-			long double f = va_arg(*params, long double);
-			res = etoa(ftoa(f), doxlen(round(f), 10));
-		} else {
-			double f = va_arg(*params, double);
-			res = etoa(ftoa(f), doxlen(round(f), 10));
-		}
-		res = specifier == 'E' ? s21_to_upper(res) : res;
-	} else if (specifier == 'f') {
+	} else if (specifier == 'e' || specifier == 'E' || specifier == 'f' || specifier == 'g' || specifier == 'G') {
 		format_modifiers->precision = format_modifiers->precision == -1 ? 6 : format_modifiers->precision;
 		res = ftoa(format_modifiers->length == 'L' ? va_arg(*params, long double) : va_arg(*params, double));
-	} else if (specifier == 'g' || specifier == 'G') {
-		format_modifiers->precision = format_modifiers->precision == -1 ? 6 : format_modifiers->precision;
-		if (format_modifiers->length == 'L') {
-			long double g = va_arg(*params, long double);
-			res = ftoa(g);
-			int exp = doxlen(round(g), 10);
-			res = exp > format_modifiers->precision ? etoa(res, exp) : res;
-		} else {
-			double g = va_arg(*params, double);
-			res = ftoa(g);
-			int exp = doxlen(round(g), 10);
-			res = exp > format_modifiers->precision ? etoa(res, exp) : res;
-		}
-		res = specifier == 'G' ? s21_to_upper(res) : res;
 	} else if (specifier == 'o' || specifier == 'u' || specifier == 'x' || specifier == 'X') {
 		format_modifiers->precision = format_modifiers->precision == -1 ? 1 : format_modifiers->precision;
 		res = doxtoa(format_modifiers->length == 'h' ? va_arg(*params, unsigned short) : format_modifiers->length == 'l' ? va_arg(*params, unsigned long) : va_arg(*params, unsigned), specifier == 'o' ? 8 : specifier == 'u' ? 10 : 16, specifier == 'X' ? true : false);
