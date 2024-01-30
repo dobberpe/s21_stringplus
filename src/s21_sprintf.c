@@ -17,6 +17,9 @@ int s21_sprintf(char *str, const char *format, ...) {
 			str[++j] = format[i];
 		}
 	}
+	va_end(params);
+
+	return 0;
 }
 
 void init_str_n_mods(char *str, modifiers *format_modifiers) {
@@ -68,20 +71,43 @@ int process_format(const char *format, int i, char *str, const int j, va_list *p
 char *process_specifier(char specifier, const int len, va_list *params, modifiers *format_modifiers) {
 	char *res = NULL;
 	if (specifier == 'c') {
-		res = (char *)malloc(2 * sizeof(char));
-		res[0] = (char)va_arg(*params, int);;
-		res[1] = '\0';
+		if (format_modifiers->length == 'l') {
+			wchar_t c = va_arg(*params, wchar_t);
+			res = (char*)malloc(sizeof(wchar_t) + sizeof(char));
+			wcstombs(res, &c, sizeof(wchar_t));
+		} else {
+			res = (char *)malloc(2 * sizeof(char));
+			res[0] = (char)va_arg(*params, int);;
+			res[1] = '\0';
+		}
 	} else if (specifier == 'd' || specifier == 'i') {
-		res = doxtoa(va_arg(*params, int), 10, false);
+		res = doxtoa(format_modifiers->length == 'h' ? va_arg(*params, short) : format_modifiers->length == 'l' ? va_arg(*params, long) : va_arg(*params, int), 10, false);
 	} else if (specifier == 'e' || specifier == 'E') {
-		res = etoa(ftoa(va_arg(*params, double)));
+		res = etoa(ftoa(format_modifiers->length == 'L' ? va_arg(*params, long double) : va_arg(*params, double)));
 	} else if (specifier == 'f') {
-		res = ftoa(va_arg(*params, double));
+		res = ftoa(format_modifiers->length == 'L' ? va_arg(*params, long double) : va_arg(*params, double));
 	} else if (specifier == 'g' || specifier == 'G') {
+		if (format_modifiers->length == 'L') {
+			long double g = va_arg(*params, long double);
+			res = ftoa(g);
+			res = doxlen(round(g), 10) > format_modifiers->precision ? etoa(res) : res;
+		} else {
+			double g = va_arg(*params, double);
+			res = ftoa(g);
+			res = doxlen(round(g), 10) > format_modifiers->precision ? etoa(res) : res;
+		}
 	} else if (specifier == 'o' || specifier == 'u' || specifier == 'x' || specifier == 'X') {
-		res = doxtoa(va_arg(*params, unsigned), specifier == 'o' ? 8 : specifier == 'u' ? 10 : 16, specifier == 'X' ? true : false);
+		res = doxtoa(format_modifiers->length == 'h' ? va_arg(*params, unsigned short) : format_modifiers->length == 'l' ? va_arg(*params, unsigned long) : va_arg(*params, unsigned), specifier == 'o' ? 8 : specifier == 'u' ? 10 : 16, specifier == 'X' ? true : false);
 	} else if (specifier == 's') {
-		res = va_arg(*params, char *);
+		if (format_modifiers->length == 'l') {
+			wchar_t* s = va_arg(*params, wchar_t*);
+			res = (char*)malloc((wcslen(s) * sizeof(wchar_t) + 1) * sizeof(char));
+			wcstombs(res, s, wcslen(s) * sizeof(wchar_t));
+		} else {
+			char* s = va_arg(*params, char*);
+			res = (char*)malloc((s21_strlen(s) + 1) * sizeof(char));
+			res = s21_strncpy(res, s, s21_strlen(s));
+		}
 	} else if (specifier == 'p') {
 		res = doxtoa(va_arg(*params, unsigned long), 16, false);
 	} else if (specifier == 'n') {
@@ -157,42 +183,17 @@ char *etoa(char* f_str) {
 	return f_str;
 }
 
-char *ftoa(double f) {
+char *ftoa(long double f) {
 	f_representation flt;
 	flt.full = f;
-	bool negative = flt.bits & 0x8000000000000000;
-	int e = extract_exp(flt.bits);
-	unsigned long long mask = (long long)1 << 51;
-	char *integer = doxtoa(e >= 0 ? pow(2, e) : 0, 10, true);
-	char *fraction = doxtoa(e < 0 ? pow(5, -e) : 0, 10, true);
+	bool negative = flt.bits[4] & 0x8000;
+	int e = extract_exp(flt.bits[4]);
+	char *integer = doxtoa(0, 10, false);
+	char *fraction = doxtoa(0, 10, false);
 
-	while (--e >= 0) {
-		if (flt.bits & mask) {
-			char *tmp = integer;
-			char *addendum = doxtoa(pow(2, e), 10, true);
-			integer = stradd(integer, addendum, false);
-			free(tmp);
-			free(addendum);
-		}
-		mask >>= 1;
-	}
-	e = abs(e);
-	while (mask) {
-		if (flt.bits & mask) {
-			char *addendum = doxtoa(pow(5, e), 10, true);
-			int prevnulls = (int)round(0.30103 * (float)e - 0.49732);
-			addendum = prevnulls ? add_width(addendum, prevnulls, '0', true) : addendum;
-			int addlen = s21_strlen(addendum);
-			int fraclen = s21_strlen(fraction);
-			fraction = fraclen < addlen ? add_width(fraction, addlen - fraclen, '0', false) : fraction;
-			char *tmp = fraction;
-			fraction = stradd(fraction, addendum, true);
-			free(tmp);
-			free(addendum);
-		}
-		mask >>= 1;
-		++e;
-	}
+	integer = e >= 0 ? calculate_int_part(integer, e, flt.bits, e > 62 ? 1 : 0x8000 >> (e % 16)) : integer;
+	unsigned short mask = 0x8000 >> (e % 16 + 1);
+	fraction = e < 63 ? calculate_frac_part(fraction, e, flt.bits, mask ? mask : 0x8000) : fraction;
 
 	int i = s21_strlen(integer);
 	char* res_str = (char *)malloc((i + s21_strlen(fraction) + 2 + negative) * sizeof(char));
@@ -207,21 +208,107 @@ char *ftoa(double f) {
 	return res_str;
 }
 
-int extract_exp(unsigned long long bits) {
-	unsigned long long mask = (long long)1 << 62;
-	int e = -1023;
-	int power = 11;
+int extract_exp(const unsigned short bits) {
+    unsigned short mask = 1 << 14;
+    int e = -16383;
+    int power = 15;
 
-	while (--power >= 0) {
-		e += bits & mask ? pow(2, power) : 0;
-		mask >>= 1;
+    while (--power >= 0) {
+        e += bits & mask ? pow(2, power) : 0;
+        mask >>= 1;
+    }
+
+    return e;
+}
+
+char *calculate_int_part(char *integer, const int e, const unsigned short *bits, unsigned short mask) {
+	int p = e > 64 ? e - 63 : 0;
+	char* power_of_2 = doxtoa(1, 10, false);
+	int prev_p = 0;
+	int i = 2 - e / 16;
+	i = i < -1 ? -1 : i;
+	while (++i < 4) {
+		while (mask) {
+			if (bits[i] & mask) {
+				char *tmp = integer;
+				char *addendum = raise_power_of_2(power_of_2, p - prev_p + 1);
+				int addlen = s21_strlen(addendum);
+				power_of_2 = (char *)malloc((addlen + 1) * sizeof(char));
+				power_of_2 = s21_strncpy(power_of_2, addendum, addlen);
+				power_of_2[addlen] = '\0';
+				prev_p = p;
+				integer = stradd(integer, addendum);
+				free(tmp);
+			}
+			mask <<= 1;
+			++p;
+		}
+		mask = 1;
 	}
+	free(power_of_2);
 
-	return e;
+	return integer;
+}
+
+char* raise_power_of_2(char *str, int n) {
+	while (--n) {
+		char *tmp = str;
+		str = stradd(str, str);
+		free(tmp);
+	}
+	return str;
+}
+
+char *calculate_frac_part(char *fraction, int e, const unsigned short *bits, unsigned short mask) {
+	int i = 3 - e / 16 + 1;
+	i = i > 4 ? 4 : i;
+	e = e >= 0 ? 1 : abs(e);
+	char* power_of_5 = doxtoa(5, 10, false);
+	int prev_p = 1;
+	while (--i >= 0) {
+		while (mask) {
+			if (bits[i] & mask) {
+				char *addendum = raise_power_of_5(power_of_5, e - prev_p + 1);
+				int addlen = s21_strlen(addendum);
+				power_of_5 = (char *)malloc((addlen + 1) * sizeof(char));
+				power_of_5 = s21_strncpy(power_of_5, addendum, addlen);
+				power_of_5[addlen] = '\0';
+				prev_p = e;
+				// int prevnulls = (int)round(0.30103 * (float)(e) - 0.49732);
+				int prevnulls = e - addlen;
+				addendum = prevnulls ? add_width(addendum, prevnulls, '0', true) : addendum;
+				addlen = s21_strlen(addendum);
+				int fraclen = s21_strlen(fraction);
+				fraction = fraclen < addlen ? add_width(fraction, addlen - fraclen, '0', false) : fraction;
+				char *tmp = fraction;
+				fraction = stradd(fraction, addendum);
+				free(tmp);
+			}
+			mask >>= 1;
+			++e;
+		}
+		mask = 1 << 15;
+	}
+	free(power_of_5);
+
+	return fraction;
+}
+
+char* raise_power_of_5(char *str, int n) {
+	while (--n) {
+		char *tmp = str;
+		char *tmp_times_2 = stradd(str, str);
+		char *tmp_times_4 = stradd(tmp_times_2, tmp_times_2);
+		free(tmp_times_2);
+		str = stradd(tmp_times_4, tmp);
+		free(tmp_times_4);
+		free(tmp);
+	}
+	return str;
 }
 
 char* add_width(char *str, int num, char value, bool right_alignment) {
-    int j = strlen(str);
+    int j = s21_strlen(str);
 	int i = j + num + 1;
 	str = (char *)realloc(str, i * sizeof(char));
 
@@ -238,25 +325,46 @@ char* add_width(char *str, int num, char value, bool right_alignment) {
 	return str;
 }
 
-char* stradd(char *l_str, char *r_str, bool fraction) {
-	int i = s21_strlen(l_str);
-	int j = s21_strlen(r_str);
-	int k = (i > j ? i : j) + 1;
+char* stradd(char *l_str, char *r_str) {
+    int l_len = strlen(l_str);
+    int r_len = strlen(r_str);
+	int i = l_len - 1;
+	int j = r_len - 1;
+	int k = max(l_len, r_len) + 1;
+	if (point_position(l_str)) {
+	    int l_frac = l_len - point_position(l_str);
+	    int r_frac = r_len - point_position(r_str);
+	    i = l_frac < r_frac ? i + r_frac - l_frac: i;
+	    j = r_frac < l_frac ? j + l_frac - r_frac : j;
+	}
 	char *res = (char *)malloc(k * sizeof(char));
 	bool overflow = false;
 
 	res[--k] = '\0';
 	while (--k >= 0) {
-		res[k] = (i && j ? -48 : 0) + (i ? l_str[--i] : 0) + (j ? r_str[--j] : 0) + overflow;
-		overflow = res[k] > 57 ? true : false;
-		res[k] -= res[k] > 57 ? 10 : 0;
+	    if (i >= 0 && i < l_len && l_str[i] == '.') {
+		    res[k] = '.';
+	    } else {
+	        res[k] = (i >= 0 && i < l_len && j >= 0 && j < r_len ? -48 : 0) + (i >= 0 && i < l_len ? l_str[i] : 0) + (j >= 0 && j < r_len ? r_str[j] : 0) + overflow;
+		    overflow = res[k] > 57 ? true : false;
+		    res[k] -= res[k] > 57 ? 10 : 0;
+	    }
+	    --i;
+	    --j;
 	}
 	res = overflow ? add_width(res, 1, '1', true) : res;
 
 	return res;
 }
 
+int point_position(char *str) {
+    int i = -1;
+    while (str[++i] && str[i] != '.');
+    
+    return str[i] ? i : 0;
+}
+
 char *apply_format(char *str, modifiers *format_modifiers, char specifier) {
-	// if (format_modifiers->width > s21_strlen(str));
+	// if (format_modifiers->width > strlen(str));
 	return str;
 }

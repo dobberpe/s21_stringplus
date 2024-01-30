@@ -5,11 +5,15 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include <wchar.h>
 #include <stdio.h>
 
+#define min(X,Y) ((X) < (Y) ? (X) : (Y))
+#define max(X,Y) ((X) > (Y) ? (X) : (Y))
+
 typedef union {
-	double full;
-	unsigned long long bits;
+	long double full;
+	unsigned short bits[5];
 } f_representation;
 
 typedef struct {
@@ -51,10 +55,15 @@ char *process_specifier(char specifier, const int len, va_list *params, modifier
 char *doxtoa(long long d, const int radix, const bool uppercase);
 int doxlen(long long d, const int radix);
 char *etoa(char* f_str);
-char *ftoa(double f);
-int extract_exp(unsigned long long bits);
+char *ftoa(long double f);
+int extract_exp(const unsigned short bits);
+char *calculate_int_part(char *integer, const int e, const unsigned short *bits, unsigned short mask);
+char* raise_power_of_2(char *str, int n);
+char *calculate_frac_part(char *fraction, int e, const unsigned short *bits, unsigned short mask);
+char* raise_power_of_5(char *str, int n);
 char* add_width(char *str, int num, char value, bool right_alignment);
-char* stradd(char *l_str, char *r_str, bool fraction);
+char* stradd(char *l_str, char *r_str);
+int point_position(char *str);
 char *apply_format(char *str, modifiers *format_modifiers, char specifier);
 
 
