@@ -7,6 +7,7 @@
 #include <math.h>
 #include <wchar.h>
 #include <stdio.h>
+#include <string.h>
 
 #define min(X,Y) ((X) < (Y) ? (X) : (Y))
 #define max(X,Y) ((X) > (Y) ? (X) : (Y))

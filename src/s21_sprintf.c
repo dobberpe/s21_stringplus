@@ -365,6 +365,78 @@ int point_position(char *str) {
 }
 
 char *apply_format(char *str, modifiers *format_modifiers, char specifier) {
-	// if (format_modifiers->width > strlen(str));
+	size_t str_len = s21_strlen(str);
+	printf("len = %ld\n", str_len);
+
+	if (s21_strchr("diouxX", specifier) && str_len < format_modifiers->precision) {
+		str = add_width(str, format_modifiers->precision - str_len, '0', true);
+	}
+	if (s21_strchr("diouxX", specifier) && *str == '0' && format_modifiers->precision == 0) {
+		*str = '\0';
+	}
+	
+
+	if (format_modifiers->positive_sign && s21_strchr("dieEfgG", specifier) && *str != '-') {
+		str = add_width(str, 1, '+', true);
+	}
+
+	if (format_modifiers->space_instead_of_sign && !format_modifiers->positive_sign && s21_strchr("dieEfgG", specifier) && *str != '-') {
+		str = add_width(str, 1, ' ', true);
+	}
+
+	if (format_modifiers->oct_hex_notation && s21_strchr("oxXeEfgG", specifier)) {
+		if (specifier == 'o' && *str != 0) {
+			str = add_width(str, 1, '0', true);
+		}
+		if (specifier == 'x' && *str != 0) {
+			str = add_width(str, 1, 'x', true);
+			str = add_width(str, 1, '0', true);
+		}
+		if (specifier == 'X' && *str != 0) {
+			str = add_width(str, 1, 'X', true);
+			str = add_width(str, 1, '0', true);
+		}
+		if (specifier == 'f' && !s21_strchr(str, '.')) {
+			str = add_width(str, 1, '.', false);
+		}
+		if (s21_strchr("eEgG", specifier) && !s21_strchr(str, '.')) {
+			str = (char *)realloc(str, (str_len + 2) * sizeof(char));
+			char *tmp = s21_strchr(str, 'e');
+			if (tmp == NULL) tmp = s21_strchr(str, 'E');
+			for (int i = str_len; i >= tmp - str; i--) str[i + 1] = str[i];
+			str[tmp - str] = '.';
+		}
+	}
+
+	if (format_modifiers->width > str_len) {
+
+	}
+
+	str_len = s21_strlen(str);
+	printf("len = %ld\n", str_len);
 	return str;
+}
+
+
+int main() {
+	modifiers mod = {0};
+	mod.left_alignment = false;
+	mod.positive_sign = true;
+	mod.space_instead_of_sign = false;
+	mod.oct_hex_notation = false;
+	mod.fill_with_nulls = false;
+	mod.width = 0;
+	mod.precision = 4;
+	mod.length = 0;
+
+	char *src = "0";
+	char *val = malloc(100);
+	s21_strncpy(val, src, 100);
+
+	printf("%+.d\n", 0);
+	printf("%.0G\n", 412.);
+	printf("%s\n", val = apply_format(val, &mod, 'd'));
+
+	free(val);
+	return 0;
 }
