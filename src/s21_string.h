@@ -50,7 +50,8 @@ void *s21_insert(const char *src, const char *str, size_t start_index);
 void *s21_trim(const char *src, const char *trim_chars);
 
 int s21_sprintf(char *str, const char *format, ...);
-void init_str_n_mods(char *str, modifiers *format_modifiers);
+void init_str(char* str);
+void reset_mods(modifiers *format_modifiers);
 int process_format(const char *format, int i, char *str, const int j, va_list *params, modifiers *format_modifiers);
 char *process_specifier(char specifier, const int len, va_list *params, modifiers *format_modifiers);
 char *doxtoa(long long d, const int radix, const bool uppercase);

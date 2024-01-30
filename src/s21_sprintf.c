@@ -7,7 +7,8 @@ int s21_sprintf(char *str, const char *format, ...) {
 	int i = -1;
 	int j = -1;
 
-	init_str_n_mods(str, &format_modifiers);
+	init_str(str);
+	reset_mods(&format_modifiers);
 
 	while (format[++i]) {
 		if (format[i] == '%') {
@@ -22,17 +23,19 @@ int s21_sprintf(char *str, const char *format, ...) {
 	return 0;
 }
 
-void init_str_n_mods(char *str, modifiers *format_modifiers) {
+void init_str(char* str) {
 	int i = -1;
 	while (str[++i]) str[i] = '\0';
+}
 
+void reset_mods(modifiers* format_modifiers) {
 	format_modifiers->left_alignment = false;
 	format_modifiers->positive_sign = false;
 	format_modifiers->space_instead_of_sign = false;
 	format_modifiers->oct_hex_notation = false;
 	format_modifiers->fill_with_nulls = false;
 	format_modifiers->width = 0;
-	format_modifiers->precision = 6;
+	format_modifiers->precision = -1;
 	format_modifiers->length = 0;
 }
 
@@ -64,6 +67,8 @@ int process_format(const char *format, int i, char *str, const int j, va_list *p
 		s21_strncat(str, res, s21_strlen(res));
 		free(res);
 	} else i = percent_position;
+
+	reset_mods(&format_modifiers);
 	
 	return i;
 }
@@ -81,12 +86,16 @@ char *process_specifier(char specifier, const int len, va_list *params, modifier
 			res[1] = '\0';
 		}
 	} else if (specifier == 'd' || specifier == 'i') {
+		format_modifiers->precision = format_modifiers->precision == -1 ? 1 : format_modifiers->precision;
 		res = doxtoa(format_modifiers->length == 'h' ? va_arg(*params, short) : format_modifiers->length == 'l' ? va_arg(*params, long) : va_arg(*params, int), 10, false);
 	} else if (specifier == 'e' || specifier == 'E') {
+		format_modifiers->precision = format_modifiers->precision == -1 ? 6 : format_modifiers->precision;
 		res = etoa(ftoa(format_modifiers->length == 'L' ? va_arg(*params, long double) : va_arg(*params, double)));
 	} else if (specifier == 'f') {
+		format_modifiers->precision = format_modifiers->precision == -1 ? 6 : format_modifiers->precision;
 		res = ftoa(format_modifiers->length == 'L' ? va_arg(*params, long double) : va_arg(*params, double));
 	} else if (specifier == 'g' || specifier == 'G') {
+		format_modifiers->precision = format_modifiers->precision == -1 ? 6 : format_modifiers->precision;
 		if (format_modifiers->length == 'L') {
 			long double g = va_arg(*params, long double);
 			res = ftoa(g);
@@ -97,6 +106,7 @@ char *process_specifier(char specifier, const int len, va_list *params, modifier
 			res = doxlen(round(g), 10) > format_modifiers->precision ? etoa(res) : res;
 		}
 	} else if (specifier == 'o' || specifier == 'u' || specifier == 'x' || specifier == 'X') {
+		format_modifiers->precision = format_modifiers->precision == -1 ? 1 : format_modifiers->precision;
 		res = doxtoa(format_modifiers->length == 'h' ? va_arg(*params, unsigned short) : format_modifiers->length == 'l' ? va_arg(*params, unsigned long) : va_arg(*params, unsigned), specifier == 'o' ? 8 : specifier == 'u' ? 10 : 16, specifier == 'X' ? true : false);
 	} else if (specifier == 's') {
 		if (format_modifiers->length == 'l') {
@@ -109,6 +119,7 @@ char *process_specifier(char specifier, const int len, va_list *params, modifier
 			res = s21_strncpy(res, s, s21_strlen(s));
 		}
 	} else if (specifier == 'p') {
+		format_modifiers->precision = format_modifiers->precision == -1 ? 1 : format_modifiers->precision;
 		res = doxtoa(va_arg(*params, unsigned long), 16, false);
 	} else if (specifier == 'n') {
 		int *n = va_arg(*params, int *);
@@ -379,7 +390,7 @@ char *apply_format(char *str, modifiers *format_modifiers, char specifier) {
 
 	// точность
 	str_len = s21_strlen(str);
-	if (specifier == 's' && str_len > format_modifiers->precision) {
+	if (specifier == 's' && format_modifiers->precision >= 0 && str_len > format_modifiers->precision) {
 		str[format_modifiers->precision] = '\0';
 	} else if (s21_strchr("diouxX", specifier) && str_len < format_modifiers->precision) {
 		str = add_width(str, format_modifiers->precision - str_len, '0', true);
