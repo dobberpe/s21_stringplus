@@ -17,7 +17,7 @@ int main() {
   //                        s21_trim_suite(), s21_sprintf_suite(),
   //                        s21_apply_format_suite(), NULL};
 
-  Suite *suits_list[] = {s21_apply_format_suite(), NULL};
+  Suite *suits_list[] = {s21_sprintf_suite(), s21_apply_format_suite(), NULL};
 
   for (Suite **current = suits_list; *current != NULL; current++)
     srunner_add_suite(runner, *current);
