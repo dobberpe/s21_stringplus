@@ -91,6 +91,7 @@ char *process_specifier(char specifier, const int len, va_list *params, modifier
 	} else if (specifier == 'e' || specifier == 'E') {
 		format_modifiers->precision = format_modifiers->precision == -1 ? 6 : format_modifiers->precision;
 		res = etoa(ftoa(format_modifiers->length == 'L' ? va_arg(*params, long double) : va_arg(*params, double)));
+		res = specifier == 'E' ? s21_to_upper(res) : res;
 	} else if (specifier == 'f') {
 		format_modifiers->precision = format_modifiers->precision == -1 ? 6 : format_modifiers->precision;
 		res = ftoa(format_modifiers->length == 'L' ? va_arg(*params, long double) : va_arg(*params, double));
@@ -100,6 +101,7 @@ char *process_specifier(char specifier, const int len, va_list *params, modifier
 			long double g = va_arg(*params, long double);
 			res = ftoa(g);
 			res = doxlen(round(g), 10) > format_modifiers->precision ? etoa(res) : res;
+			res = specifier == 'G' ? s21_to_upper(res) : res;
 		} else {
 			double g = va_arg(*params, double);
 			res = ftoa(g);
@@ -199,22 +201,27 @@ char *ftoa(long double f) {
 	flt.full = f;
 	bool negative = flt.bits[4] & 0x8000;
 	int e = extract_exp(flt.bits[4]);
-	char *integer = doxtoa(0, 10, false);
-	char *fraction = doxtoa(0, 10, false);
+	char* res_str;
+	if (e == 16384) {
+		res_str = edge_case(flt.bits, negative);
+	} else {
+		char *integer = doxtoa(0, 10, false);
+		char *fraction = doxtoa(0, 10, false);
 
-	integer = e >= 0 ? calculate_int_part(integer, e, flt.bits, e > 62 ? 1 : 0x8000 >> (e % 16)) : integer;
-	unsigned short mask = 0x8000 >> (e % 16 + 1);
-	fraction = e < 63 ? calculate_frac_part(fraction, e, flt.bits, mask ? mask : 0x8000) : fraction;
+		integer = e >= 0 ? calculate_int_part(integer, e, flt.bits, e > 62 ? 1 : 0x8000 >> (e % 16)) : integer;
+		unsigned short mask = 0x8000 >> (e % 16 + 1);
+		fraction = e < 63 ? calculate_frac_part(fraction, e, flt.bits, mask ? mask : 0x8000) : fraction;
 
-	int i = s21_strlen(integer);
-	char* res_str = (char *)malloc((i + s21_strlen(fraction) + 2 + negative) * sizeof(char));
-	res_str[0] = negative ? '-' : res_str[0];
-	strcpy(res_str + negative, integer);
-	res_str[i + negative] = '.';
-	strcpy(res_str + negative + i + 1, fraction);
-	res_str[i + negative + 1 + s21_strlen(fraction)] = '\0';
-	free(integer);
-	free(fraction);
+		int i = s21_strlen(integer);
+		res_str = (char *)malloc((i + s21_strlen(fraction) + 2 + negative) * sizeof(char));
+		res_str[0] = negative ? '-' : res_str[0];
+		strcpy(res_str + negative, integer);
+		res_str[i + negative] = '.';
+		strcpy(res_str + negative + i + 1, fraction);
+		res_str[i + negative + 1 + s21_strlen(fraction)] = '\0';
+		free(integer);
+		free(fraction);
+	}
 
 	return res_str;
 }
@@ -230,6 +237,21 @@ int extract_exp(const unsigned short bits) {
     }
 
     return e;
+}
+
+char* edge_case(unsigned short* bits, bool negative) {
+	char* res = (char*)malloc(4 * sizeof(char));
+
+	s21_strncpy(res, bits[3] == 49152 ? "nan" : "inf", 4);
+	res[3] = '\0';
+
+	// if (bits[3] == 32768 && !bits[2] && !bits[1] && !bits[0]) {
+	// 	;
+	// } else if (bits[3] == 49152 && !bits[2] && !bits[1] && !bits[0]) {
+	// 	;
+	// }
+
+	return negative ? add_width(res, 1, '-', true) : res;
 }
 
 char *calculate_int_part(char *integer, const int e, const unsigned short *bits, unsigned short mask) {

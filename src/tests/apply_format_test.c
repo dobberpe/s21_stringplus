@@ -294,6 +294,45 @@ START_TEST(test_apply_format_e_width_and_precision) {
 }
 END_TEST
 
+// E
+START_TEST(test_apply_format_E_basic) {
+	modifiers mod = {0};
+    mod.precision = 6;
+    test_all_falgs_double(mod, "4.999999E+02", 4.999999E+02, 'E');
+    test_all_falgs_double(mod, "0.0E+00", 0.0e+00, 'E');
+    test_all_falgs_double(mod, "-9.99999E-04", -9.99999E-04, 'E');
+}
+END_TEST
+
+START_TEST(test_apply_format_E_precision) {
+	modifiers mod = {0};
+	mod.precision = 3;
+    test_all_falgs_double(mod, "4.999999E+02", 4.999999E+02, 'E');
+    test_all_falgs_double(mod, "0.0E+00", 0.0e+00, 'E');
+    test_all_falgs_double(mod, "-9.99999E-04", -9.99999E-04, 'E');
+}
+END_TEST
+
+START_TEST(test_apply_format_E_width) {
+	modifiers mod = {0};
+	mod.width = 9;
+    mod.precision = 6;
+    test_all_falgs_double(mod, "4.999999E+02", 4.999999E+02, 'E');
+    test_all_falgs_double(mod, "0.0E+00", 0.0e+00, 'E');
+    test_all_falgs_double(mod, "-9.99999E-04", -9.99999E-04, 'E');
+}
+END_TEST
+
+START_TEST(test_apply_format_E_width_and_precision) {
+	modifiers mod = {0};
+	mod.width = 9;
+    mod.precision = 3;
+    test_all_falgs_double(mod, "4.999999E+02", 4.999999E+02, 'E');
+    test_all_falgs_double(mod, "0.0E+00", 0.0e+00, 'E');
+    test_all_falgs_double(mod, "-9.99999E-04", -9.99999E-04, 'E');
+}
+END_TEST
+
 // f
 START_TEST(test_apply_format_f_basic) {
 	modifiers mod = {0};
@@ -368,6 +407,10 @@ Suite *s21_apply_format_suite() {
   tcase_add_test(tc_core, test_apply_format_e_precision);
   tcase_add_test(tc_core, test_apply_format_e_width);
   tcase_add_test(tc_core, test_apply_format_e_width_and_precision);
+  tcase_add_test(tc_core, test_apply_format_E_basic);
+  tcase_add_test(tc_core, test_apply_format_E_precision);
+  tcase_add_test(tc_core, test_apply_format_E_width);
+  tcase_add_test(tc_core, test_apply_format_E_width_and_precision);
   tcase_add_test(tc_core, test_apply_format_f_basic);
   tcase_add_test(tc_core, test_apply_format_f_precision);
   tcase_add_test(tc_core, test_apply_format_f_width);

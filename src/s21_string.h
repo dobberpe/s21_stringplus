@@ -59,6 +59,7 @@ int doxlen(long long d, const int radix);
 char *etoa(char* f_str);
 char *ftoa(long double f);
 int extract_exp(const unsigned short bits);
+char* edge_case(unsigned short* bits, bool negative);
 char *calculate_int_part(char *integer, const int e, const unsigned short *bits, unsigned short mask);
 char* raise_power_of_2(char *str, int n);
 char *calculate_frac_part(char *fraction, int e, const unsigned short *bits, unsigned short mask);
