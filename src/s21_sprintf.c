@@ -3,7 +3,7 @@
 int s21_sprintf(char *str, const char *format, ...) {
 	va_list params;
 	va_start(params, format);
-	modifiers format_modifiers;
+	print_modifiers format_modifiers;
 	int i = -1;
 	int j = -1;
 
@@ -28,7 +28,7 @@ void init_str(char* str) {
 	while (str[++i]) str[i] = '\0';
 }
 
-void reset_mods(modifiers* format_modifiers) {
+void reset_mods(print_modifiers* format_modifiers) {
 	format_modifiers->left_alignment = false;
 	format_modifiers->positive_sign = false;
 	format_modifiers->space_instead_of_sign = false;
@@ -39,7 +39,7 @@ void reset_mods(modifiers* format_modifiers) {
 	format_modifiers->length = 0;
 }
 
-int process_format(const char *format, int i, char *str, const int j, va_list *params, modifiers *format_modifiers) {
+int process_format(const char *format, int i, char *str, const int j, va_list *params, print_modifiers *format_modifiers) {
 	int percent_position = i;
 
 	while (format[++i] && s21_strchr("-+ #0", format[i])) {
@@ -80,7 +80,7 @@ int process_format(const char *format, int i, char *str, const int j, va_list *p
 	return i;
 }
 
-char *process_specifier(char specifier, const int len, va_list *params, modifiers *format_modifiers) {
+char *process_specifier(char specifier, const int len, va_list *params, print_modifiers *format_modifiers) {
 	char *res = NULL;
 	if (specifier == 'c') {
 		if (format_modifiers->length == 'l') {
@@ -100,7 +100,7 @@ char *process_specifier(char specifier, const int len, va_list *params, modifier
 		res = ftoa(format_modifiers->length == 'L' ? va_arg(*params, long double) : va_arg(*params, double));
 	} else if (specifier == 'o' || specifier == 'u' || specifier == 'x' || specifier == 'X') {
 		format_modifiers->precision = format_modifiers->precision == -1 ? 1 : format_modifiers->precision;
-		res = doxtoa(format_modifiers->length == 'h' ? va_arg(*params, unsigned short) : format_modifiers->length == 'l' ? va_arg(*params, unsigned long) : va_arg(*params, unsigned), specifier == 'o' ? 8 : specifier == 'u' ? 10 : 16, specifier == 'X' ? true : false);
+		res = doxtoa(format_modifiers->length == 'h' ? va_arg(*params, unsigned short) : format_modifiers->length == 'l' ? va_arg(*params, unsigned long) : va_arg(*params, unsigned), specifier == 'o' ? 8 : specifier == 'u' ? 10 : 16, specifier == 'X');
 	} else if (specifier == 's') {
 		if (format_modifiers->length == 'l') {
 			wchar_t* s = va_arg(*params, wchar_t*);
@@ -334,7 +334,7 @@ char* stradd(char *l_str, char *r_str) {
 		    res[k] = '.';
 	    } else {
 	        res[k] = (i >= 0 && i < l_len && j >= 0 && j < r_len ? -48 : 0) + (i >= 0 && i < l_len ? l_str[i] : 0) + (j >= 0 && j < r_len ? r_str[j] : 0) + overflow;
-		    overflow = res[k] > 57 ? true : false;
+		    overflow = res[k] > 57;
 		    res[k] -= res[k] > 57 ? 10 : 0;
 	    }
 	    --i;
@@ -352,13 +352,13 @@ int point_position(char *str) {
     return str[i] ? i : 0;
 }
 
-char *apply_format(char *str, modifiers *format_modifiers, char specifier) {
+char *apply_format(char *str, print_modifiers *format_modifiers, char specifier) {
 
 	char is_zero = *str;
 
 	// убираем минус
 	size_t str_len = s21_strlen(str);
-	bool negative = *str == '-' ? true : false;
+	bool negative = *str == '-';
 	if (negative) {
 		memmove(str, str + 1, str_len);
 		str = (char *)realloc(str, str_len);
@@ -546,6 +546,7 @@ char *etoa(char* f_str) {
     s21_strncat(f_str, "e", 1);
     s21_strncat(f_str, exp < 0 ? "-" : "+", 1);
     s21_strncat(f_str, e_str, elen);
+	free(e_str);
 
     return f_str;
 }

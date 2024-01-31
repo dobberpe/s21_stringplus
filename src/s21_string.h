@@ -26,8 +26,28 @@ typedef struct {
 	int width;
 	int precision;
 	char length;
-} modifiers;
+} print_modifiers;
 
+typedef struct {
+	bool assignment;
+	char length;
+} scan_modifiers;
+
+typedef struct {
+	char c;
+	wchar_t lc;
+	char* s;
+	wchar_t* ls;
+	int d;
+	short hd;
+	long ld;
+	unsigned u;
+	unsigned short hu;
+	unsigned long lu;
+	double f;
+	long double lf;
+
+} scan_result;
 
 void *s21_memchr(const void *str, int c, size_t n);
 int s21_memcmp(const void *str1, const void *str2, size_t n);
@@ -51,9 +71,9 @@ void *s21_trim(const char *src, const char *trim_chars);
 
 int s21_sprintf(char *str, const char *format, ...);
 void init_str(char* str);
-void reset_mods(modifiers *format_modifiers);
-int process_format(const char *format, int i, char *str, const int j, va_list *params, modifiers *format_modifiers);
-char *process_specifier(char specifier, const int len, va_list *params, modifiers *format_modifiers);
+void reset_mods(print_modifiers *format_modifiers);
+int process_format(const char *format, int i, char *str, const int j, va_list *params, print_modifiers *format_modifiers);
+char *process_specifier(char specifier, const int len, va_list *params, print_modifiers *format_modifiers);
 char *doxtoa(long long d, const int radix, const bool uppercase);
 int doxlen(long long d, const int radix);
 char *ftoa(long double f);
@@ -66,8 +86,18 @@ char* raise_power_of_5(char *str, int n);
 char* add_width(char *str, int num, char value, bool right_alignment);
 char* stradd(char *l_str, char *r_str);
 int point_position(char *str);
-char *apply_format(char *str, modifiers *format_modifiers, char specifier);
+char *apply_format(char *str, print_modifiers *format_modifiers, char specifier);
 char *etoa(char* f_str);
 char* clear_nulls(char* str);
+
+int s21_sscanf(const char *str, const char *format, ...);
+void reset_scan_mods(scan_modifiers* format_modifiers);
+int process_scan_format(const char* format, int i, const char* str, int* j, va_list *params, scan_modifiers *format_modifiers);
+int process_scan_specifier(char specifier, const char* str, int len, va_list *params, scan_modifiers *format_modifiers);
+int skip_spaces(char* str);
+int skip_dox(char* str, char radix);
+int skip_feg(char* str);
+int skip_s(char* str);
+void assign(scan_result* res, va_list* params, char specifier, char length);
 
 #endif
