@@ -52,10 +52,17 @@ int process_format(const char *format, int i, char *str, const int j, va_list *p
 	if (format[i] >= '1' && format[i] <= '9') {
 		format_modifiers->width = atoi(format + i);
 		while (format[++i] && format[i] >= '0' && format[i] <= '9');
+	} else if (format[i] == '*') {
+		format_modifiers->width = va_arg(*params, int);
+		++i;
 	}
 	if (format[i] == '.') {
-		format_modifiers->precision = atoi(format + i + 1);
-		while (format[++i] && format[i] >= '0' && format[i] <= '9');
+		if (format[++i] == '*') {
+			format_modifiers->precision = va_arg(*params, int);
+		} else if (format[i] >= '0' && format[i] <= '9') {
+			format_modifiers->precision = atoi(format + i);
+			while (format[++i] && format[i] >= '0' && format[i] <= '9');
+		} else format_modifiers->precision = 0;
 	}
 	if (format[i] == 'h' || format[i] == 'l' || format[i] == 'L') {
 		format_modifiers->length = format[i];
