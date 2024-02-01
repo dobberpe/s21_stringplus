@@ -402,15 +402,20 @@ char *etoa(char* f_str, modifiers format_modifiers, char specifier) {
 
 
 	if (f_str[1] == '0' || (k == '9' && *f_str == '1')) {
-		if (format_modifiers.precision) {
+		if (format_modifiers.precision && f_str[2] != '\0') {
 			f_str[1] = '.';
 			f_str[2] = '0';
 			f_str[s21_strlen(f_str) - 1] = '\0';
+		} else if (!format_modifiers.oct_hex_notation || !format_modifiers.precision) {
+			f_str[1] = '\0';
 		} else {
-				f_str[1] = '\0';
+			f_str[1] = '.';
+			f_str = add_width(f_str, 1, '0', false);
 		}
 		exp += 1;
 	}
+
+
 
 	if (s21_strchr("gG", specifier) && !format_modifiers.oct_hex_notation)
 		f_str = clear_last_nulls(f_str);
@@ -533,7 +538,7 @@ char *apply_format(char *str, modifiers format_modifiers, char specifier) {
 		
 		while (str[++integer_part] && str[integer_part] < '1');
 		int exp = point > integer_part ? point - integer_part - 1 : point - integer_part;
-		if ((exp <= -4 || exp >= format_modifiers.precision) && !(!exp && !format_modifiers.precision && !(str[0] == '9' && str[2] > '4'))) {
+		if ((exp < -4 || exp >= format_modifiers.precision) && !(!exp && !format_modifiers.precision && !(str[0] == '9' && str[2] > '4'))) {
 			str = etoa(str, format_modifiers, specifier);
 		} else {
 			str = double_round(str, format_modifiers, specifier);
@@ -547,19 +552,15 @@ char *apply_format(char *str, modifiers format_modifiers, char specifier) {
 	if (format_modifiers.oct_hex_notation && s21_strchr("oxXeEfgG", specifier)) {
 		if (specifier == 'o' && *str != 0 && *str != '0') {
 			str = add_width(str, 1, '0', true);
-		}
-		if (specifier == 'x' && *str != 0 && is_zero != '0') {
+		} else if (specifier == 'x' && *str != 0 && is_zero != '0') {
 			str = add_width(str, 1, 'x', true);
 			str = add_width(str, 1, '0', true);
-		}
-		if (specifier == 'X' && *str != 0 && is_zero != '0') {
+		} else if (specifier == 'X' && *str != 0 && is_zero != '0') {
 			str = add_width(str, 1, 'X', true);
 			str = add_width(str, 1, '0', true);
-		}
-		if (s21_strchr("fgG", specifier) && !s21_strpbrk(str, "eE") && !s21_strpbrk(str, ",.")) {
+		} else if (s21_strchr("fgG", specifier) && !s21_strpbrk(str, "eE") && !s21_strpbrk(str, ",.")) {
 			str = add_width(str, 1, '.', false);
-		}
-		if (s21_strpbrk(str, "eE") && !s21_strpbrk(str, ",.")) {
+		} else if (s21_strchr("gGeE", specifier) && s21_strpbrk(str, "eE") && !s21_strpbrk(str, ",.")) {
 			str = (char *)realloc(str, (str_len + 2) * sizeof(char));
 			char *tmp = s21_strchr(str, 'e');
 			if (tmp == NULL) tmp = s21_strchr(str, 'E');
@@ -613,20 +614,20 @@ char *apply_format(char *str, modifiers format_modifiers, char specifier) {
 // 	mod.left_alignment = false;
 // 	mod.positive_sign = false;
 // 	mod.space_instead_of_sign = false;
-// 	mod.oct_hex_notation = false;
+// 	mod.oct_hex_notation = true;
 // 	mod.fill_with_nulls = false;
-// 	mod.width = 0;
-// 	mod.precision = 0;
+// 	mod.width = 9;
+// 	mod.precision = 2;
 // 	mod.length = 0;
 
 
-// 	char *src = "0.0";
+// 	char *src = "99999.957";
 // 	char *val = malloc(100);
 // 	s21_strncpy(val, src, 100);
 
 // 	printf("%s\n", val = apply_format(val, mod, 'g'));
 // 	// printf("%s\n", val = etoa(val));
-// 	printf("%.g\n", 0.0);
+// 	printf("%#9.2g\n", 99999.957);
 
 // 	free(val);
 // 	return 0;

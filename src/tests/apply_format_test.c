@@ -459,37 +459,90 @@ START_TEST(test_apply_format_g_width_and_precision) {
 }
 END_TEST
 
+
+// G
+START_TEST(test_apply_format_G_basic) {
+	modifiers mod = {0};
+    mod.precision = 6;
+    test_all_falgs_double(mod, "-0.00059999999", -0.00059999999, 'G');
+    test_all_falgs_double(mod, "-0.0005", -0.0005, 'G');
+    test_all_falgs_double(mod, "99999.957", 99999.957, 'G');
+    test_all_falgs_double(mod, "-9.9999999", -9.9999999, 'G');
+    test_all_falgs_double(mod, "1.54120400002123", 1.54120400002123, 'G');
+    test_all_falgs_double(mod, "0.0", 0.0, 'G');
+    test_all_falgs_double(mod, "-321.5569232", -321.5569232, 'G');
+}
+END_TEST
+
+START_TEST(test_apply_format_G_precision) {
+	modifiers mod = {0};
+	mod.precision = 0;
+    test_all_falgs_double(mod, "-0.0005", -0.0005, 'G');
+    test_all_falgs_double(mod, "99999.957", 99999.957, 'G');
+    test_all_falgs_double(mod, "-9.9999999", -9.9999999, 'G');
+    test_all_falgs_double(mod, "1.54120400002123", 1.54120400002123, 'G');
+    test_all_falgs_double(mod, "0.0", 0.0, 'G');
+    test_all_falgs_double(mod, "-321.5569232", -321.5569232, 'G');
+}
+END_TEST
+
+START_TEST(test_apply_format_G_width) {
+	modifiers mod = {0};
+	mod.width = 9;
+    mod.precision = 2;
+    test_all_falgs_double(mod, "-0.0005", -0.0005, 'G');
+    test_all_falgs_double(mod, "99999.957", 99999.957, 'G');
+    test_all_falgs_double(mod, "-9.9999999", -9.9999999, 'G');
+    test_all_falgs_double(mod, "1.54120400002123", 1.54120400002123, 'G');
+    test_all_falgs_double(mod, "0.0", 0.0, 'G');
+    test_all_falgs_double(mod, "-321.5569232", -321.5569232, 'G');
+}
+END_TEST
+
+START_TEST(test_apply_format_G_width_and_precision) {
+	modifiers mod = {0};
+	mod.width = 9;
+    mod.precision = 7;
+    test_all_falgs_double(mod, "-0.0005", -0.0005, 'G');
+    test_all_falgs_double(mod, "99999.957", 99999.957, 'G');
+    test_all_falgs_double(mod, "-9.9999999", -9.9999999, 'G');
+    test_all_falgs_double(mod, "1.54120400002123", 1.54120400002123, 'G');
+    test_all_falgs_double(mod, "0.0", 0.0, 'G');
+    test_all_falgs_double(mod, "-321.5569232", -321.5569232, 'G');
+}
+END_TEST
+
 Suite *s21_apply_format_suite() {
   Suite *suite;
   TCase *tc_core;
   suite = suite_create("s21_apply_format");
   tc_core = tcase_create("core");
-//   tcase_add_test(tc_core, test_apply_format_c_basic);
-//   tcase_add_test(tc_core, test_apply_format_c_width);
-//   tcase_add_test(tc_core, test_apply_format_d_basic);
-//   tcase_add_test(tc_core, test_apply_format_d_precision);
-//   tcase_add_test(tc_core, test_apply_format_d_width);
-//   tcase_add_test(tc_core, test_apply_format_d_width_and_precision);
-//   tcase_add_test(tc_core, test_apply_format_i_basic);
-//   tcase_add_test(tc_core, test_apply_format_i_precision);
-//   tcase_add_test(tc_core, test_apply_format_i_width);
-//   tcase_add_test(tc_core, test_apply_format_i_width_and_precision);
-//   tcase_add_test(tc_core, test_apply_format_o_basic);
-//   tcase_add_test(tc_core, test_apply_format_o_precision);
-//   tcase_add_test(tc_core, test_apply_format_o_width);
-//   tcase_add_test(tc_core, test_apply_format_o_width_and_precision);
-//   tcase_add_test(tc_core, test_apply_format_u_basic);
-//   tcase_add_test(tc_core, test_apply_format_u_precision);
-//   tcase_add_test(tc_core, test_apply_format_u_width);
-//   tcase_add_test(tc_core, test_apply_format_u_width_and_precision);
-//   tcase_add_test(tc_core, test_apply_format_x_basic);
-//   tcase_add_test(tc_core, test_apply_format_x_precision);
-//   tcase_add_test(tc_core, test_apply_format_x_width);
-//   tcase_add_test(tc_core, test_apply_format_x_width_and_precision);
-//   tcase_add_test(tc_core, test_apply_format_X_basic);
-//   tcase_add_test(tc_core, test_apply_format_X_precision);
-//   tcase_add_test(tc_core, test_apply_format_X_width);
-//   tcase_add_test(tc_core, test_apply_format_X_width_and_precision);
+  tcase_add_test(tc_core, test_apply_format_c_basic);
+  tcase_add_test(tc_core, test_apply_format_c_width);
+  tcase_add_test(tc_core, test_apply_format_d_basic);
+  tcase_add_test(tc_core, test_apply_format_d_precision);
+  tcase_add_test(tc_core, test_apply_format_d_width);
+  tcase_add_test(tc_core, test_apply_format_d_width_and_precision);
+  tcase_add_test(tc_core, test_apply_format_i_basic);
+  tcase_add_test(tc_core, test_apply_format_i_precision);
+  tcase_add_test(tc_core, test_apply_format_i_width);
+  tcase_add_test(tc_core, test_apply_format_i_width_and_precision);
+  tcase_add_test(tc_core, test_apply_format_o_basic);
+  tcase_add_test(tc_core, test_apply_format_o_precision);
+  tcase_add_test(tc_core, test_apply_format_o_width);
+  tcase_add_test(tc_core, test_apply_format_o_width_and_precision);
+  tcase_add_test(tc_core, test_apply_format_u_basic);
+  tcase_add_test(tc_core, test_apply_format_u_precision);
+  tcase_add_test(tc_core, test_apply_format_u_width);
+  tcase_add_test(tc_core, test_apply_format_u_width_and_precision);
+  tcase_add_test(tc_core, test_apply_format_x_basic);
+  tcase_add_test(tc_core, test_apply_format_x_precision);
+  tcase_add_test(tc_core, test_apply_format_x_width);
+  tcase_add_test(tc_core, test_apply_format_x_width_and_precision);
+  tcase_add_test(tc_core, test_apply_format_X_basic);
+  tcase_add_test(tc_core, test_apply_format_X_precision);
+  tcase_add_test(tc_core, test_apply_format_X_width);
+  tcase_add_test(tc_core, test_apply_format_X_width_and_precision);
   tcase_add_test(tc_core, test_apply_format_e_basic);
   tcase_add_test(tc_core, test_apply_format_e_precision);
   tcase_add_test(tc_core, test_apply_format_e_width);
@@ -506,6 +559,10 @@ Suite *s21_apply_format_suite() {
   tcase_add_test(tc_core, test_apply_format_g_precision);
   tcase_add_test(tc_core, test_apply_format_g_width);
   tcase_add_test(tc_core, test_apply_format_g_width_and_precision);
+  tcase_add_test(tc_core, test_apply_format_G_basic);
+  tcase_add_test(tc_core, test_apply_format_G_precision);
+  tcase_add_test(tc_core, test_apply_format_G_width);
+  tcase_add_test(tc_core, test_apply_format_G_width_and_precision);
   
   suite_add_tcase(suite, tc_core);
   return suite;
