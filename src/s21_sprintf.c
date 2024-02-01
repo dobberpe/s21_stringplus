@@ -358,9 +358,10 @@ char* clear_nulls(char* str) {
 }
 
 char *clear_last_nulls(char *str) {
-	if (*str != '\0') {
-		char *tmp = &str[s21_strlen(str) - 1];
-		while (*tmp == '0') {
+	if (str != NULL && *str != '\0') {
+		size_t str_len = s21_strlen(str) - 1;
+		char *tmp = &str[str_len];
+		while (*tmp == '0' && str_len--) {
 			*tmp = '\0';
 			tmp--;
 		}
@@ -537,7 +538,6 @@ char *apply_format(char *str, modifiers format_modifiers, char specifier) {
 		} else {
 			str = double_round(str, format_modifiers, specifier);
 		}
-		if (*str == '\0') str = add_width(str, 1, '0', false);
 	}
 	
 	
