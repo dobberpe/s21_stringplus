@@ -511,14 +511,18 @@ char *double_round(char *str, modifiers format_modifiers, char specifier) {
 char *apply_format(char *str, modifiers format_modifiers, char specifier) {
 
 	char is_zero = *str;
+	size_t str_len = s21_strlen(str);
 
 	// убираем минус
-	size_t str_len = s21_strlen(str);
-	bool negative = *str == '-' ? true : false;
-	if (negative) {
-		memmove(str, str + 1, str_len);
-		str = (char *)realloc(str, str_len);
+	bool negative = false;
+	if (s21_strchr("dieEfgG", specifier)) {
+		negative = *str == '-' ? true : false;
+		if (negative) {
+			memmove(str, str + 1, str_len);
+			str = (char *)realloc(str, str_len);
+		}
 	}
+
 
 	// точность
 	str_len = s21_strlen(str);
@@ -582,7 +586,7 @@ char *apply_format(char *str, modifiers format_modifiers, char specifier) {
 
 	// ширина
 	str_len = s21_strlen(str);
-	if (*str == '\0' && format_modifiers.width) format_modifiers.width--; 
+	if (*str == '\0' && format_modifiers.width && specifier != 's') format_modifiers.width--; 
 	if (format_modifiers.width > str_len && !format_modifiers.fill_with_nulls) {
 		str = add_width(str, format_modifiers.width - str_len, ' ', !format_modifiers.left_alignment);
 	}

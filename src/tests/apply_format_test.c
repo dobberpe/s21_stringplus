@@ -13,7 +13,6 @@ END_TEST
 START_TEST(test_apply_format_c_width) {
 	modifiers mod = {0};
 	mod.width = 6;
-    mod.precision = 1;
     test_all_falgs_d(mod, "0", '0', 'c');
     test_all_falgs_d(mod, "z", 'z', 'c');
 }
@@ -512,6 +511,51 @@ START_TEST(test_apply_format_G_width_and_precision) {
 }
 END_TEST
 
+
+
+// s
+START_TEST(test_apply_format_s_basic) {
+	modifiers mod = {0};
+    mod.precision = -1;
+    test_all_falgs_string(mod, "qwe", "qwe", 's');
+    test_all_falgs_string(mod, "", "", 's');
+    test_all_falgs_string(mod, "-99999.957", "-99999.957", 's');
+    test_all_falgs_string(mod, "-^&%!^#&YH%T!O#H!#HG!*&(Y)(&$!@T$)", "-^&%!^#&YH%T!O#H!#HG!*&(Y)(&$!@T$)", 's');
+}
+END_TEST
+
+START_TEST(test_apply_format_s_precision) {
+	modifiers mod = {0};
+	mod.precision = 0;
+    test_all_falgs_string(mod, "qwe", "qwe", 's');
+    test_all_falgs_string(mod, "", "", 's');
+    test_all_falgs_string(mod, "-99999.957", "-99999.957", 's');
+    test_all_falgs_string(mod, "-^&%!^#&YH%T!O#H!#HG!*&(Y)(&$!@T$)", "-^&%!^#&YH%T!O#H!#HG!*&(Y)(&$!@T$)", 's');
+}
+END_TEST
+
+START_TEST(test_apply_format_s_width) {
+	modifiers mod = {0};
+	mod.width = 9;
+    mod.precision = -1;
+    test_all_falgs_string(mod, "qwe", "qwe", 's');
+    test_all_falgs_string(mod, "", "", 's');
+    test_all_falgs_string(mod, "-99999.957", "-99999.957", 's');
+    test_all_falgs_string(mod, "-^&%!^#&YH%T!O#H!#HG!*&(Y)(&$!@T$)", "-^&%!^#&YH%T!O#H!#HG!*&(Y)(&$!@T$)", 's');
+}
+END_TEST
+
+START_TEST(test_apply_format_s_width_and_precision) {
+	modifiers mod = {0};
+	mod.width = 9;
+    mod.precision = 7;
+    test_all_falgs_string(mod, "qwe", "qwe", 's');
+    test_all_falgs_string(mod, "", "", 's');
+    test_all_falgs_string(mod, "-99999.957", "-99999.957", 's');
+    test_all_falgs_string(mod, "-^&%!^#&YH%T!O#H!#HG!*&(Y)(&$!@T$)", "-^&%!^#&YH%T!O#H!#HG!*&(Y)(&$!@T$)", 's');
+}
+END_TEST
+
 Suite *s21_apply_format_suite() {
   Suite *suite;
   TCase *tc_core;
@@ -563,6 +607,10 @@ Suite *s21_apply_format_suite() {
   tcase_add_test(tc_core, test_apply_format_G_precision);
   tcase_add_test(tc_core, test_apply_format_G_width);
   tcase_add_test(tc_core, test_apply_format_G_width_and_precision);
+  tcase_add_test(tc_core, test_apply_format_s_basic);
+  tcase_add_test(tc_core, test_apply_format_s_precision);
+  tcase_add_test(tc_core, test_apply_format_s_width);
+  tcase_add_test(tc_core, test_apply_format_s_width_and_precision);
   
   suite_add_tcase(suite, tc_core);
   return suite;
@@ -625,6 +673,33 @@ void test_all_falgs_double(modifiers mod, char *src, double src2, char spec) {
 }
 
 
+void test_all_falgs_string(modifiers mod, char *src, char *src2, char spec) {
+    char *str2 = (char *)malloc(2000);
+    char *format;
+    for (int i = 0; i < 32; i++) {
+        char *str = (char *)malloc((strlen(src) + 1) * sizeof(char));
+        mod.left_alignment = i & 1;
+        mod.positive_sign = (i >> 1) & 1;
+        mod.space_instead_of_sign = (i >> 2) & 1;
+        mod.oct_hex_notation = (i >> 3) & 1;
+        mod.fill_with_nulls = (i >> 4) & 1;
+        format = format_maker(&mod, spec);
+        s21_memcpy(str, src, strlen(src) + 1);
+        str = apply_format(str, mod, spec);
+        sprintf(str2, format, src2);
+
+        // DEBUG
+        // str = strcat(str, format);
+        // str2 = strcat(str2, format);
+        // END DEBUG
+
+        ck_assert_str_eq(str, str2);
+        free(str);
+        free(format);
+    }
+    free(str2);
+}
+
 
 char *format_maker(modifiers *mod, char ch) {
     char *res = (char *)malloc(40);
@@ -654,7 +729,7 @@ char *format_maker(modifiers *mod, char ch) {
         mod->fill_with_nulls = false;
     }
     if (mod->width != 0) res[i++] = mod->width + '0';
-    if (s21_strchr("diouxXeEfgGs", ch) && ((s21_strchr("eEfgG", ch) && mod->precision != 6) || (!s21_strchr("eEfgG", ch) && mod->precision != 1))) {
+    if (s21_strchr("diouxXeEfgGs", ch) && ((s21_strchr("eEfgG", ch) && mod->precision != 6) || (s21_strchr("diouxX", ch) && mod->precision != 1) || (ch == 's' && mod->precision != -1))) {
         res[i++] = '.';
         res[i++] = mod->precision + '0';
     }
