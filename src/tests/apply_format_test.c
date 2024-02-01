@@ -408,6 +408,57 @@ START_TEST(test_apply_format_f_width_and_precision) {
 }
 END_TEST
 
+// g
+START_TEST(test_apply_format_g_basic) {
+	modifiers mod = {0};
+    mod.precision = 6;
+    test_all_falgs_double(mod, "0.02", 0.02, 'g');
+    test_all_falgs_double(mod, "42141.957", 42141.957, 'g');
+    test_all_falgs_double(mod, "-9.9999999", -9.9999999, 'g');
+    test_all_falgs_double(mod, "1.3121257", 1.3121257, 'g');
+    test_all_falgs_double(mod, "0.0", 0.0, 'g');
+    test_all_falgs_double(mod, "-1.999999232", -1.999999232, 'g');
+}
+END_TEST
+
+START_TEST(test_apply_format_g_precision) {
+	modifiers mod = {0};
+	mod.precision = 0;
+    test_all_falgs_double(mod, "0.02", 0.02, 'g');
+    test_all_falgs_double(mod, "42141.957", 42141.957, 'g');
+    test_all_falgs_double(mod, "-9.9999999", -9.9999999, 'g');
+    test_all_falgs_double(mod, "1.3121257", 1.3121257, 'g');
+    test_all_falgs_double(mod, "0.0", 0.0, 'g');
+    test_all_falgs_double(mod, "-1.999999232", -1.999999232, 'g');
+}
+END_TEST
+
+START_TEST(test_apply_format_g_width) {
+	modifiers mod = {0};
+	mod.width = 9;
+    mod.precision = 4;
+    test_all_falgs_double(mod, "0.02", 0.02, 'g');
+    test_all_falgs_double(mod, "42141.957", 42141.957, 'g');
+    test_all_falgs_double(mod, "-9.9999999", -9.9999999, 'g');
+    test_all_falgs_double(mod, "1.3121257", 1.3121257, 'g');
+    test_all_falgs_double(mod, "0.0", 0.0, 'g');
+    test_all_falgs_double(mod, "-1.999999232", -1.999999232, 'g');
+}
+END_TEST
+
+START_TEST(test_apply_format_g_width_and_precision) {
+	modifiers mod = {0};
+	mod.width = 9;
+    mod.precision = 3;
+    test_all_falgs_double(mod, "0.02", 0.02, 'g');
+    test_all_falgs_double(mod, "42141.957", 42141.957, 'g');
+    test_all_falgs_double(mod, "-9.9999999", -9.9999999, 'g');
+    test_all_falgs_double(mod, "1.3121257", 1.3121257, 'g');
+    test_all_falgs_double(mod, "0.0", 0.0, 'g');
+    test_all_falgs_double(mod, "-1.999999232", -1.999999232, 'g');
+}
+END_TEST
+
 Suite *s21_apply_format_suite() {
   Suite *suite;
   TCase *tc_core;
@@ -451,7 +502,10 @@ Suite *s21_apply_format_suite() {
   tcase_add_test(tc_core, test_apply_format_f_precision);
   tcase_add_test(tc_core, test_apply_format_f_width);
   tcase_add_test(tc_core, test_apply_format_f_width_and_precision);
-
+  tcase_add_test(tc_core, test_apply_format_g_basic);
+  tcase_add_test(tc_core, test_apply_format_g_precision);
+  tcase_add_test(tc_core, test_apply_format_g_width);
+  tcase_add_test(tc_core, test_apply_format_g_width_and_precision);
   
   suite_add_tcase(suite, tc_core);
   return suite;
@@ -471,7 +525,7 @@ void test_all_falgs_d(modifiers mod, char *src, int src2, char spec) {
         mod.fill_with_nulls = (i >> 4) & 1;
         format = format_maker(&mod, spec);
         s21_memcpy(str, src, strlen(src) + 1);
-        str = apply_format(str, &mod, spec);
+        str = apply_format(str, mod, spec);
         sprintf(str2, format, src2);
 
         // DEBUG
@@ -498,12 +552,12 @@ void test_all_falgs_double(modifiers mod, char *src, double src2, char spec) {
         mod.fill_with_nulls = (i >> 4) & 1;
         format = format_maker(&mod, spec);
         s21_memcpy(str, src, strlen(src) + 1);
-        str = apply_format(str, &mod, spec);
+        str = apply_format(str, mod, spec);
         sprintf(str2, format, src2);
 
         // DEBUG
-        // str = strcat(str, format);
-        // str2 = strcat(str2, format);
+        str = strcat(str, format);
+        str2 = strcat(str2, format);
         // END DEBUG
 
         ck_assert_str_eq(str, str2);

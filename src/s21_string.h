@@ -56,7 +56,7 @@ int process_format(const char *format, int i, char *str, const int j, va_list *p
 char *process_specifier(char specifier, const int len, va_list *params, modifiers *format_modifiers);
 char *doxtoa(long long d, const int radix, const bool uppercase);
 int doxlen(long long d, const int radix);
-char *etoa(char* f_str, modifiers *format_modifiers, char specifier);
+char *etoa(char* f_str, modifiers format_modifiers, char specifier);
 char* clear_nulls(char* str);
 char *ftoa(long double f);
 int extract_exp(const unsigned short bits);
@@ -68,7 +68,9 @@ char* raise_power_of_5(char *str, int n);
 char* add_width(char *str, int num, char value, bool right_alignment);
 char* stradd(char *l_str, char *r_str);
 int point_position(char *str);
-char *apply_format(char *str, modifiers *format_modifiers, char specifier);
+char *apply_format(char *str, modifiers format_modifiers, char specifier);
+char *double_round(char *str, modifiers format_modifiers, char specifier);
+char *clear_last_nulls(char *str);
 
 
 #endif
