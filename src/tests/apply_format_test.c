@@ -556,8 +556,8 @@ void test_all_falgs_double(modifiers mod, char *src, double src2, char spec) {
         sprintf(str2, format, src2);
 
         // DEBUG
-        str = strcat(str, format);
-        str2 = strcat(str2, format);
+        // str = strcat(str, format);
+        // str2 = strcat(str2, format);
         // END DEBUG
 
         ck_assert_str_eq(str, str2);
