@@ -13,6 +13,11 @@
 #define max(X,Y) ((X) > (Y) ? (X) : (Y))
 
 typedef union {
+	double full;
+	unsigned long long bits;
+} f_representation;
+
+typedef union {
 	long double full;
 	unsigned short bits[5];
 } fl_representation;
@@ -79,11 +84,15 @@ int doxlen(long long d, const int radix);
 char* etoa(char* f_str, print_modifiers format_modifiers, char specifier);
 char* clear_nulls(char* str);
 char* get_f(long double f);
+char *ftoa(double f);
 char* lftoa(long double f);
+int extract_exp(unsigned long long bits);
+char *calculate_int_part(char *integer, const int e, const unsigned long long bits, unsigned long long mask);
+char *calculate_frac_part(char *fraction, int e, const unsigned long long bits, unsigned long long mask);
 int extract_exp_long(const unsigned short bits);
 char* calculate_int_part_long(char *integer, const int e, const unsigned short *bits, unsigned short mask);
-char* raise_power_of_2(char *str, int n);
 char* calculate_frac_part_long(char *fraction, int e, const unsigned short *bits, unsigned short mask);
+char* raise_power_of_2(char *str, int n);
 char* raise_power_of_5(char *str, int n);
 char* add_width(char *str, int num, char value, bool right_alignment);
 char* stradd(char *l_str, char *r_str);
