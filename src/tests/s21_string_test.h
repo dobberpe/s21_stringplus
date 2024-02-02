@@ -7,7 +7,7 @@
 
 #include "../s21_string.h"
 
-char *format_maker(print_modifiers *mod, char ch);
+char *format_maker(print_modifiers *mod, char ch, char len);
 void test_all_falgs_d(print_modifiers mod, char *src, int src2, char spec);
 void test_all_falgs_double(print_modifiers mod, char *src, double src2, char spec);
 void test_all_falgs_string(print_modifiers mod, char *src, char *src2, char spec);

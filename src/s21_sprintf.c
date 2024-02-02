@@ -633,16 +633,19 @@ char *set_precision(char *str, print_modifiers format_modifiers, char specifier)
 		} else {
 			str = double_round(str, format_modifiers, specifier);
 		}
+	} else if (specifier == 'p') {
+		int zeros_no = format_modifiers.precision - str_len;
+		if (zeros_no > 0) str = add_width(str, zeros_no, '0', true);
 	}
 	return str;
 }
 
 char *set_hex_notation(char *str, print_modifiers format_modifiers, char specifier, char is_zero) {
 	size_t str_len = s21_strlen(str);
-	if (format_modifiers.oct_hex_notation && s21_strchr("oxXeEfgG", specifier)) {
+	if ((format_modifiers.oct_hex_notation && s21_strchr("oxXeEfgG", specifier)) || specifier == 'p') {
 		if (specifier == 'o' && *str != 0 && *str != '0') {
 			str = add_width(str, 1, '0', true);
-		} else if (specifier == 'x' && *str != 0 && is_zero != '0') {
+		} else if ((specifier == 'x' && *str != 0 && is_zero != '0') || specifier == 'p') {
 			str = add_width(str, 1, 'x', true);
 			str = add_width(str, 1, '0', true);
 		} else if (specifier == 'X' && *str != 0 && is_zero != '0') {
@@ -688,6 +691,8 @@ char *set_width(char *str, print_modifiers format_modifiers, char specifier) {
 }
 
 char *apply_format(char *str, print_modifiers format_modifiers, char specifier) {
+	// printf("%s\n", str);
+
 	char is_zero = *str;
 	size_t str_len = s21_strlen(str);
 
@@ -725,25 +730,34 @@ char *apply_format(char *str, print_modifiers format_modifiers, char specifier) 
 
 
 // int main() {
-// 	modifiers mod = {0};
-// 	mod.left_alignment = false;
-// 	mod.positive_sign = false;
-// 	mod.space_instead_of_sign = false;
-// 	mod.oct_hex_notation = true;
-// 	mod.fill_with_nulls = false;
-// 	mod.width = 9;
-// 	mod.precision = 2;
-// 	mod.length = 0;
+	// modifiers mod = {0};
+	// mod.left_alignment = false;
+	// mod.positive_sign = false;
+	// mod.space_instead_of_sign = false;
+	// mod.oct_hex_notation = true;
+	// mod.fill_with_nulls = false;
+	// mod.width = 9;
+	// mod.precision = 2;
+	// mod.length = 0;
 
 
-// 	char *src = "99999.957";
-// 	char *val = malloc(100);
-// 	s21_strncpy(val, src, 100);
+	// char *src = "99999.957";
+	// char *val = malloc(100);
+	// s21_strncpy(val, src, 100);
 
-// 	printf("%s\n", val = apply_format(val, mod, 'g'));
-// 	// printf("%s\n", val = etoa(val));
-// 	printf("%#9.2g\n", 99999.957);
+	// printf("%s\n", val = apply_format(val, mod, 'g'));
+	// printf("%s\n", val = etoa(val));
+	// printf("%#9.2g\n", 99999.957);
 
-// 	free(val);
+	// free(val);
+
+
+// 	char s21_res[100];
+//     char io_res[100];
+//     float a = 9.0099;
+//     s21_sprintf(s21_res, "%.22p", &a);
+//     sprintf(io_res, "%.22p", &a);
+// 	printf("%s\n", s21_res);
+// 	printf("%s\n", io_res);
 // 	return 0;
 // }

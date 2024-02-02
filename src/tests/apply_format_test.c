@@ -628,7 +628,7 @@ void test_all_falgs_d(print_modifiers mod, char *src, int src2, char spec) {
         mod.space_instead_of_sign = (i >> 2) & 1;
         mod.oct_hex_notation = (i >> 3) & 1;
         mod.fill_with_nulls = (i >> 4) & 1;
-        format = format_maker(&mod, spec);
+        format = format_maker(&mod, spec, '\0');
         s21_memcpy(str, src, strlen(src) + 1);
         str = apply_format(str, mod, spec);
         sprintf(str2, format, src2);
@@ -655,13 +655,15 @@ void test_all_falgs_double(print_modifiers mod, char *src, double src2, char spe
         mod.space_instead_of_sign = (i >> 2) & 1;
         mod.oct_hex_notation = (i >> 3) & 1;
         mod.fill_with_nulls = (i >> 4) & 1;
-        format = format_maker(&mod, spec);
+        format = format_maker(&mod, spec, '\0');
         s21_memcpy(str, src, strlen(src) + 1);
         str = apply_format(str, mod, spec);
         sprintf(str2, format, src2);
 
         // DEBUG
+        // str = (char *)realloc(str, (s21_strlen(str) + s21_strlen(format) + 1) * sizeof(char));
         // str = strcat(str, format);
+        // str2 = (char *)realloc(str2, (s21_strlen(str2) + s21_strlen(format) + 1) * sizeof(char));
         // str2 = strcat(str2, format);
         // END DEBUG
 
@@ -683,7 +685,7 @@ void test_all_falgs_string(print_modifiers mod, char *src, char *src2, char spec
         mod.space_instead_of_sign = (i >> 2) & 1;
         mod.oct_hex_notation = (i >> 3) & 1;
         mod.fill_with_nulls = (i >> 4) & 1;
-        format = format_maker(&mod, spec);
+        format = format_maker(&mod, spec, '\0');
         s21_memcpy(str, src, strlen(src) + 1);
         str = apply_format(str, mod, spec);
         sprintf(str2, format, src2);
@@ -701,7 +703,7 @@ void test_all_falgs_string(print_modifiers mod, char *src, char *src2, char spec
 }
 
 
-char *format_maker(print_modifiers *mod, char ch) {
+char *format_maker(print_modifiers *mod, char ch, char len) {
     char *res = (char *)malloc(40);
     res[0] = '%';
     int i = 1;
@@ -733,6 +735,7 @@ char *format_maker(print_modifiers *mod, char ch) {
         res[i++] = '.';
         res[i++] = mod->precision + '0';
     }
+    if (len) res[i++] = len;
     res[i++] = ch;
     res[i] = '\0';
     return res;

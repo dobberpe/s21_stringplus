@@ -63,12 +63,42 @@ Suite *s21_sprintf_suite() {
   TCase *tc_core;
   suite = suite_create("s21_sprintf");
   tc_core = tcase_create("core");
-//   tcase_add_test(tc_core, test_s21_sprintf_d);
-//   tcase_add_test(tc_core, test_s21_sprintf_d2);
+  tcase_add_test(tc_core, test_s21_sprintf_d);
+  tcase_add_test(tc_core, test_s21_sprintf_d2);
 //   tcase_add_test(tc_core, test_s21_sprintf_f);
-//   tcase_add_test(tc_core, test_s21_sprintf_f2);
-//   tcase_add_test(tc_core, test_s21_sprintf_f3);
+  tcase_add_test(tc_core, test_s21_sprintf_f2);
+  tcase_add_test(tc_core, test_s21_sprintf_f3);
 //   tcase_add_test(tc_core, test_s21_sprintf_E_precision);
   suite_add_tcase(suite, tc_core);
   return suite;
 }
+
+
+// void test_all_falgs_sprintf(char spec, ...) {
+//     char *str2 = (char *)malloc(2000);
+//     char *format;
+//     for (int i = 0; i < 32; i++) {
+//         char *str = (char *)malloc((strlen(src) + 1) * sizeof(char));
+//         mod.left_alignment = i & 1;
+//         mod.positive_sign = (i >> 1) & 1;
+//         mod.space_instead_of_sign = (i >> 2) & 1;
+//         mod.oct_hex_notation = (i >> 3) & 1;
+//         mod.fill_with_nulls = (i >> 4) & 1;
+//         format = format_maker(&mod, spec, '\0');
+//         s21_memcpy(str, src, strlen(src) + 1);
+//         str = apply_format(str, mod, spec);
+//         sprintf(str2, format, src2);
+
+//         // DEBUG
+//         str = (char *)realloc(str, (s21_strlen(str) + s21_strlen(format) + 1) * sizeof(char));
+//         str = strcat(str, format);
+//         str2 = (char *)realloc(str2, (s21_strlen(str2) + s21_strlen(format) + 1) * sizeof(char));
+//         str2 = strcat(str2, format);
+//         // END DEBUG
+
+//         ck_assert_str_eq(str, str2);
+//         free(str);
+//         free(format);
+//     }
+//     free(str2);
+// }
