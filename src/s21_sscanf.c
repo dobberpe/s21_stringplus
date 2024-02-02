@@ -54,7 +54,7 @@ int process_scan_specifier(char specifier, const char* str, int len, va_list *pa
 	} else if (specifier == 'd' || specifier == 'i') {
         len += skip_spaces(str + len);
         int end = skip_dox(str + len, specifier);
-        res.d = specifier == 'd' ? atoi(str + len) : strtoul(str + len, str + len + end, 0);
+        res.d = specifier == 'd' ? atoi(str + len) : strtol(str + len, str + len + end, 0);
         len += end;
 	} else if (specifier == 'e' || specifier == 'E' || specifier == 'f' || specifier == 'g' || specifier == 'G') {
         len += skip_spaces(str + len);

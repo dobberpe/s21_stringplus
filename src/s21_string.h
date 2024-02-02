@@ -51,7 +51,6 @@ typedef struct {
 	unsigned long lu;
 	double f;
 	long double lf;
-
 } scan_result;
 
 void *s21_memchr(const void *str, int c, size_t n);
