@@ -160,23 +160,23 @@ char* get_f(long double f) {
 		res = (char*)calloc((4 + (f < 0)), sizeof(char));
 		res = f < 0 ? s21_strncat(res, "-", 1) : res;
 		res = isinfl(f) ? s21_strncat(res, "inf", 3) : s21_strncat(res, "nan", 3);
-	} else res = ftoa(f);
+	} else res = lftoa(f);
 
 	return res;
 }
 
-char *ftoa(long double f) {
+char *lftoa(long double f) {
 	fl_representation flt;
 	flt.full = f;
 	bool negative = flt.bits[4] & 0x8000;
-	int e = extract_exp(flt.bits[4]);
+	int e = extract_exp_long(flt.bits[4]);
 	char* res;
 	char *integer = doxtoa(0, 10, false);
 	char *fraction = doxtoa(0, 10, false);
 
-	integer = e >= 0 ? calculate_int_part(integer, e, flt.bits, e > 62 ? 1 : 0x8000 >> (e % 16)) : integer;
+	integer = e >= 0 ? calculate_int_part_long(integer, e, flt.bits, e > 62 ? 1 : 0x8000 >> (e % 16)) : integer;
 	unsigned short mask = 0x8000 >> (e % 16 + 1);
-	fraction = e < 63 ? calculate_frac_part(fraction, e, flt.bits, mask ? mask : 0x8000) : fraction;
+	fraction = e < 63 ? calculate_frac_part_long(fraction, e, flt.bits, mask ? mask : 0x8000) : fraction;
 
 	int i = s21_strlen(integer);
 	res = negative ? add_width(integer, 1, '-', true) : integer;
@@ -188,7 +188,7 @@ char *ftoa(long double f) {
 	return res;
 }
 
-int extract_exp(const unsigned short bits) {
+int extract_exp_long(const unsigned short bits) {
     unsigned short mask = 1 << 14;
     int e = -16383;
     int power = 15;
@@ -201,7 +201,7 @@ int extract_exp(const unsigned short bits) {
     return e;
 }
 
-char *calculate_int_part(char *integer, const int e, const unsigned short *bits, unsigned short mask) {
+char *calculate_int_part_long(char *integer, const int e, const unsigned short *bits, unsigned short mask) {
 	int p = e > 64 ? e - 63 : 0;
 	char* power_of_2 = doxtoa(1, 10, false);
 	int prev_p = 0;
@@ -239,7 +239,7 @@ char* raise_power_of_2(char *str, int n) {
 	return str;
 }
 
-char *calculate_frac_part(char *fraction, int e, const unsigned short *bits, unsigned short mask) {
+char *calculate_frac_part_long(char *fraction, int e, const unsigned short *bits, unsigned short mask) {
 	int i = 3 - e / 16 + 1;
 	i = i > 4 ? 4 : i;
 	e = e >= 0 ? 1 : abs(e);
