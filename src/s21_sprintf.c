@@ -97,7 +97,7 @@ char *process_specifier(char specifier, const int len, va_list *params, print_mo
 		res = doxtoa(format_modifiers->length == 'h' ? va_arg(*params, short) : format_modifiers->length == 'l' ? va_arg(*params, long) : va_arg(*params, int), 10, false);
 	} else if (specifier == 'e' || specifier == 'E' || specifier == 'f' || specifier == 'g' || specifier == 'G') {
 		format_modifiers->precision = format_modifiers->precision == -1 ? 6 : format_modifiers->precision;
-		res = ftoa(format_modifiers->length == 'L' ? va_arg(*params, long double) : va_arg(*params, double));
+		res = get_f(format_modifiers->length == 'L' ? va_arg(*params, long double) : va_arg(*params, double));
 	} else if (specifier == 'o' || specifier == 'u' || specifier == 'x' || specifier == 'X') {
 		format_modifiers->precision = format_modifiers->precision == -1 ? 1 : format_modifiers->precision;
 		res = doxtoa(format_modifiers->length == 'h' ? va_arg(*params, unsigned short) : format_modifiers->length == 'l' ? va_arg(*params, unsigned long) : va_arg(*params, unsigned), specifier == 'o' ? 8 : specifier == 'u' ? 10 : 16, specifier == 'X');
@@ -154,29 +154,36 @@ int doxlen(long long d, const int radix) {
 	return i;
 }
 
+char* get_f(long double f) {
+	char* res;
+	if (isinfl(f) || isnanl(f)) {
+		res = (char*)calloc((4 + (f < 0)), sizeof(char));
+		res = f < 0 ? s21_strncat(res, "-", 1) : res;
+		res = isinfl(f) ? s21_strncat(res, "inf", 3) : s21_strncat(res, "nan", 3);
+	} else res = ftoa(f);
+
+	return res;
+}
+
 char *ftoa(long double f) {
 	f_representation flt;
 	flt.full = f;
 	bool negative = flt.bits[4] & 0x8000;
 	int e = extract_exp(flt.bits[4]);
 	char* res;
-	if (e == 16384) {
-		res = edge_case(flt.bits, negative);
-	} else {
-		char *integer = doxtoa(0, 10, false);
-		char *fraction = doxtoa(0, 10, false);
+	char *integer = doxtoa(0, 10, false);
+	char *fraction = doxtoa(0, 10, false);
 
-		integer = e >= 0 ? calculate_int_part(integer, e, flt.bits, e > 62 ? 1 : 0x8000 >> (e % 16)) : integer;
-		unsigned short mask = 0x8000 >> (e % 16 + 1);
-		fraction = e < 63 ? calculate_frac_part(fraction, e, flt.bits, mask ? mask : 0x8000) : fraction;
+	integer = e >= 0 ? calculate_int_part(integer, e, flt.bits, e > 62 ? 1 : 0x8000 >> (e % 16)) : integer;
+	unsigned short mask = 0x8000 >> (e % 16 + 1);
+	fraction = e < 63 ? calculate_frac_part(fraction, e, flt.bits, mask ? mask : 0x8000) : fraction;
 
-		int i = s21_strlen(integer);
-		res = negative ? add_width(integer, 1, '-', true) : integer;
-		res = add_width(res, 1, '.', false);
-		res = (char*)realloc(res, (s21_strlen(res) + s21_strlen(fraction) + 1) * sizeof(char));
-		s21_strncat(res, fraction, s21_strlen(fraction));
-		free(fraction);
-	}
+	int i = s21_strlen(integer);
+	res = negative ? add_width(integer, 1, '-', true) : integer;
+	res = add_width(res, 1, '.', false);
+	res = (char*)realloc(res, (s21_strlen(res) + s21_strlen(fraction) + 1) * sizeof(char));
+	s21_strncat(res, fraction, s21_strlen(fraction));
+	free(fraction);
 
 	return res;
 }
@@ -192,21 +199,6 @@ int extract_exp(const unsigned short bits) {
     }
 
     return e;
-}
-
-char* edge_case(unsigned short* bits, bool negative) {
-	char* res = (char*)malloc(4 * sizeof(char));
-
-	s21_strncpy(res, bits[3] == 49152 ? "nan" : "inf", 4);
-	res[3] = '\0';
-
-	// if (bits[3] == 32768 && !bits[2] && !bits[1] && !bits[0]) {
-	// 	;
-	// } else if (bits[3] == 49152 && !bits[2] && !bits[1] && !bits[0]) {
-	// 	;
-	// }
-
-	return negative ? add_width(res, 1, '-', true) : res;
 }
 
 char *calculate_int_part(char *integer, const int e, const unsigned short *bits, unsigned short mask) {
