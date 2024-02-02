@@ -166,7 +166,7 @@ char* get_f(long double f) {
 }
 
 char *ftoa(long double f) {
-	f_representation flt;
+	fl_representation flt;
 	flt.full = f;
 	bool negative = flt.bits[4] & 0x8000;
 	int e = extract_exp(flt.bits[4]);

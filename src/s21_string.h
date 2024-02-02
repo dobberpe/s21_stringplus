@@ -15,7 +15,7 @@
 typedef union {
 	long double full;
 	unsigned short bits[5];
-} f_representation;
+} fl_representation;
 
 typedef struct {
 	bool left_alignment;
