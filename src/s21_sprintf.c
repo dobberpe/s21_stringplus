@@ -394,18 +394,12 @@ char *etoa(char* f_str, print_modifiers format_modifiers, char specifier) {
     }
     f_str[point] = '.';
 
-
 	if (!s21_strchr(f_str, '.')) f_str = add_width(f_str, 1, '.', false);
 	if (f_str[s21_strlen(f_str) - 1] == '.') f_str = add_width(f_str, 1, '0', false);
-		
     f_str = clear_nulls(f_str);
-	
 	if (*f_str == '0') exp = 0;
-
 	char k = *f_str;
-	
 	f_str = double_round(f_str, format_modifiers, specifier);
-
 
 	if (f_str[1] == '0' || (k == '9' && *f_str == '1')) {
 		if (format_modifiers.precision && f_str[2] != '\0') {
@@ -420,12 +414,8 @@ char *etoa(char* f_str, print_modifiers format_modifiers, char specifier) {
 		}
 		exp += 1;
 	}
-
-
-
 	if (s21_strchr("gG", specifier) && !format_modifiers.oct_hex_notation)
 		f_str = clear_last_nulls(f_str);
-
 
     int flen = s21_strlen(f_str);
     char *e_str = doxtoa(abs(exp), 10, false);
@@ -468,14 +458,12 @@ char *double_round(char *str, print_modifiers format_modifiers, char specifier) 
 			}
 		}
 	}
-	
 
 	tmp = s21_strchr(str, '.') + 1;
 	while (*tmp >= '0' && *tmp <= '9') {
 		i++;
 		tmp++;
 	}
-
 	if (i < format_modifiers.precision) {
 		size_t offset = format_modifiers.precision - i;
 		str = add_width(str, offset, '0', false);
@@ -496,16 +484,11 @@ char *double_round(char *str, print_modifiers format_modifiers, char specifier) 
 				tmp = stradd(str, str2);
 				free(str2);
 			}
-
 			if (s21_strchr("gG", specifier) && s21_strlen(tmp) > s21_strlen(str)) tmp[s21_strlen(tmp) - 1] = '\0';
-
-
 			free(str);
 			str = tmp;
 		}
 	}
-
-	
 
 	if (s21_strchr("gG", specifier) && !format_modifiers.oct_hex_notation)
 		str = clear_last_nulls(str);
@@ -514,24 +497,8 @@ char *double_round(char *str, print_modifiers format_modifiers, char specifier) 
 	return str;
 }
 
-char *apply_format(char *str, print_modifiers format_modifiers, char specifier) {
-
-	char is_zero = *str;
+char *set_precision(char *str, print_modifiers format_modifiers, char specifier) {
 	size_t str_len = s21_strlen(str);
-
-	// убираем минус
-	bool negative = false;
-	if (s21_strchr("dieEfgG", specifier)) {
-		negative = *str == '-' ? true : false;
-		if (negative) {
-			memmove(str, str + 1, str_len);
-			str = (char *)realloc(str, str_len);
-		}
-	}
-
-
-	// точность
-	str_len = s21_strlen(str);
 	if (specifier == 's' && format_modifiers.precision >= 0 && str_len > format_modifiers.precision) {
 		str[format_modifiers.precision] = '\0';
 	} else if (s21_strchr("diouxX", specifier) && str_len < format_modifiers.precision) {
@@ -554,11 +521,11 @@ char *apply_format(char *str, print_modifiers format_modifiers, char specifier) 
 			str = double_round(str, format_modifiers, specifier);
 		}
 	}
-	
-	
-	
-	// префикс и точка
-	str_len = s21_strlen(str);
+	return str;
+}
+
+char *set_hex_notation(char *str, print_modifiers format_modifiers, char specifier, char is_zero) {
+	size_t str_len = s21_strlen(str);
 	if (format_modifiers.oct_hex_notation && s21_strchr("oxXeEfgG", specifier)) {
 		if (specifier == 'o' && *str != 0 && *str != '0') {
 			str = add_width(str, 1, '0', true);
@@ -578,20 +545,11 @@ char *apply_format(char *str, print_modifiers format_modifiers, char specifier) 
 			str[tmp - str] = '.';
 		}
 	}
+	return str;
+}
 
-	// знак
-	str_len = s21_strlen(str);
-	if (negative) {
-		str = add_width(str, 1, '-', true);
-	} else if (format_modifiers.positive_sign && s21_strchr("dieEfgG", specifier)) {
-		str = add_width(str, 1, '+', true);
-	} else if (format_modifiers.space_instead_of_sign && !format_modifiers.positive_sign && s21_strchr("dieEfgG", specifier)) {
-		str = add_width(str, 1, ' ', true);
-	}
-
-
-	// ширина
-	str_len = s21_strlen(str);
+char *set_width(char *str, print_modifiers format_modifiers, char specifier) {
+	size_t str_len = s21_strlen(str);
 	if (*str == '\0' && format_modifiers.width && specifier != 's') format_modifiers.width--; 
 	if (format_modifiers.width > str_len && !format_modifiers.fill_with_nulls) {
 		str = add_width(str, format_modifiers.width - str_len, ' ', !format_modifiers.left_alignment);
@@ -613,6 +571,41 @@ char *apply_format(char *str, print_modifiers format_modifiers, char specifier) 
 			for (int j = 0; j < offset; j++) str[(diff) + j] = '0';
 		}
 	}
+	return str;
+}
+
+char *apply_format(char *str, print_modifiers format_modifiers, char specifier) {
+	char is_zero = *str;
+	size_t str_len = s21_strlen(str);
+
+	// убираем минус
+	bool negative = false;
+	if (s21_strchr("dieEfgG", specifier)) {
+		negative = *str == '-' ? true : false;
+		if (negative) {
+			memmove(str, str + 1, str_len);
+			str = (char *)realloc(str, str_len);
+		}
+	}
+
+	// точность
+	str = set_precision(str, format_modifiers, specifier);
+	
+	// префикс и точка
+	str = set_hex_notation(str, format_modifiers, specifier, is_zero);
+
+	// знак
+	str_len = s21_strlen(str);
+	if (negative) {
+		str = add_width(str, 1, '-', true);
+	} else if (format_modifiers.positive_sign && s21_strchr("dieEfgG", specifier)) {
+		str = add_width(str, 1, '+', true);
+	} else if (format_modifiers.space_instead_of_sign && !format_modifiers.positive_sign && s21_strchr("dieEfgG", specifier)) {
+		str = add_width(str, 1, ' ', true);
+	}
+
+	// ширина
+	str = set_width(str, format_modifiers, specifier);
 
 	return str;
 }
