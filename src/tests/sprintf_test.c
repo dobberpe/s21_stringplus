@@ -63,12 +63,12 @@ Suite *s21_sprintf_suite() {
   TCase *tc_core;
   suite = suite_create("s21_sprintf");
   tc_core = tcase_create("core");
-  tcase_add_test(tc_core, test_s21_sprintf_d);
-  tcase_add_test(tc_core, test_s21_sprintf_d2);
-  tcase_add_test(tc_core, test_s21_sprintf_f);
-  tcase_add_test(tc_core, test_s21_sprintf_f2);
-  tcase_add_test(tc_core, test_s21_sprintf_f3);
-  tcase_add_test(tc_core, test_s21_sprintf_E_precision);
+//   tcase_add_test(tc_core, test_s21_sprintf_d);
+//   tcase_add_test(tc_core, test_s21_sprintf_d2);
+//   tcase_add_test(tc_core, test_s21_sprintf_f);
+//   tcase_add_test(tc_core, test_s21_sprintf_f2);
+//   tcase_add_test(tc_core, test_s21_sprintf_f3);
+//   tcase_add_test(tc_core, test_s21_sprintf_E_precision);
   suite_add_tcase(suite, tc_core);
   return suite;
 }

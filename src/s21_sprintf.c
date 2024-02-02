@@ -125,7 +125,7 @@ char *process_specifier(char specifier, const int len, va_list *params, print_mo
 		res[1] = '\0';
 	}
 
-	return res && specifier != '%' && specifier != 'n' ? apply_format(res, format_modifiers, specifier) : res;
+	return res && specifier != '%' && specifier != 'n' ? apply_format(res, *format_modifiers, specifier) : res;
 }
 
 char *doxtoa(long long d, const int radix, const bool uppercase) {
@@ -314,8 +314,8 @@ char* add_width(char *str, int num, char value, bool right_alignment) {
 }
 
 char* stradd(char *l_str, char *r_str) {
-    int l_len = strlen(l_str);
-    int r_len = strlen(r_str);
+    int l_len = s21_strlen(l_str);
+    int r_len = s21_strlen(r_str);
 	int i = l_len - 1;
 	int j = r_len - 1;
 	int k = max(l_len, r_len) + 1;
@@ -352,112 +352,225 @@ int point_position(char *str) {
     return str[i] ? i : 0;
 }
 
-char *apply_format(char *str, print_modifiers *format_modifiers, char specifier) {
+char* clear_nulls(char* str) {
+    int i = -1;
+    while (str[++i] == '0' && str[i + 1] != '.');
+    int j = -1;
+    --i;
+    while (str[++i]) str[++j] = str[i];
+    str[++j] = '\0';
+    str = (char*)realloc(str, (s21_strlen(str) + 1) * sizeof(char));
+    return str;
+}
+
+char *clear_last_nulls(char *str) {
+	if (str != NULL && *str != '\0') {
+		size_t str_len = s21_strlen(str) - 1;
+		char *tmp = &str[str_len];
+		while (*tmp == '0' && str_len--) {
+			*tmp = '\0';
+			tmp--;
+		}
+	}
+	return str;
+}
+
+char *etoa(char* f_str, print_modifiers format_modifiers, char specifier) {
+    int point = s21_strchr(f_str, '.') - f_str;
+    int integer_part = -1;
+    
+    while (f_str[++integer_part] && f_str[integer_part] < '1');
+    int exp = point > integer_part ? point - integer_part - 1 : point - integer_part;
+    if (point > integer_part + 1) {
+        ++point;
+        while (--point > integer_part + 1) {
+            f_str[point] = f_str[point - 1];
+        }
+    } else if (point < integer_part) {
+        --point;
+        while (++point < integer_part) {
+            f_str[point] = f_str[point + 1];
+        }
+    }
+    f_str[point] = '.';
+
+
+	if (!s21_strchr(f_str, '.')) f_str = add_width(f_str, 1, '.', false);
+	if (f_str[s21_strlen(f_str) - 1] == '.') f_str = add_width(f_str, 1, '0', false);
+		
+    f_str = clear_nulls(f_str);
+	
+	if (*f_str == '0') exp = 0;
+
+	char k = *f_str;
+	
+	f_str = double_round(f_str, format_modifiers, specifier);
+
+
+	if (f_str[1] == '0' || (k == '9' && *f_str == '1')) {
+		if (format_modifiers.precision && f_str[2] != '\0') {
+			f_str[1] = '.';
+			f_str[2] = '0';
+			f_str[s21_strlen(f_str) - 1] = '\0';
+		} else if (!format_modifiers.oct_hex_notation || !format_modifiers.precision) {
+			f_str[1] = '\0';
+		} else {
+			f_str[1] = '.';
+			f_str = add_width(f_str, 1, '0', false);
+		}
+		exp += 1;
+	}
+
+
+
+	if (s21_strchr("gG", specifier) && !format_modifiers.oct_hex_notation)
+		f_str = clear_last_nulls(f_str);
+
+
+    int flen = s21_strlen(f_str);
+    char *e_str = doxtoa(abs(exp), 10, false);
+    e_str = s21_strlen(e_str) > 1 ? e_str : add_width(e_str, 1, '0', true);
+    int elen = s21_strlen(e_str);
+    f_str = (char *)realloc(f_str, (flen + elen + 3) * sizeof(char));
+	if (specifier == 'g') specifier = 'e';
+	if (specifier == "G") specifier = 'E';
+
+	char *o = "e";
+	if (s21_strchr("EG", specifier)) o = "E";
+
+    s21_strncat(f_str, o, 1);
+    s21_strncat(f_str, exp < 0 ? "-" : "+", 1);
+    s21_strncat(f_str, e_str, elen);
+	free(e_str);
+    return f_str;
+}
+
+char *double_round(char *str, print_modifiers format_modifiers, char specifier) {
+	int i = 0;
+	char *tmp;
+	if (s21_strchr("gG", specifier)) {
+		tmp = str;
+		bool dot_find = false;
+		while (*tmp < '1' && *tmp != '\0') {
+			if (*tmp == '.') dot_find = true;
+			tmp++;
+		}
+		if (*tmp == '\0') {
+			format_modifiers.precision -= 1;
+		} else {
+			if (dot_find) {
+				if (format_modifiers.precision == 0) format_modifiers.precision += 1;
+				format_modifiers.precision += tmp - s21_strchr(str, '.') - format_modifiers.oct_hex_notation;
+			} else {
+				size_t offset = s21_strchr(str, '.') - tmp;
+				format_modifiers.precision = format_modifiers.precision - offset;
+				if (format_modifiers.precision < 0) format_modifiers.precision = 0;
+			}
+		}
+	}
+	
+
+	tmp = s21_strchr(str, '.') + 1;
+	while (*tmp >= '0' && *tmp <= '9') {
+		i++;
+		tmp++;
+	}
+
+	if (i < format_modifiers.precision) {
+		size_t offset = format_modifiers.precision - i;
+		str = add_width(str, offset, '0', false);
+	} else if (i > format_modifiers.precision) {
+		tmp = s21_strchr(str, '.') + 1 + format_modifiers.precision;
+		char val = *tmp;
+		*tmp = '\0';
+		if (format_modifiers.precision == 0) *(tmp - 1) = '\0';
+		if (val > '4' && val <= '9') {
+			if (format_modifiers.precision == 0) {
+				tmp = stradd(str, "1");
+			} else {
+				char *str2 = (char *)malloc((3 + format_modifiers.precision) * sizeof(char));
+				s21_memset(str2, '0', format_modifiers.precision + 1);
+				str2[1] = '.';
+				str2[format_modifiers.precision + 1] = '1';
+				str2[format_modifiers.precision + 2] = '\0';
+				tmp = stradd(str, str2);
+				free(str2);
+			}
+
+			if (s21_strchr("gG", specifier) && s21_strlen(tmp) > s21_strlen(str)) tmp[s21_strlen(tmp) - 1] = '\0';
+
+
+			free(str);
+			str = tmp;
+		}
+	}
+
+	
+
+	if (s21_strchr("gG", specifier) && !format_modifiers.oct_hex_notation)
+		str = clear_last_nulls(str);
+	if (s21_strchr(str, '.') == &str[s21_strlen(str) - 1])
+		str[s21_strlen(str) - 1] = '\0';
+	return str;
+}
+
+char *apply_format(char *str, print_modifiers format_modifiers, char specifier) {
 
 	char is_zero = *str;
+	size_t str_len = s21_strlen(str);
 
 	// убираем минус
-	size_t str_len = s21_strlen(str);
-	bool negative = *str == '-';
-	if (negative) {
-		memmove(str, str + 1, str_len);
-		str = (char *)realloc(str, str_len);
+	bool negative = false;
+	if (s21_strchr("dieEfgG", specifier)) {
+		negative = *str == '-' ? true : false;
+		if (negative) {
+			memmove(str, str + 1, str_len);
+			str = (char *)realloc(str, str_len);
+		}
 	}
 
 
 	// точность
 	str_len = s21_strlen(str);
-	if (specifier == 's' && format_modifiers->precision >= 0 && str_len > format_modifiers->precision) {
-		str[format_modifiers->precision] = '\0';
-	} else if (s21_strchr("diouxX", specifier) && str_len < format_modifiers->precision) {
-		str = add_width(str, format_modifiers->precision - str_len, '0', true);
-	} else if (s21_strchr("diouxX", specifier) && *str == '0' && format_modifiers->precision == 0) {
+	if (specifier == 's' && format_modifiers.precision >= 0 && str_len > format_modifiers.precision) {
+		str[format_modifiers.precision] = '\0';
+	} else if (s21_strchr("diouxX", specifier) && str_len < format_modifiers.precision) {
+		str = add_width(str, format_modifiers.precision - str_len, '0', true);
+	} else if (s21_strchr("diouxX", specifier) && *str == '0' && format_modifiers.precision == 0) {
 		*str = '\0';
-	} else if (s21_strchr("eEfgG", specifier)) {
-		char *tmp = (char *)s21_strchr(str, '.') + 1;
-		if (s21_strchr("gG", specifier)) format_modifiers->precision -= tmp - 1 - str;
-		int i = 0;
-		while (*tmp >= '0' && *tmp <= '9') {
-			i++;
-			tmp++;
+	} else if (s21_strchr("f", specifier)) {
+		str = double_round(str, format_modifiers, specifier);
+	} else if (s21_strchr("Ee", specifier)) {
+		str = etoa(str, format_modifiers, specifier);
+	} else if (s21_strchr("Gg", specifier)) {
+		int point = s21_strchr(str, '.') - str;
+		int integer_part = -1;
+		
+		while (str[++integer_part] && str[integer_part] < '1');
+		int exp = point > integer_part ? point - integer_part - 1 : point - integer_part;
+		if ((exp < -4 || exp >= format_modifiers.precision) && !(!exp && !format_modifiers.precision && !(str[0] == '9' && str[2] > '4'))) {
+			str = etoa(str, format_modifiers, specifier);
+		} else {
+			str = double_round(str, format_modifiers, specifier);
 		}
-		if (i < format_modifiers->precision) {
-			size_t offset = format_modifiers->precision - i;
-			if (!s21_strchr(str, 'e') && !s21_strchr(str, 'E')) {
-				str = add_width(str, offset, '0', false);
-			} else {
-				str = (char *)realloc(str, (str_len + 1 + offset) * sizeof(char));
-				tmp = s21_strpbrk(str, "eE");
-				for (int j = str_len; j >= tmp - str; j--) str[j + offset] = str[j];
-				for (int j = 0; j < offset; j++) str[(tmp - str) + j] = '0';
-			}
-		} else if (i > format_modifiers->precision) {
-			tmp = s21_strchr(str, '.') + 1 + format_modifiers->precision;
-			char val = *tmp;
-			*tmp = '\0';
-			char *tail = !s21_strpbrk(tmp + 1, "eE") ? "" : s21_strpbrk(tmp + 1, "eE");
-			size_t tail_len = s21_strlen(tail);
-			char *tail2 = (char *)malloc(tail_len + 1);
-			s21_strncpy(tail2, tail, tail_len + 1);
-
-			if (val > '4' && val <= '9') {
-				char *str2 = malloc((3 + format_modifiers->precision) * sizeof(char));
-				s21_memset(str2, '0', format_modifiers->precision + 1);
-				str2[1] = '.';
-				str2[format_modifiers->precision + 1] = '1';
-				str2[format_modifiers->precision + 2] = '\0';
-				tmp = stradd(str, str2);
-
-				free(str);
-				free(str2);
-				str = tmp;
-			}
-			
-
-			str_len = s21_strlen(str);
-			if (tail_len != 0) {
-				str = (char *)realloc(str, (str_len + tail_len + 1) * sizeof(char));
-				s21_strncat(str, tail2, tail_len + 1);
-			}
-			free(tail2);
-		}
-	} 
-	if (s21_strchr("gG", specifier)) {
-		char *tail = NULL;
-		char *tmp = s21_strchr(str, 'e');
-		if (tmp == NULL) tmp = s21_strchr(str, 'E');
-		if (tmp != NULL) tail = tmp;
-		else tmp = &str[s21_strlen(str)];
-		tmp--;
-		while (*tmp == '0') {
-			*tmp = '\0';
-			tmp--;
-		}
-		if (*tmp == ',') *tmp = '\0';
-		if (tail) s21_strncat(str, tail, s21_strlen(tail) + 1);
 	}
 	
-
-
-
+	
+	
 	// префикс и точка
 	str_len = s21_strlen(str);
-	if (format_modifiers->oct_hex_notation && s21_strchr("oxXeEfgG", specifier)) {
+	if (format_modifiers.oct_hex_notation && s21_strchr("oxXeEfgG", specifier)) {
 		if (specifier == 'o' && *str != 0 && *str != '0') {
 			str = add_width(str, 1, '0', true);
-		}
-		if (specifier == 'x' && *str != 0 && is_zero != '0') {
+		} else if (specifier == 'x' && *str != 0 && is_zero != '0') {
 			str = add_width(str, 1, 'x', true);
 			str = add_width(str, 1, '0', true);
-		}
-		if (specifier == 'X' && *str != 0 && is_zero != '0') {
+		} else if (specifier == 'X' && *str != 0 && is_zero != '0') {
 			str = add_width(str, 1, 'X', true);
 			str = add_width(str, 1, '0', true);
-		}
-		if (specifier == 'f' && !s21_strpbrk(str, ",.")) {
+		} else if (s21_strchr("fgG", specifier) && !s21_strpbrk(str, "eE") && !s21_strpbrk(str, ",.")) {
 			str = add_width(str, 1, '.', false);
-		}
-		if (s21_strchr("eEgG", specifier) && !s21_strpbrk(str, ",.")) {
+		} else if (s21_strchr("gGeE", specifier) && s21_strpbrk(str, "eE") && !s21_strpbrk(str, ",.")) {
 			str = (char *)realloc(str, (str_len + 2) * sizeof(char));
 			char *tmp = s21_strchr(str, 'e');
 			if (tmp == NULL) tmp = s21_strchr(str, 'E');
@@ -470,24 +583,22 @@ char *apply_format(char *str, print_modifiers *format_modifiers, char specifier)
 	str_len = s21_strlen(str);
 	if (negative) {
 		str = add_width(str, 1, '-', true);
-	} else if (format_modifiers->positive_sign && s21_strchr("dieEfgG", specifier)) {
+	} else if (format_modifiers.positive_sign && s21_strchr("dieEfgG", specifier)) {
 		str = add_width(str, 1, '+', true);
-	} else if (format_modifiers->space_instead_of_sign && !format_modifiers->positive_sign && s21_strchr("dieEfgG", specifier)) {
+	} else if (format_modifiers.space_instead_of_sign && !format_modifiers.positive_sign && s21_strchr("dieEfgG", specifier)) {
 		str = add_width(str, 1, ' ', true);
 	}
 
-	// ширина
-	// if (format_modifiers->width && (negative || format_modifiers->positive_sign || format_modifiers->space_instead_of_sign) && format_modifiers->fill_with_nulls)
-	// 	format_modifiers->width--;
 
+	// ширина
 	str_len = s21_strlen(str);
-	if (*str == '\0' && format_modifiers->width) format_modifiers->width--; 
-	if (format_modifiers->width > str_len && !format_modifiers->fill_with_nulls) {
-		str = add_width(str, format_modifiers->width - str_len, ' ', !format_modifiers->left_alignment);
+	if (*str == '\0' && format_modifiers.width && specifier != 's') format_modifiers.width--; 
+	if (format_modifiers.width > str_len && !format_modifiers.fill_with_nulls) {
+		str = add_width(str, format_modifiers.width - str_len, ' ', !format_modifiers.left_alignment);
 	}
-	else if (format_modifiers->width > str_len && format_modifiers->fill_with_nulls) {
+	else if (format_modifiers.width > str_len && format_modifiers.fill_with_nulls) {
 		if (s21_strchr("0123456789abcdefABCDEF", *str) && !s21_strpbrk(str, "xX")) {
-			str = add_width(str, format_modifiers->width - str_len, '0', true);
+			str = add_width(str, format_modifiers.width - str_len, '0', true);
 		} else {
 			char *tmp = str;
 			if (!(s21_strpbrk(str, "xX"))) {
@@ -496,22 +607,13 @@ char *apply_format(char *str, print_modifiers *format_modifiers, char specifier)
 				tmp = s21_strpbrk(str, "xX") + 1;
 			}
 			size_t diff = tmp - str;
-			size_t offset = format_modifiers->width - str_len;
+			size_t offset = format_modifiers.width - str_len;
 			str = (char *)realloc(str, (str_len + 1 + offset) * sizeof(char));
 			for (int j = str_len; j >= diff; j--) str[j + offset] = str[j];
 			for (int j = 0; j < offset; j++) str[(diff) + j] = '0';
 		}
 	}
 
-	
-
-	// str_len = s21_strlen(str);
-	// printf("len = %ld\n", str_len);
-
-
-	// if (s21_strchr(str, ',')) {
-	// 	*s21_strchr(str, ',') = '.';
-	// }
 	return str;
 }
 
@@ -567,19 +669,20 @@ char* clear_nulls(char* str) {
 // 	mod.left_alignment = false;
 // 	mod.positive_sign = false;
 // 	mod.space_instead_of_sign = false;
-// 	mod.oct_hex_notation = false;
+// 	mod.oct_hex_notation = true;
 // 	mod.fill_with_nulls = false;
-// 	mod.width = 0;
-// 	mod.precision = 6;
+// 	mod.width = 9;
+// 	mod.precision = 2;
 // 	mod.length = 0;
 
 
-// 	char *src = "1.3121257e+02";
+// 	char *src = "99999.957";
 // 	char *val = malloc(100);
 // 	s21_strncpy(val, src, 100);
 
-// 	printf("%s\n", val = apply_format(val, &mod, 'e'));
-
+// 	printf("%s\n", val = apply_format(val, mod, 'g'));
+// 	// printf("%s\n", val = etoa(val));
+// 	printf("%#9.2g\n", 99999.957);
 
 // 	free(val);
 // 	return 0;

@@ -76,6 +76,8 @@ int process_format(const char *format, int i, char *str, const int j, va_list *p
 char *process_specifier(char specifier, const int len, va_list *params, print_modifiers *format_modifiers);
 char *doxtoa(long long d, const int radix, const bool uppercase);
 int doxlen(long long d, const int radix);
+char *etoa(char* f_str, print_modifiers format_modifiers, char specifier);
+char* clear_nulls(char* str);
 char *ftoa(long double f);
 int extract_exp(const unsigned short bits);
 char* edge_case(unsigned short* bits, bool negative);
@@ -86,9 +88,9 @@ char* raise_power_of_5(char *str, int n);
 char* add_width(char *str, int num, char value, bool right_alignment);
 char* stradd(char *l_str, char *r_str);
 int point_position(char *str);
-char *apply_format(char *str, print_modifiers *format_modifiers, char specifier);
-char *etoa(char* f_str);
-char* clear_nulls(char* str);
+char *apply_format(char *str, print_modifiers format_modifiers, char specifier);
+char *double_round(char *str, print_modifiers format_modifiers, char specifier);
+char *clear_last_nulls(char *str);
 
 int s21_sscanf(const char *str, const char *format, ...);
 void reset_scan_mods(scan_modifiers* format_modifiers);
