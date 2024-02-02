@@ -83,15 +83,7 @@ int process_format(const char *format, int i, char *str, const int j, va_list *p
 char *process_specifier(char specifier, const int len, va_list *params, print_modifiers *format_modifiers) {
 	char *res = NULL;
 	if (specifier == 'c') {
-		if (format_modifiers->length == 'l') {
-			wchar_t c = va_arg(*params, wchar_t);
-			res = (char*)malloc(sizeof(wchar_t) + sizeof(char));
-			wcstombs(res, &c, sizeof(wchar_t));
-		} else {
-			res = (char *)malloc(2 * sizeof(char));
-			res[0] = (char)va_arg(*params, int);;
-			res[1] = '\0';
-		}
+		res = get_c(params, format_modifiers->length);
 	} else if (specifier == 'd' || specifier == 'i') {
 		format_modifiers->precision = format_modifiers->precision == -1 ? 1 : format_modifiers->precision;
 		res = doxtoa(format_modifiers->length == 'h' ? va_arg(*params, short) : format_modifiers->length == 'l' ? va_arg(*params, long) : va_arg(*params, int), 10, false);
@@ -102,15 +94,7 @@ char *process_specifier(char specifier, const int len, va_list *params, print_mo
 		format_modifiers->precision = format_modifiers->precision == -1 ? 1 : format_modifiers->precision;
 		res = doxtoa(format_modifiers->length == 'h' ? va_arg(*params, unsigned short) : format_modifiers->length == 'l' ? va_arg(*params, unsigned long) : va_arg(*params, unsigned), specifier == 'o' ? 8 : specifier == 'u' ? 10 : 16, specifier == 'X');
 	} else if (specifier == 's') {
-		if (format_modifiers->length == 'l') {
-			wchar_t* s = va_arg(*params, wchar_t*);
-			res = (char*)malloc((wcslen(s) * sizeof(wchar_t) + 1) * sizeof(char));
-			wcstombs(res, s, wcslen(s) * sizeof(wchar_t));
-		} else {
-			char* s = va_arg(*params, char*);
-			res = (char*)malloc((s21_strlen(s) + 1) * sizeof(char));
-			res = s21_strncpy(res, s, s21_strlen(s));
-		}
+		res = get_s(params, format_modifiers->length);
 	} else if (specifier == 'p') {
 		format_modifiers->precision = format_modifiers->precision == -1 ? 1 : format_modifiers->precision;
 		res = doxtoa(va_arg(*params, unsigned long), 16, false);
@@ -126,6 +110,22 @@ char *process_specifier(char specifier, const int len, va_list *params, print_mo
 	}
 
 	return res && specifier != '%' && specifier != 'n' ? apply_format(res, *format_modifiers, specifier) : res;
+}
+
+char* get_c(va_list* params, char length) {
+	char* res;
+
+	if (length == 'l') {
+		wchar_t c = va_arg(*params, wchar_t);
+		res = (char*)malloc(sizeof(wchar_t) + sizeof(char));
+		wcstombs(res, &c, sizeof(wchar_t));
+	} else {
+		res = (char *)malloc(2 * sizeof(char));
+		res[0] = (char)va_arg(*params, int);;
+		res[1] = '\0';
+	}
+
+	return res;
 }
 
 char *doxtoa(long long d, const int radix, const bool uppercase) {
@@ -156,14 +156,15 @@ int doxlen(long long d, const int radix) {
 
 char* get_f(va_list* params, char length) {
 	char* res;
-	if (length != 'L') {
-		double f = va_arg(*params, double);
-		if (isinf(f) || isnan(f)) res = edge_case(isinf(f), f < 0);
-		else res = ftoa(f);
-	} else {
+
+	if (length == 'L') {
 		long double f = va_arg(*params, long double);
 		if (isinfl(f) || isnanl(f)) res = edge_case(isinfl(f), f < 0);
 		else res = lftoa(f);
+	} else {
+		double f = va_arg(*params, double);
+		if (isinf(f) || isnan(f)) res = edge_case(isinf(f), f < 0);
+		else res = ftoa(f);		
 	}
 
 	return res;
@@ -446,6 +447,22 @@ int point_position(char *str) {
     while (str[++i] && str[i] != '.');
     
     return str[i] ? i : 0;
+}
+
+char* get_s(va_list* params, char length) {
+	char* res;
+
+	if (length == 'l') {
+		wchar_t* s = va_arg(*params, wchar_t*);
+		res = (char*)malloc((wcslen(s) * sizeof(wchar_t) + 1) * sizeof(char));
+		wcstombs(res, s, wcslen(s) * sizeof(wchar_t));
+	} else {
+		char* s = va_arg(*params, char*);
+		res = (char*)calloc((s21_strlen(s) + 1), sizeof(char));
+		res = s21_strncat(res, s, s21_strlen(s));
+	}
+	
+	return res;
 }
 
 char* clear_nulls(char* str) {
