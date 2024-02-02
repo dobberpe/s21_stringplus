@@ -90,7 +90,6 @@ char* stradd(char *l_str, char *r_str);
 int point_position(char *str);
 char *apply_format(char *str, print_modifiers format_modifiers, char specifier);
 char *double_round(char *str, print_modifiers format_modifiers, char specifier);
-char *clear_last_nulls(char *str);
 
 int s21_sscanf(const char *str, const char *format, ...);
 void reset_scan_mods(scan_modifiers* format_modifiers);

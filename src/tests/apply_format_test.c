@@ -2,7 +2,7 @@
 
 // c
 START_TEST(test_apply_format_c_basic) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
     mod.precision = 1;
     test_all_falgs_d(mod, "0", '0', 'c');
     test_all_falgs_d(mod, "z", 'z', 'c');
@@ -11,7 +11,7 @@ START_TEST(test_apply_format_c_basic) {
 END_TEST
 
 START_TEST(test_apply_format_c_width) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
 	mod.width = 6;
     test_all_falgs_d(mod, "0", '0', 'c');
     test_all_falgs_d(mod, "z", 'z', 'c');
@@ -21,7 +21,7 @@ END_TEST
 
 // d
 START_TEST(test_apply_format_d_basic) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
     mod.precision = 1;
     test_all_falgs_d(mod, "0", 0, 'd');
     test_all_falgs_d(mod, "5", 5, 'd');
@@ -30,7 +30,7 @@ START_TEST(test_apply_format_d_basic) {
 END_TEST
 
 START_TEST(test_apply_format_d_precision) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
 	mod.precision = 6;
     test_all_falgs_d(mod, "0", 0, 'd');
     test_all_falgs_d(mod, "5", 5, 'd');
@@ -39,7 +39,7 @@ START_TEST(test_apply_format_d_precision) {
 END_TEST
 
 START_TEST(test_apply_format_d_width) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
 	mod.width = 6;
     mod.precision = 1;
     test_all_falgs_d(mod, "0", 0, 'd');
@@ -49,7 +49,7 @@ START_TEST(test_apply_format_d_width) {
 END_TEST
 
 START_TEST(test_apply_format_d_width_and_precision) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
 	mod.width = 8;
     mod.precision = 4;
     test_all_falgs_d(mod, "0", 0, 'd');
@@ -60,7 +60,7 @@ END_TEST
 
 // i
 START_TEST(test_apply_format_i_basic) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
     mod.precision = 1;
     test_all_falgs_d(mod, "0", 0, 'i');
     test_all_falgs_d(mod, "346", 346, 'i');
@@ -69,7 +69,7 @@ START_TEST(test_apply_format_i_basic) {
 END_TEST
 
 START_TEST(test_apply_format_i_precision) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
 	mod.precision = 6;
     test_all_falgs_d(mod, "0", 0, 'i');
     test_all_falgs_d(mod, "346", 346, 'i');
@@ -78,7 +78,7 @@ START_TEST(test_apply_format_i_precision) {
 END_TEST
 
 START_TEST(test_apply_format_i_width) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
 	mod.width = 6;
     mod.precision = 1;
     test_all_falgs_d(mod, "0", 0, 'i');
@@ -88,7 +88,7 @@ START_TEST(test_apply_format_i_width) {
 END_TEST
 
 START_TEST(test_apply_format_i_width_and_precision) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
 	mod.width = 8;
     mod.precision = 4;
     test_all_falgs_d(mod, "0", 0, 'i');
@@ -100,7 +100,7 @@ END_TEST
 
 // o
 START_TEST(test_apply_format_o_basic) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
     mod.precision = 1;
     test_all_falgs_d(mod, "0", 00, 'o');
     test_all_falgs_d(mod, "47", 047, 'o');
@@ -109,7 +109,7 @@ START_TEST(test_apply_format_o_basic) {
 END_TEST
 
 START_TEST(test_apply_format_o_precision) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
 	mod.precision = 6;
     test_all_falgs_d(mod, "0", 00, 'o');
     test_all_falgs_d(mod, "47", 047, 'o');
@@ -118,7 +118,7 @@ START_TEST(test_apply_format_o_precision) {
 END_TEST
 
 START_TEST(test_apply_format_o_width) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
 	mod.width = 6;
     mod.precision = 1;
     test_all_falgs_d(mod, "0", 00, 'o');
@@ -128,7 +128,7 @@ START_TEST(test_apply_format_o_width) {
 END_TEST
 
 START_TEST(test_apply_format_o_width_and_precision) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
 	mod.width = 8;
     mod.precision = 4;
     test_all_falgs_d(mod, "0", 00, 'o');
@@ -139,7 +139,7 @@ END_TEST
 
 // u
 START_TEST(test_apply_format_u_basic) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
     mod.precision = 1;
     test_all_falgs_d(mod, "0", 0, 'u');
     test_all_falgs_d(mod, "47", 47, 'u');
@@ -148,7 +148,7 @@ START_TEST(test_apply_format_u_basic) {
 END_TEST
 
 START_TEST(test_apply_format_u_precision) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
 	mod.precision = 6;
     test_all_falgs_d(mod, "0", 0, 'u');
     test_all_falgs_d(mod, "47", 47, 'u');
@@ -157,7 +157,7 @@ START_TEST(test_apply_format_u_precision) {
 END_TEST
 
 START_TEST(test_apply_format_u_width) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
 	mod.width = 6;
     mod.precision = 1;
     test_all_falgs_d(mod, "0", 0, 'u');
@@ -167,7 +167,7 @@ START_TEST(test_apply_format_u_width) {
 END_TEST
 
 START_TEST(test_apply_format_u_width_and_precision) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
 	mod.width = 8;
     mod.precision = 4;
     test_all_falgs_d(mod, "0", 0, 'u');
@@ -178,7 +178,7 @@ END_TEST
 
 // x
 START_TEST(test_apply_format_x_basic) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
     mod.precision = 1;
     test_all_falgs_d(mod, "0", 0x0, 'x');
     test_all_falgs_d(mod, "4c2", 0x4c2, 'x');
@@ -187,7 +187,7 @@ START_TEST(test_apply_format_x_basic) {
 END_TEST
 
 START_TEST(test_apply_format_x_precision) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
 	mod.precision = 6;
     test_all_falgs_d(mod, "0", 0x0, 'x');
     test_all_falgs_d(mod, "4c2", 0x4c2, 'x');
@@ -196,7 +196,7 @@ START_TEST(test_apply_format_x_precision) {
 END_TEST
 
 START_TEST(test_apply_format_x_width) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
 	mod.width = 6;
     mod.precision = 1;
     test_all_falgs_d(mod, "0", 0x0, 'x');
@@ -206,7 +206,7 @@ START_TEST(test_apply_format_x_width) {
 END_TEST
 
 START_TEST(test_apply_format_x_width_and_precision) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
 	mod.width = 9;
     mod.precision = 5;
     test_all_falgs_d(mod, "0", 0x0, 'x');
@@ -217,7 +217,7 @@ END_TEST
 
 // X
 START_TEST(test_apply_format_X_basic) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
     mod.precision = 1;
     test_all_falgs_d(mod, "0", 0x0, 'X');
     test_all_falgs_d(mod, "1A", 0x1A, 'X');
@@ -226,7 +226,7 @@ START_TEST(test_apply_format_X_basic) {
 END_TEST
 
 START_TEST(test_apply_format_X_precision) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
 	mod.precision = 6;
     test_all_falgs_d(mod, "0", 0x0, 'X');
     test_all_falgs_d(mod, "1A", 0x1A, 'X');
@@ -235,7 +235,7 @@ START_TEST(test_apply_format_X_precision) {
 END_TEST
 
 START_TEST(test_apply_format_X_width) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
 	mod.width = 6;
     mod.precision = 1;
     test_all_falgs_d(mod, "0", 0x0, 'X');
@@ -245,7 +245,7 @@ START_TEST(test_apply_format_X_width) {
 END_TEST
 
 START_TEST(test_apply_format_X_width_and_precision) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
 	mod.width = 9;
     mod.precision = 5;
     test_all_falgs_d(mod, "0", 0x0, 'X');
@@ -256,7 +256,7 @@ END_TEST
 
 // e
 START_TEST(test_apply_format_e_basic) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
     mod.precision = 6;
     test_all_falgs_double(mod, "0.02", 0.02, 'e');
     test_all_falgs_double(mod, "42141.957", 42141.957, 'e');
@@ -268,7 +268,7 @@ START_TEST(test_apply_format_e_basic) {
 END_TEST
 
 START_TEST(test_apply_format_e_precision) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
 	mod.precision = 0;
     test_all_falgs_double(mod, "0.02", 0.02, 'e');
     test_all_falgs_double(mod, "45141.957", 45141.957, 'e');
@@ -280,7 +280,7 @@ START_TEST(test_apply_format_e_precision) {
 END_TEST
 
 START_TEST(test_apply_format_e_width) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
 	mod.width = 9;
     mod.precision = 4;
     test_all_falgs_double(mod, "0.02", 0.02, 'e');
@@ -293,7 +293,7 @@ START_TEST(test_apply_format_e_width) {
 END_TEST
 
 START_TEST(test_apply_format_e_width_and_precision) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
 	mod.width = 9;
     mod.precision = 3;
     test_all_falgs_double(mod, "0.02", 0.02, 'e');
@@ -307,7 +307,7 @@ END_TEST
 
 // E
 START_TEST(test_apply_format_E_basic) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
     mod.precision = 6;
     test_all_falgs_double(mod, "1.000009", 1.000009, 'E');
     test_all_falgs_double(mod, "-99999.057", -99999.057, 'E');
@@ -319,7 +319,7 @@ START_TEST(test_apply_format_E_basic) {
 END_TEST
 
 START_TEST(test_apply_format_E_precision) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
 	mod.precision = 0;
     test_all_falgs_double(mod, "1.000009", 1.000009, 'E');
     test_all_falgs_double(mod, "-99999.057", -99999.057, 'E');
@@ -331,7 +331,7 @@ START_TEST(test_apply_format_E_precision) {
 END_TEST
 
 START_TEST(test_apply_format_E_width) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
 	mod.width = 9;
     mod.precision = 5;
     test_all_falgs_double(mod, "1.000009", 1.000009, 'E');
@@ -344,7 +344,7 @@ START_TEST(test_apply_format_E_width) {
 END_TEST
 
 START_TEST(test_apply_format_E_width_and_precision) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
 	mod.width = 9;
     mod.precision = 3;
     test_all_falgs_double(mod, "1.000009", 1.000009, 'E');
@@ -358,7 +358,7 @@ END_TEST
 
 // f
 START_TEST(test_apply_format_f_basic) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
     mod.precision = 6;
     test_all_falgs_double(mod, "0.02", 0.02, 'f');
     test_all_falgs_double(mod, "42141.957", 42141.957, 'f');
@@ -370,7 +370,7 @@ START_TEST(test_apply_format_f_basic) {
 END_TEST
 
 START_TEST(test_apply_format_f_precision) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
 	mod.precision = 0;
     test_all_falgs_double(mod, "0.02", 0.02, 'f');
     test_all_falgs_double(mod, "42141.957", 42141.957, 'f');
@@ -382,7 +382,7 @@ START_TEST(test_apply_format_f_precision) {
 END_TEST
 
 START_TEST(test_apply_format_f_width) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
 	mod.width = 9;
     mod.precision = 6;
     test_all_falgs_double(mod, "0.02", 0.02, 'f');
@@ -395,7 +395,7 @@ START_TEST(test_apply_format_f_width) {
 END_TEST
 
 START_TEST(test_apply_format_f_width_and_precision) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
 	mod.width = 9;
     mod.precision = 3;
     test_all_falgs_double(mod, "0.02", 0.02, 'f');
@@ -409,7 +409,7 @@ END_TEST
 
 // g
 START_TEST(test_apply_format_g_basic) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
     mod.precision = 6;
     test_all_falgs_double(mod, "0.02", 0.02, 'g');
     test_all_falgs_double(mod, "42141.957", 42141.957, 'g');
@@ -421,7 +421,7 @@ START_TEST(test_apply_format_g_basic) {
 END_TEST
 
 START_TEST(test_apply_format_g_precision) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
 	mod.precision = 0;
     test_all_falgs_double(mod, "0.02", 0.02, 'g');
     test_all_falgs_double(mod, "42141.957", 42141.957, 'g');
@@ -433,7 +433,7 @@ START_TEST(test_apply_format_g_precision) {
 END_TEST
 
 START_TEST(test_apply_format_g_width) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
 	mod.width = 9;
     mod.precision = 4;
     test_all_falgs_double(mod, "0.02", 0.02, 'g');
@@ -446,7 +446,7 @@ START_TEST(test_apply_format_g_width) {
 END_TEST
 
 START_TEST(test_apply_format_g_width_and_precision) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
 	mod.width = 9;
     mod.precision = 3;
     test_all_falgs_double(mod, "0.02", 0.02, 'g');
@@ -461,7 +461,7 @@ END_TEST
 
 // G
 START_TEST(test_apply_format_G_basic) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
     mod.precision = 6;
     test_all_falgs_double(mod, "-0.00059999999", -0.00059999999, 'G');
     test_all_falgs_double(mod, "-0.0005", -0.0005, 'G');
@@ -474,7 +474,7 @@ START_TEST(test_apply_format_G_basic) {
 END_TEST
 
 START_TEST(test_apply_format_G_precision) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
 	mod.precision = 0;
     test_all_falgs_double(mod, "-0.0005", -0.0005, 'G');
     test_all_falgs_double(mod, "99999.957", 99999.957, 'G');
@@ -486,7 +486,7 @@ START_TEST(test_apply_format_G_precision) {
 END_TEST
 
 START_TEST(test_apply_format_G_width) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
 	mod.width = 9;
     mod.precision = 2;
     test_all_falgs_double(mod, "-0.0005", -0.0005, 'G');
@@ -499,7 +499,7 @@ START_TEST(test_apply_format_G_width) {
 END_TEST
 
 START_TEST(test_apply_format_G_width_and_precision) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
 	mod.width = 9;
     mod.precision = 7;
     test_all_falgs_double(mod, "-0.0005", -0.0005, 'G');
@@ -515,7 +515,7 @@ END_TEST
 
 // s
 START_TEST(test_apply_format_s_basic) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
     mod.precision = -1;
     test_all_falgs_string(mod, "qwe", "qwe", 's');
     test_all_falgs_string(mod, "", "", 's');
@@ -525,7 +525,7 @@ START_TEST(test_apply_format_s_basic) {
 END_TEST
 
 START_TEST(test_apply_format_s_precision) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
 	mod.precision = 0;
     test_all_falgs_string(mod, "qwe", "qwe", 's');
     test_all_falgs_string(mod, "", "", 's');
@@ -535,7 +535,7 @@ START_TEST(test_apply_format_s_precision) {
 END_TEST
 
 START_TEST(test_apply_format_s_width) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
 	mod.width = 9;
     mod.precision = -1;
     test_all_falgs_string(mod, "qwe", "qwe", 's');
@@ -546,7 +546,7 @@ START_TEST(test_apply_format_s_width) {
 END_TEST
 
 START_TEST(test_apply_format_s_width_and_precision) {
-	modifiers mod = {0};
+	print_modifiers mod = {0};
 	mod.width = 9;
     mod.precision = 7;
     test_all_falgs_string(mod, "qwe", "qwe", 's');
@@ -618,7 +618,7 @@ Suite *s21_apply_format_suite() {
 
 
 
-void test_all_falgs_d(modifiers mod, char *src, int src2, char spec) {
+void test_all_falgs_d(print_modifiers mod, char *src, int src2, char spec) {
     char *str2 = (char *)malloc(2000);
     char *format;
     for (int i = 0; i < 32; i++) {
@@ -645,35 +645,7 @@ void test_all_falgs_d(modifiers mod, char *src, int src2, char spec) {
     free(str2);
 }
 
-void test_all_falgs_double(modifiers mod, char *src, double src2, char spec) {
-    char *str2 = (char *)malloc(2000);
-    char *format;
-    for (int i = 0; i < 32; i++) {
-        char *str = (char *)malloc((strlen(src) + 1) * sizeof(char));
-        mod.left_alignment = i & 1;
-        mod.positive_sign = (i >> 1) & 1;
-        mod.space_instead_of_sign = (i >> 2) & 1;
-        mod.oct_hex_notation = (i >> 3) & 1;
-        mod.fill_with_nulls = (i >> 4) & 1;
-        format = format_maker(&mod, spec);
-        s21_memcpy(str, src, strlen(src) + 1);
-        str = apply_format(str, mod, spec);
-        sprintf(str2, format, src2);
-
-        // DEBUG
-        // str = strcat(str, format);
-        // str2 = strcat(str2, format);
-        // END DEBUG
-
-        ck_assert_str_eq(str, str2);
-        free(str);
-        free(format);
-    }
-    free(str2);
-}
-
-
-void test_all_falgs_string(modifiers mod, char *src, char *src2, char spec) {
+void test_all_falgs_double(print_modifiers mod, char *src, double src2, char spec) {
     char *str2 = (char *)malloc(2000);
     char *format;
     for (int i = 0; i < 32; i++) {
@@ -701,7 +673,35 @@ void test_all_falgs_string(modifiers mod, char *src, char *src2, char spec) {
 }
 
 
-char *format_maker(modifiers *mod, char ch) {
+void test_all_falgs_string(print_modifiers mod, char *src, char *src2, char spec) {
+    char *str2 = (char *)malloc(2000);
+    char *format;
+    for (int i = 0; i < 32; i++) {
+        char *str = (char *)malloc((strlen(src) + 1) * sizeof(char));
+        mod.left_alignment = i & 1;
+        mod.positive_sign = (i >> 1) & 1;
+        mod.space_instead_of_sign = (i >> 2) & 1;
+        mod.oct_hex_notation = (i >> 3) & 1;
+        mod.fill_with_nulls = (i >> 4) & 1;
+        format = format_maker(&mod, spec);
+        s21_memcpy(str, src, strlen(src) + 1);
+        str = apply_format(str, mod, spec);
+        sprintf(str2, format, src2);
+
+        // DEBUG
+        // str = strcat(str, format);
+        // str2 = strcat(str2, format);
+        // END DEBUG
+
+        ck_assert_str_eq(str, str2);
+        free(str);
+        free(format);
+    }
+    free(str2);
+}
+
+
+char *format_maker(print_modifiers *mod, char ch) {
     char *res = (char *)malloc(40);
     res[0] = '%';
     int i = 1;

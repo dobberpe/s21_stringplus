@@ -617,52 +617,6 @@ char *apply_format(char *str, print_modifiers format_modifiers, char specifier) 
 	return str;
 }
 
-char *etoa(char* f_str) {
-    int point = s21_strchr(f_str, '.') - f_str;
-    int integer_part = -1;
-    
-    while (f_str[++integer_part] && f_str[integer_part] < '1');
-    
-    int exp = point > integer_part ? point - integer_part - 1 : point - integer_part;
-
-    if (point > integer_part + 1) {
-        ++point;
-        while (--point > integer_part + 1) {
-            f_str[point] = f_str[point - 1];
-        }
-    } else if (point < integer_part) {
-        --point;
-        while (++point < integer_part) {
-            f_str[point] = f_str[point + 1];
-        }
-    }
-    f_str[point] = '.';
-
-    f_str = clear_nulls(f_str);
-
-    int flen = s21_strlen(f_str);
-    char *e_str = doxtoa(abs(exp), 10, false);
-    e_str = s21_strlen(e_str) > 1 ? e_str : add_width(e_str, 1, '0', true);
-    int elen = s21_strlen(e_str);
-    f_str = (char *)realloc(f_str, (flen + elen + 3) * sizeof(char));
-    s21_strncat(f_str, "e", 1);
-    s21_strncat(f_str, exp < 0 ? "-" : "+", 1);
-    s21_strncat(f_str, e_str, elen);
-	free(e_str);
-
-    return f_str;
-}
-
-char* clear_nulls(char* str) {
-    int i = -1;
-    while (str[++i] == '0');
-    int j = -1;
-    --i;
-    while (str[++i]) str[++j] = str[i];
-    str[++j] = '\0';
-    str = (char*)realloc(str, (s21_strlen(str) + 1) * sizeof(char));
-    return str;
-}
 
 // int main() {
 // 	modifiers mod = {0};
