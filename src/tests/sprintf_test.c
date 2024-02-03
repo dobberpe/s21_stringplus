@@ -52,8 +52,8 @@ START_TEST(test_s21_sprintf_E_precision) {
     char s21_res[100];
     char io_res[100];
     double a = -0.000999999;
-    s21_sprintf(s21_res, "%.3E", a);
-    sprintf(io_res, "%.3E", a);
+    s21_sprintf(s21_res, "%.3LE", a); //добавила L - в этом случае должен быть -NAN. сега вылетает гдето в apply_format думаю. без L работает.
+    sprintf(io_res, "%.3LE", a);
     ck_assert_str_eq(s21_res, io_res);
 }
 END_TEST
@@ -65,10 +65,10 @@ Suite *s21_sprintf_suite() {
   tc_core = tcase_create("core");
   tcase_add_test(tc_core, test_s21_sprintf_d);
   tcase_add_test(tc_core, test_s21_sprintf_d2);
-//   tcase_add_test(tc_core, test_s21_sprintf_f);
+  tcase_add_test(tc_core, test_s21_sprintf_f);
   tcase_add_test(tc_core, test_s21_sprintf_f2);
   tcase_add_test(tc_core, test_s21_sprintf_f3);
-//   tcase_add_test(tc_core, test_s21_sprintf_E_precision);
+  tcase_add_test(tc_core, test_s21_sprintf_E_precision);
   suite_add_tcase(suite, tc_core);
   return suite;
 }
