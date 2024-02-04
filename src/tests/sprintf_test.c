@@ -52,8 +52,8 @@ START_TEST(test_s21_sprintf_E_precision) {
     char s21_res[100];
     char io_res[100];
     double a = -0.000999999;
-    s21_sprintf(s21_res, "%.3LE", a);
-    sprintf(io_res, "%.3LE", a);
+    s21_sprintf(s21_res, "%.3lE", a);
+    sprintf(io_res, "%.3lE", a);
     ck_assert_str_eq(s21_res, io_res);
 }
 END_TEST
@@ -202,6 +202,190 @@ START_TEST(test_s21_sprintf_alignment)
 }
 END_TEST
 
+START_TEST(test_my_sprintf_random_int)
+{
+    srand((unsigned int)time(NULL));
+    int intValue = rand() % 1000 - 500;  // Случайное целое число от -500 до 499
+    char expected_output[MAX_BUFFER_SIZE];
+    char buffer[MAX_BUFFER_SIZE];
+
+    sprintf(expected_output, "Random Integer: %d", intValue);
+    s21_sprintf(buffer, "Random Integer: %d", intValue);
+
+    ck_assert_str_eq(buffer, expected_output);
+}
+END_TEST
+
+START_TEST(test_my_sprintf_random_float)
+{
+    srand((unsigned int)time(NULL));
+    double floatValue = (rand() % 10000) / 100.0 - 50.0;  // Случайное число с плавающей точкой от -50.0 до 49.99
+    char expected_output[MAX_BUFFER_SIZE];
+    char buffer[MAX_BUFFER_SIZE];
+
+    sprintf(expected_output, "Random Float: %.2f", floatValue);
+    s21_sprintf(buffer, "Random Float: %.2f", floatValue);
+
+    ck_assert_str_eq(buffer, expected_output);
+}
+END_TEST
+
+
+START_TEST(test_my_sprintf_random_large_order)
+{
+    srand((unsigned int)time(NULL));
+    int order = rand() % 200 - 100;  // Случайный порядок от -100 до 100
+    double floatValue = (rand() % 10000) / 100.0 - 50.0;  // Случайное число с плавающей точкой от -50.0 до 49.99
+    floatValue *= pow(10, order);  // Умножаем на 10 в степени порядка
+
+    char expected_output[MAX_BUFFER_SIZE];
+    char buffer[MAX_BUFFER_SIZE];
+
+    sprintf(expected_output, "Random Float with Large Order: %.2le", floatValue);
+    s21_sprintf(buffer, "Random Float with Large Order: %.2le", floatValue);
+
+    ck_assert_str_eq(buffer, expected_output);
+}
+END_TEST
+
+START_TEST(test_my_sprintf_complex_flags)
+{
+    srand((unsigned int)time(NULL));
+
+    // Случайные значения
+    int intValue = rand() % 200 - 100;
+    double floatValue = ((double)rand() / RAND_MAX) * 200.0 - 100.0;
+    const char *stringValue = "TestString";
+
+    char expected_output[MAX_BUFFER_SIZE];
+    char buffer[MAX_BUFFER_SIZE];
+
+    // Флаги: ширина 10, выравнивание по левому краю
+    sprintf(expected_output, "Int: %-10d", intValue);
+    s21_sprintf(buffer, "Int: %-10d", intValue);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Флаги: ширина 15, выравнивание по правому краю, знак "+"
+    sprintf(expected_output, "Float: %+15.2f", floatValue);
+    s21_sprintf(buffer, "Float: %+15.2f", floatValue);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Флаги: выравнивание по левому краю, символ " "
+    sprintf(expected_output, "String: %-10s", stringValue);
+    s21_sprintf(buffer, "String: %-10s", stringValue);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Флаги: выравнивание по правому краю, символ "#", ширина 10, точность 4
+    sprintf(expected_output, "Float: %#-10.4f", floatValue);
+    s21_sprintf(buffer, "Float: %#-10.4f", floatValue);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Флаги: выравнивание по правому краю, ширина 20, точность 8
+    sprintf(expected_output, "Int: %20.8d", intValue);
+    s21_sprintf(buffer, "Int: %20.8d", intValue);
+    ck_assert_str_eq(buffer, expected_output);
+}
+END_TEST
+
+
+START_TEST(test_my_sprintf_random_power)
+{
+    srand((unsigned int)time(NULL));
+
+    // Случайные значения
+    double baseValue = ((double)rand() / RAND_MAX);  // Случайное число от 0 до 1
+    int power =  rand() % 200 - 100;
+    char expected_output[MAX_BUFFER_SIZE];
+    char buffer[MAX_BUFFER_SIZE];
+
+    // Флаги: ширина 10, точность 2
+    sprintf(expected_output, "Power: %10.*e", 2, pow(baseValue, power));
+    s21_sprintf(buffer, "Power: %10.*e", 2, pow(baseValue, power));
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Флаги: выравнивание по левому краю, ширина 15, символ "#"
+    sprintf(expected_output, "Power: %#15.*e", 0, pow(baseValue, power));
+    s21_sprintf(buffer, "Power: %-#15.*e", 0, pow(baseValue, power));
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Флаги: ширина 20, точность 3
+    sprintf(expected_output, "Power: %20.*e", 3, pow(baseValue, power));
+    s21_sprintf(buffer, "Power: %20.*e", 3, pow(baseValue, power));
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Флаги: выравнивание по правому краю, символ " "
+    sprintf(expected_output, "Power: %+15.*e", 4, pow(baseValue, power));
+    s21_sprintf(buffer, "Power: %+15.*e", 4, pow(baseValue, power));
+    ck_assert_str_eq(buffer, expected_output);
+}
+END_TEST
+
+START_TEST(test_my_sprintf_flags_long)
+{
+    srand((unsigned int)time(NULL));
+
+    // Случайные значения
+    long longValue = rand() % 2000 - 1000;
+    unsigned long ulongValue = rand() % 200000;
+    double doubleValue = ((double)rand() / RAND_MAX) * 200.0 - 100.0;
+    char expected_output[MAX_BUFFER_SIZE];
+    char buffer[MAX_BUFFER_SIZE];
+
+    // Флаг "l": целое число
+    sprintf(expected_output, "Long Integer: %ld", longValue);
+    s21_sprintf(buffer, "Long Integer: %ld", longValue);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Флаг "l": беззнаковое целое число
+    sprintf(expected_output, "Unsigned Long Integer: %lu", ulongValue);
+    s21_sprintf(buffer, "Unsigned Long Integer: %lu", ulongValue);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Флаг "l": число с плавающей точкой
+    sprintf(expected_output, "Double Value: %lf", doubleValue);
+    s21_sprintf(buffer, "Double Value: %lf", doubleValue);
+    ck_assert_str_eq(buffer, expected_output);
+}
+END_TEST
+
+START_TEST(test_my_sprintf_flags_long_double)
+{
+    srand((unsigned int)time(NULL));
+
+    // Случайные значения
+    long double ldValue = ((long double)rand() / RAND_MAX) * 300.0 - 150.0;
+    char expected_output[MAX_BUFFER_SIZE];
+    char buffer[MAX_BUFFER_SIZE];
+
+    // Флаг "L": число с плавающей точкой (long double)
+    sprintf(expected_output, "Long Double Value: %Lf", ldValue);
+    s21_sprintf(buffer, "Long Double Value: %Lf", ldValue);
+    ck_assert_str_eq(buffer, expected_output);
+}
+END_TEST
+
+START_TEST(test_my_sprintf_flags_short)
+{
+    srand((unsigned int)time(NULL));
+
+    // Случайные значения
+    short shortValue = rand() % 200 - 100;
+    unsigned short ushortValue = rand() % 200;
+    char expected_output[MAX_BUFFER_SIZE];
+    char buffer[MAX_BUFFER_SIZE];
+
+    // Флаг "h": короткое целое число
+    sprintf(expected_output, "Short Integer: %hd", shortValue);
+    s21_sprintf(buffer, "Short Integer: %hd", shortValue);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Флаг "h": беззнаковое короткое целое число
+    sprintf(expected_output, "Unsigned Short Integer: %hu", ushortValue);
+    s21_sprintf(buffer, "Unsigned Short Integer: %hu", ushortValue);
+    ck_assert_str_eq(buffer, expected_output);
+}
+END_TEST
+
 Suite *s21_sprintf_suite() {
   Suite *suite;
   TCase *tc_core;
@@ -222,6 +406,14 @@ Suite *s21_sprintf_suite() {
   tcase_add_test(tc_core, test_s21_sprintf_string);
   tcase_add_test(tc_core, test_s21_sprintf_float);
   tcase_add_test(tc_core, test_s21_sprintf_integer);
+  tcase_add_test(tc_core, test_my_sprintf_random_int);
+  tcase_add_test(tc_core, test_my_sprintf_random_float);
+  tcase_add_test(tc_core, test_my_sprintf_random_large_order);
+  tcase_add_test(tc_core, test_my_sprintf_complex_flags);
+  tcase_add_test(tc_core, test_my_sprintf_random_power);
+  tcase_add_test(tc_core, test_my_sprintf_flags_long);
+  tcase_add_test(tc_core, test_my_sprintf_flags_long_double);
+  tcase_add_test(tc_core, test_my_sprintf_flags_short);
   
   suite_add_tcase(suite, tc_core);
   return suite;

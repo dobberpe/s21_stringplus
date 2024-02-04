@@ -6,6 +6,8 @@
 #include <check.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
+#include <stdlib.h>
 
 #include "../s21_string.h"
 
