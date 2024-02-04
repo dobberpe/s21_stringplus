@@ -52,9 +52,153 @@ START_TEST(test_s21_sprintf_E_precision) {
     char s21_res[100];
     char io_res[100];
     double a = -0.000999999;
-    s21_sprintf(s21_res, "%.3LE", a); //добавила L - в этом случае должен быть -NAN. сега вылетает гдето в apply_format думаю. без L работает.
+    s21_sprintf(s21_res, "%.3LE", a);
     sprintf(io_res, "%.3LE", a);
     ck_assert_str_eq(s21_res, io_res);
+}
+END_TEST
+
+
+START_TEST(test_s21_sprintf_integer)
+{
+    int value = 42;
+    char expected_output[MAX_BUFFER_SIZE];
+    char buffer[MAX_BUFFER_SIZE];
+
+    sprintf(expected_output, "Integer: %d", value);
+    s21_sprintf(buffer, "Integer: %d", value);
+
+    ck_assert_str_eq(buffer, expected_output);
+}
+END_TEST
+
+START_TEST(test_s21_sprintf_float)
+{
+    double value = 3.14;
+    char expected_output[MAX_BUFFER_SIZE];
+    char buffer[MAX_BUFFER_SIZE];
+
+    sprintf(expected_output, "Float: %.2f", value);
+    s21_sprintf(buffer, "Float: %.2f", value);
+
+    ck_assert_str_eq(buffer, expected_output);
+}
+END_TEST
+
+START_TEST(test_s21_sprintf_string)
+{
+    const char *value = "TestString";
+    char expected_output[MAX_BUFFER_SIZE];
+    char buffer[MAX_BUFFER_SIZE];
+
+    sprintf(expected_output, "String: %s", value);
+    s21_sprintf(buffer, "String: %s", value);
+
+    ck_assert_str_eq(buffer, expected_output);
+}
+END_TEST
+
+START_TEST(test_s21_sprintf_integer_flags)
+{
+    int value = 42;
+    char expected_output[MAX_BUFFER_SIZE];
+    char buffer[MAX_BUFFER_SIZE];
+
+    // Флаги: ширина 8, выравнивание по левому краю
+    sprintf(expected_output, "Integer: %-8d", value);
+    s21_sprintf(buffer, "Integer: %-8d", value);
+
+    ck_assert_str_eq(buffer, expected_output);
+}
+END_TEST
+
+START_TEST(test_s21_sprintf_float_flags)
+{
+    double value = 3.14159265359;
+    char expected_output[MAX_BUFFER_SIZE];
+    char buffer[MAX_BUFFER_SIZE];
+
+    // Флаги: ширина 10, точность 2
+    sprintf(expected_output, "Float: %10.2f", value);
+    s21_sprintf(buffer, "Float: %10.2f", value);
+
+    ck_assert_str_eq(buffer, expected_output);
+}
+END_TEST
+
+START_TEST(test_s21_sprintf_string_flags)
+{
+    const char *value = "TestString";
+    char expected_output[MAX_BUFFER_SIZE];
+    char buffer[MAX_BUFFER_SIZE];
+
+    // Флаги: ширина 15, выравнивание по правому краю
+    sprintf(expected_output, "String: %15s", value);
+    s21_sprintf(buffer, "String: %15s", value);
+
+    ck_assert_str_eq(buffer, expected_output);
+}
+END_TEST
+
+START_TEST(test_s21_sprintf_multiple_flags)
+{
+    int intValue = 42;
+    double floatValue = 3.14159265359;
+    const char *stringValue = "TestString";
+    char expected_output[MAX_BUFFER_SIZE];
+    char buffer[MAX_BUFFER_SIZE];
+
+    // Комбинация флагов для разных типов данных
+    sprintf(expected_output, "Integer: %+d, Float: %010.4f, String: %-10s", intValue, floatValue, stringValue);
+    s21_sprintf(buffer, "Integer: %+d, Float: %010.4f, String: %-10s", intValue, floatValue, stringValue);
+
+    ck_assert_str_eq(buffer, expected_output);
+}
+END_TEST
+
+START_TEST(test_s21_sprintf_complex)
+{
+    int intValue = 123456;
+    double floatValue = 9876.54321;
+    const char *stringValue = "TestString";
+    char expected_output[MAX_BUFFER_SIZE];
+    char buffer[MAX_BUFFER_SIZE];
+
+    // Комплексное форматирование
+    sprintf(expected_output, "Int: %+010d, Float: %.3e, String: %-20s", intValue, floatValue, stringValue);
+    s21_sprintf(buffer, "Int: %+010d, Float: %.3e, String: %-20s", intValue, floatValue, stringValue);
+
+    ck_assert_str_eq(buffer, expected_output);
+}
+END_TEST
+
+START_TEST(test_s21_sprintf_padding)
+{
+    int intValue = 42;
+    char expected_output[MAX_BUFFER_SIZE];
+    char buffer[MAX_BUFFER_SIZE];
+
+    // Пустые символы перед числом
+    sprintf(expected_output, "   Integer: %d", intValue);
+    s21_sprintf(buffer, "   Integer: %d", intValue);
+
+    ck_assert_str_eq(buffer, expected_output);
+}
+END_TEST
+
+START_TEST(test_s21_sprintf_alignment)
+{
+    int intValue = 123;
+    double floatValue = 456.789;
+    const char *stringValue = "Align";
+    char expected_output[MAX_BUFFER_SIZE];
+    char buffer[MAX_BUFFER_SIZE];
+
+    // Выравнивание по центру
+    sprintf(expected_output, "Int: %*d, Float: %*.2f, String: %*s", 8, intValue, 10, floatValue, 15, stringValue);
+    s21_sprintf(buffer, "Int: %*d, Float: %*.2f, String: %*s", 8, intValue, 10, floatValue, 15, stringValue);
+
+    ck_assert_str_eq(buffer, expected_output);
 }
 END_TEST
 
@@ -69,36 +213,17 @@ Suite *s21_sprintf_suite() {
   tcase_add_test(tc_core, test_s21_sprintf_f2);
   tcase_add_test(tc_core, test_s21_sprintf_f3);
   tcase_add_test(tc_core, test_s21_sprintf_E_precision);
+  tcase_add_test(tc_core, test_s21_sprintf_alignment);
+  tcase_add_test(tc_core, test_s21_sprintf_padding);
+  tcase_add_test(tc_core, test_s21_sprintf_complex);
+  tcase_add_test(tc_core, test_s21_sprintf_multiple_flags);
+  tcase_add_test(tc_core, test_s21_sprintf_float_flags);
+  tcase_add_test(tc_core, test_s21_sprintf_integer_flags);
+  tcase_add_test(tc_core, test_s21_sprintf_string);
+  tcase_add_test(tc_core, test_s21_sprintf_float);
+  tcase_add_test(tc_core, test_s21_sprintf_integer);
+  
   suite_add_tcase(suite, tc_core);
   return suite;
 }
 
-
-// void test_all_falgs_sprintf(char spec, ...) {
-//     char *str2 = (char *)malloc(2000);
-//     char *format;
-//     for (int i = 0; i < 32; i++) {
-//         char *str = (char *)malloc((strlen(src) + 1) * sizeof(char));
-//         mod.left_alignment = i & 1;
-//         mod.positive_sign = (i >> 1) & 1;
-//         mod.space_instead_of_sign = (i >> 2) & 1;
-//         mod.oct_hex_notation = (i >> 3) & 1;
-//         mod.fill_with_nulls = (i >> 4) & 1;
-//         format = format_maker(&mod, spec, '\0');
-//         s21_memcpy(str, src, strlen(src) + 1);
-//         str = apply_format(str, mod, spec);
-//         sprintf(str2, format, src2);
-
-//         // DEBUG
-//         str = (char *)realloc(str, (s21_strlen(str) + s21_strlen(format) + 1) * sizeof(char));
-//         str = strcat(str, format);
-//         str2 = (char *)realloc(str2, (s21_strlen(str2) + s21_strlen(format) + 1) * sizeof(char));
-//         str2 = strcat(str2, format);
-//         // END DEBUG
-
-//         ck_assert_str_eq(str, str2);
-//         free(str);
-//         free(format);
-//     }
-//     free(str2);
-// }

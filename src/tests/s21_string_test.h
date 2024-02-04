@@ -1,6 +1,8 @@
 #ifndef TEST_H
 #define TEST_H
 
+#define MAX_BUFFER_SIZE 512
+
 #include <check.h>
 #include <stdio.h>
 #include <string.h>

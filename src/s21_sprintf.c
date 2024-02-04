@@ -75,7 +75,7 @@ int process_format(const char *format, int i, char *str, const int j, va_list *p
 		free(res);
 	} else i = percent_position;
 
-	reset_mods(&format_modifiers);
+	reset_mods(format_modifiers);
 	
 	return i;
 }
@@ -520,7 +520,7 @@ char *etoa(char* f_str, print_modifiers format_modifiers, char specifier) {
     int elen = s21_strlen(e_str);
     f_str = (char *)realloc(f_str, (flen + elen + 3) * sizeof(char));
 	if (specifier == 'g') specifier = 'e';
-	if (specifier == "G") specifier = 'E';
+	if (specifier == 'G') specifier = 'E';
 
 	char *o = "e";
 	if (s21_strchr("EG", specifier)) o = "E";
@@ -675,6 +675,7 @@ char *set_width(char *str, print_modifiers format_modifiers, char specifier) {
 }
 
 char *apply_format(char *str, print_modifiers format_modifiers, char specifier) {
+		
 	// printf("%s\n", str);
 
 	char is_zero = *str;
@@ -689,12 +690,16 @@ char *apply_format(char *str, print_modifiers format_modifiers, char specifier) 
 			str = (char *)realloc(str, str_len);
 		}
 	}
-
-	// точность
-	str = set_precision(str, format_modifiers, specifier);
 	
-	// префикс и точка
-	str = set_hex_notation(str, format_modifiers, specifier, is_zero);
+	if (*str != 'n' && *str != 'i') {
+		str = set_precision(str, format_modifiers, specifier);
+		str = set_hex_notation(str, format_modifiers, specifier, is_zero);
+	} else if (s21_strchr("EG", specifier) && s21_strchr("in", *str)) {
+		char *tmp = s21_to_upper(str);
+		free(str);
+		str = tmp;
+	}
+
 
 	// знак
 	str_len = s21_strlen(str);
@@ -714,34 +719,39 @@ char *apply_format(char *str, print_modifiers format_modifiers, char specifier) 
 
 
 // int main() {
-	// modifiers mod = {0};
-	// mod.left_alignment = false;
-	// mod.positive_sign = false;
-	// mod.space_instead_of_sign = false;
-	// mod.oct_hex_notation = true;
-	// mod.fill_with_nulls = false;
-	// mod.width = 9;
-	// mod.precision = 2;
-	// mod.length = 0;
+// 	// modifiers mod = {0};
+// 	// mod.left_alignment = false;
+// 	// mod.positive_sign = false;
+// 	// mod.space_instead_of_sign = false;
+// 	// mod.oct_hex_notation = true;
+// 	// mod.fill_with_nulls = false;
+// 	// mod.width = 9;
+// 	// mod.precision = 2;
+// 	// mod.length = 0;
 
 
-	// char *src = "99999.957";
-	// char *val = malloc(100);
-	// s21_strncpy(val, src, 100);
+// 	// char *src = "99999.957";
+// 	// char *val = malloc(100);
+// 	// s21_strncpy(val, src, 100);
 
-	// printf("%s\n", val = apply_format(val, mod, 'g'));
-	// printf("%s\n", val = etoa(val));
-	// printf("%#9.2g\n", 99999.957);
+// 	// printf("%s\n", val = apply_format(val, mod, 'g'));
+// 	// printf("%s\n", val = etoa(val));
+// 	// printf("%#9.2g\n", 99999.957);
 
-	// free(val);
+// 	// free(val);
 
 
-// 	char s21_res[100];
-//     char io_res[100];
-//     float a = 9.0099;
-//     s21_sprintf(s21_res, "%.22p", &a);
-//     sprintf(io_res, "%.22p", &a);
-// 	printf("%s\n", s21_res);
-// 	printf("%s\n", io_res);
+//     int intValue = 123;
+//     double floatValue = 456.789;
+//     const char *stringValue = "Align";
+//     char expected_output[555];
+//     char buffer[555];
+
+//     // Выравнивание по центру
+//     sprintf(expected_output, "Int: %*d, Float: %*.2f, String: %*s", 8, intValue, 10, floatValue, 15, stringValue);
+//     s21_sprintf(buffer, "Int: %*d, Float: %*.2f, String: %*s", 8, intValue, 10, floatValue, 15, stringValue);
+// 	printf("%s\n", expected_output);
+// 	printf("%s\n", buffer);
+	
 // 	return 0;
 // }
