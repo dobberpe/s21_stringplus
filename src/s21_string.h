@@ -74,7 +74,7 @@ void *s21_insert(const char *src, const char *str, size_t start_index);
 void *s21_trim(const char *src, const char *trim_chars);
 
 int s21_sprintf(char *str, const char *format, ...);
-void init_str(char* str);
+//void init_str(char* str);
 void reset_mods(print_modifiers *format_modifiers);
 int process_format(const char *format, int i, char *str, const int j, va_list *params, print_modifiers *format_modifiers);
 char* process_specifier(char specifier, const int len, va_list *params, print_modifiers *format_modifiers);

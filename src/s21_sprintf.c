@@ -7,7 +7,7 @@ int s21_sprintf(char *str, const char *format, ...) {
 	int i = -1;
 	int j = -1;
 
-	init_str(str);
+	str[0] = '\0';
 	reset_mods(&format_modifiers);
 
 	while (format[++i]) {
@@ -16,6 +16,7 @@ int s21_sprintf(char *str, const char *format, ...) {
 			j = s21_strlen(str) - 1;
 		} else {
 			str[++j] = format[i];
+            str[j + 1] = '\0';
 		}
 	}
 	va_end(params);
@@ -23,10 +24,10 @@ int s21_sprintf(char *str, const char *format, ...) {
 	return 0;
 }
 
-void init_str(char* str) {
-	int i = -1;
-	while (str[++i]) str[i] = '\0';
-}
+//void init_str(char* str) {
+//	int i = -1;
+//	while (str[++i]) str[i] = '\0';
+//}
 
 void reset_mods(print_modifiers* format_modifiers) {
 	format_modifiers->left_alignment = false;
@@ -242,7 +243,7 @@ char *calculate_frac_part(char *fraction, int e, const unsigned long long bits, 
     if (e < 0) {
         e = abs(e);
         fraction = augment_frac(fraction, e++, &power_of_5, &prev_p);
-    }
+    } else e = 1;
 	while (mask) {
 		if (bits & mask) {
 			fraction = augment_frac(fraction, e, &power_of_5, &prev_p);
