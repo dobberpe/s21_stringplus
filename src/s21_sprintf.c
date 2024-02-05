@@ -229,8 +229,7 @@ char* augment_int(char* integer, int p, char** power_of_2, int* prev_p) {
     char *tmp = integer;
     char *addendum = raise_power_of_2(*power_of_2, p - *prev_p + 1);
     int addlen = s21_strlen(addendum);
-    *power_of_2 = (char *)calloc(addlen + 1, sizeof(char));
-    *power_of_2 = s21_strncat(*power_of_2, addendum, addlen);
+    *power_of_2 = addendum;
     *prev_p = p;
     integer = stradd(integer, addendum);
     free(tmp);
@@ -271,6 +270,7 @@ char* augment_frac(char* fraction, int e, char** power_of_5, int* prev_p) {
     char *tmp = fraction;
     fraction = stradd(fraction, addendum);
     free(tmp);
+    free(addendum);
 
     return fraction;
 }
