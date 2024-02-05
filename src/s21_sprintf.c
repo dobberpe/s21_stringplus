@@ -103,12 +103,10 @@ char *process_specifier(char specifier, const int len, va_list *params, print_mo
 	} else if (specifier == 'n') {
 		int *n = va_arg(*params, int *);
 		*n = len;
-		res = (char *)malloc(1 * sizeof(char));
-		res[0] = '\0';
+		res = (char *)calloc(1, sizeof(char));
 	} else if (specifier == '%') {
-		res = (char *)malloc(2 * sizeof(char));
+		res = (char *)calloc(2, sizeof(char));
 		res[0] = '%';
-		res[1] = '\0';
 	}
 
 	return res && specifier != '%' && specifier != 'n' ? apply_format(res, *format_modifiers, specifier) : res;
@@ -119,11 +117,11 @@ char* get_c(va_list* params, char length) {
 
 	if (length == 'l') {
 		wchar_t c = va_arg(*params, wchar_t);
-		res = (char*)malloc(sizeof(wchar_t) + sizeof(char));
-		wcstombs(res, &c, sizeof(wchar_t));
+        res = (char*)calloc(1, sizeof(wchar_t) + sizeof(char));
+		wcstombs(res, &c,   sizeof(wchar_t));
 	} else {
-		res = (char *)malloc(2 * sizeof(char));
-		res[0] = (char)va_arg(*params, int);;
+		res = (char *)calloc(2, sizeof(char));
+		res[0] = (char)va_arg(*params, int);
 		res[1] = '\0';
 	}
 
@@ -131,9 +129,8 @@ char* get_c(va_list* params, char length) {
 }
 
 char *doxtoa(long long d, const int radix, const bool uppercase) {
-	int i = doxlen(d, radix) + 1;
-	char *str = (char *)malloc((i) * sizeof(char));
-	str[--i] = '\0';
+	int i = doxlen(d, radix);
+	char *str = (char *)calloc(i, sizeof(char));
 
 	while (abs(d / radix)) {
 		str[--i] = abs(d % radix);
@@ -401,17 +398,16 @@ char* stradd(char *l_str, char *r_str) {
     int r_len = s21_strlen(r_str);
 	int i = l_len - 1;
 	int j = r_len - 1;
-	int k = max(l_len, r_len) + 1;
+	int k = max(l_len, r_len);
 	if (point_position(l_str)) {
 	    int l_frac = l_len - point_position(l_str);
 	    int r_frac = r_len - point_position(r_str);
 	    i = l_frac < r_frac ? i + r_frac - l_frac: i;
 	    j = r_frac < l_frac ? j + l_frac - r_frac : j;
 	}
-	char *res = (char *)malloc(k * sizeof(char));
+	char *res = (char *)calloc(k + 1, sizeof(char));
 	bool overflow = false;
 
-	res[--k] = '\0';
 	while (--k >= 0) {
 	    if (i >= 0 && i < l_len && l_str[i] == '.') {
 		    res[k] = '.';
@@ -440,7 +436,7 @@ char* get_s(va_list* params, char length) {
 
 	if (length == 'l') {
 		wchar_t* s = va_arg(*params, wchar_t*);
-		res = (char*)malloc((wcslen(s) * sizeof(wchar_t) + 1) * sizeof(char));
+		res = (char*)calloc(1, wcslen(s) * sizeof(wchar_t) + sizeof(char));
 		wcstombs(res, s, wcslen(s) * sizeof(wchar_t));
 	} else {
 		char* s = va_arg(*params, char*);
