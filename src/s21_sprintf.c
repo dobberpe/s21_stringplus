@@ -122,7 +122,6 @@ char* get_c(va_list* params, char length) {
 	} else {
 		res = (char *)calloc(2, sizeof(char));
 		res[0] = (char)va_arg(*params, int);
-		res[1] = '\0';
 	}
 
 	return res;
@@ -130,7 +129,7 @@ char* get_c(va_list* params, char length) {
 
 char *doxtoa(long long d, const int radix, const bool uppercase) {
 	int i = doxlen(d, radix);
-	char *str = (char *)calloc(i, sizeof(char));
+	char *str = (char *)calloc(i + 1, sizeof(char));
 
 	while (abs(d / radix)) {
 		str[--i] = abs(d % radix);
