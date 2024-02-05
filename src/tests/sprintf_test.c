@@ -423,6 +423,150 @@ START_TEST(test_my_sprintf_ints_overflow)
 }
 END_TEST
 
+START_TEST(test_my_sprintf_char_edge_cases)
+{
+    char expected_output[MAX_BUFFER_SIZE];
+    char buffer[MAX_BUFFER_SIZE];
+
+    // Спецификатор "c": символ 'A'
+    sprintf(expected_output, "Char: %c", 'A');
+    s21_sprintf(buffer, "Char: %c", 'A');
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Спецификатор "c": символ конца строки
+    sprintf(expected_output, "Char: %c", '\0');
+    s21_sprintf(buffer, "Char: %c", '\0');
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Спецификатор "c": символ новой строки
+    sprintf(expected_output, "Char: %c", '\n');
+    s21_sprintf(buffer, "Char: %c", '\n');
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Спецификатор "c": символ табуляции
+    sprintf(expected_output, "Char: %c", '\t');
+    s21_sprintf(buffer, "Char: %c", '\t');
+    ck_assert_str_eq(buffer, expected_output);
+}
+END_TEST
+
+START_TEST(test_my_sprintf_wchar)
+{
+    setlocale(LC_ALL, "");  // Устанавливаем локаль для корректной работы с широкими символами
+
+    char expected_output[MAX_BUFFER_SIZE];
+    char buffer[MAX_BUFFER_SIZE];
+
+    // Спецификатор "lc": символ 'A'
+    wchar_t wcharValue = L'A';
+    sprintf(expected_output, "Wide Char: %lc", wcharValue);
+    s21_sprintf(buffer, "Wide Char: %lc", wcharValue);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Спецификатор "lc": символ новой строки
+    wchar_t newLine = L'\n';
+    sprintf(expected_output, "Wide Char: %lc", newLine);
+    s21_sprintf(buffer, "Wide Char: %lc", newLine);
+    ck_assert_str_eq(buffer, expected_output);
+}
+END_TEST
+
+START_TEST(test_my_sprintf_wstring)
+{
+    setlocale(LC_ALL, "");  // Устанавливаем локаль для корректной работы с широкими символами
+
+    char expected_output[MAX_BUFFER_SIZE];
+    char buffer[MAX_BUFFER_SIZE];
+
+    // Спецификатор "ls": широкая строка L"Hello"
+    const wchar_t *wstringValue = L"Hello";
+    sprintf(expected_output, "Wide String: %ls", wstringValue);
+    s21_sprintf(buffer, "Wide String: %ls", wstringValue);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Спецификатор "ls": широкая строка L"Привет"
+    const wchar_t *russianWString = L"Привет";
+    sprintf(expected_output, "Wide String: %ls", russianWString);
+    s21_sprintf(buffer, "Wide String: %ls", russianWString);
+    ck_assert_str_eq(buffer, expected_output);
+}
+END_TEST
+
+START_TEST(test_my_sprintf_pointer)
+{
+    char expected_output[MAX_BUFFER_SIZE];
+    char buffer[MAX_BUFFER_SIZE];
+
+    // Спецификатор "p": нулевой указатель
+    void *nullPointer = NULL;
+    sprintf(expected_output, "Pointer: %.20p", nullPointer);
+    s21_sprintf(buffer, "Pointer: %p", nullPointer);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Спецификатор "p": ненулевой указатель
+    int value = 42;
+    void *nonNullPointer = &value;
+    sprintf(expected_output, "Pointer: %p", nonNullPointer);
+    s21_sprintf(buffer, "Pointer: %p", nonNullPointer);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Спецификатор "p": другой ненулевой указатель
+    char charArray[10];
+    void *nonNullPointer2 = charArray;
+    sprintf(expected_output, "Pointer: %p", nonNullPointer2);
+    s21_sprintf(buffer, "Pointer: %p", nonNullPointer2);
+    ck_assert_str_eq(buffer, expected_output);
+}
+END_TEST
+
+START_TEST(test_my_sprintf_wstring_flags)
+{
+    setlocale(LC_ALL, "");  // Устанавливаем локаль для корректной работы с широкими символами
+
+    char expected_output[MAX_BUFFER_SIZE];
+    char buffer[MAX_BUFFER_SIZE];
+
+    // Спецификатор "ls": широкая строка L"Hello"
+    const wchar_t *wstringValue = L"Hello"; 
+    sprintf(expected_output, "Wide String: %ls", wstringValue);
+    s21_sprintf(buffer, "Wide String: %ls", wstringValue);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Спецификатор "ls": широкая строка L"Привет"
+    const wchar_t *russianWString = L"Привет";
+    sprintf(expected_output, "Wide String: %ls", russianWString);
+    s21_sprintf(buffer, "Wide String: %ls", russianWString);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Спецификатор "ls" с флагом "-" и шириной 10: широкая строка L"Test"
+    const wchar_t *testWString = L"Test";
+    sprintf(expected_output, "Wide String: %-10ls", testWString);
+    s21_sprintf(buffer, "Wide String: %-10ls", testWString);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Спецификатор "ls" с шириной 8: широкая строка L"Test"
+    sprintf(expected_output, "Wide String: %8ls", testWString);
+    s21_sprintf(buffer, "Wide String: %8ls", testWString);
+    ck_assert_str_eq(buffer, expected_output);
+}
+END_TEST
+
+// Тестовый случай для s21_sprintf с использованием спецификатора "ls" и нулевой широкой строки
+START_TEST(test_my_sprintf_wstring_empty)
+{
+    setlocale(LC_ALL, "");  // Устанавливаем локаль для корректной работы с широкими символами
+
+    char expected_output[MAX_BUFFER_SIZE];
+    char buffer[MAX_BUFFER_SIZE];
+
+    // Спецификатор "ls": нулевая широкая строка
+    const wchar_t *emptyWString = L"";
+    sprintf(expected_output, "Empty Wide String: %ls", emptyWString);
+    s21_sprintf(buffer, "Empty Wide String: %ls", emptyWString);
+    ck_assert_str_eq(buffer, expected_output);
+}
+END_TEST
+
 Suite *s21_sprintf_suite() {
   Suite *suite;
   TCase *tc_core;
@@ -452,6 +596,12 @@ Suite *s21_sprintf_suite() {
   tcase_add_test(tc_core, test_my_sprintf_flags_long_double);
   tcase_add_test(tc_core, test_my_sprintf_flags_short);
   tcase_add_test(tc_core, test_my_sprintf_ints_overflow);
+  tcase_add_test(tc_core, test_my_sprintf_char_edge_cases);
+  tcase_add_test(tc_core, test_my_sprintf_wstring);
+  tcase_add_test(tc_core, test_my_sprintf_wchar);
+  tcase_add_test(tc_core, test_my_sprintf_pointer);
+  tcase_add_test(tc_core, test_my_sprintf_wstring_empty);
+  tcase_add_test(tc_core, test_my_sprintf_wstring_flags);
   
   suite_add_tcase(suite, tc_core);
   return suite;

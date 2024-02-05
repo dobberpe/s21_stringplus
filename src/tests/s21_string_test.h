@@ -8,6 +8,9 @@
 #include <string.h>
 #include <time.h>
 #include <stdlib.h>
+#include <wchar.h>
+#include <locale.h>
+
 
 #include "../s21_string.h"
 
