@@ -305,7 +305,7 @@ START_TEST(test_my_sprintf_random_power)
 
     // Флаги: выравнивание по левому краю, ширина 15, символ "#"
     sprintf(expected_output, "Power: %#15.*e", 0, pow(baseValue, power));
-    s21_sprintf(buffer, "Power: %-#15.*e", 0, pow(baseValue, power));
+    s21_sprintf(buffer, "Power: %#15.*e", 0, pow(baseValue, power));
     ck_assert_str_eq(buffer, expected_output);
 
     // Флаги: ширина 20, точность 3
@@ -386,6 +386,43 @@ START_TEST(test_my_sprintf_flags_short)
 }
 END_TEST
 
+START_TEST(test_my_sprintf_ints_overflow)
+{
+    char expected_output[MAX_BUFFER_SIZE];
+    char buffer[MAX_BUFFER_SIZE];
+
+    // Переполнение максимального знакового целого на 1
+    sprintf(expected_output, "Integer overflow: %d", (int)2147483648);
+    s21_sprintf(buffer, "Integer overflow: %d", 2147483648);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Переполнение максимального знакового короткого целого на 1
+    sprintf(expected_output, "Short overflow: %hd", 32768);
+    s21_sprintf(buffer, "Short overflow: %hd", 32768);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Переполнение максимального знакового длинного целого на 1
+    sprintf(expected_output, "Long overflow: %ld", 9223372036854775808);
+    s21_sprintf(buffer, "Long overflow: %ld", 9223372036854775808);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Переполнение максимального беззнакового целого на 1
+    sprintf(expected_output, "Unsigned overflow: %u", 4294967296);
+    s21_sprintf(buffer, "Unsigned overflow: %u", 4294967296);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Переполнение максимального беззнакового короткого целого на 1
+    sprintf(expected_output, "Unsigned short overflow: %hu", 65536);
+    s21_sprintf(buffer, "Unsigned short overflow: %hu", 65536);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Переполнение максимального беззнакового длинного целого на 1
+    sprintf(expected_output, "Unsigned long overflow: %lu", 18446744073709551616);
+    s21_sprintf(buffer, "Unsigned long overflow: %lu", 18446744073709551616);
+    ck_assert_str_eq(buffer, expected_output);
+}
+END_TEST
+
 Suite *s21_sprintf_suite() {
   Suite *suite;
   TCase *tc_core;
@@ -414,6 +451,7 @@ Suite *s21_sprintf_suite() {
   tcase_add_test(tc_core, test_my_sprintf_flags_long);
   tcase_add_test(tc_core, test_my_sprintf_flags_long_double);
   tcase_add_test(tc_core, test_my_sprintf_flags_short);
+  tcase_add_test(tc_core, test_my_sprintf_ints_overflow);
   
   suite_add_tcase(suite, tc_core);
   return suite;

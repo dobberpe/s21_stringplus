@@ -60,6 +60,7 @@ int process_format(const char *format, int i, char *str, const int j, va_list *p
 	if (format[i] == '.') {
 		if (format[++i] == '*') {
 			format_modifiers->precision = va_arg(*params, int);
+            ++i;
 		} else if (format[i] >= '0' && format[i] <= '9') {
 			format_modifiers->precision = atoi(format + i);
 			while (format[++i] && format[i] >= '0' && format[i] <= '9');
@@ -87,13 +88,13 @@ char *process_specifier(char specifier, const int len, va_list *params, print_mo
 		res = get_c(params, format_modifiers->length);
 	} else if (specifier == 'd' || specifier == 'i') {
 		format_modifiers->precision = format_modifiers->precision == -1 ? 1 : format_modifiers->precision;
-		res = doxtoa(format_modifiers->length == 'h' ? va_arg(*params, short) : format_modifiers->length == 'l' ? va_arg(*params, long) : va_arg(*params, int), 10, false);
+		res = doxtoa(format_modifiers->length == 'h' ? (short)va_arg(*params, int) : format_modifiers->length == 'l' ? va_arg(*params, long) : va_arg(*params, int), 10, false);
 	} else if (specifier == 'e' || specifier == 'E' || specifier == 'f' || specifier == 'g' || specifier == 'G') {
 		format_modifiers->precision = format_modifiers->precision == -1 ? 6 : format_modifiers->precision;
 		res = get_f(params, format_modifiers->length);
 	} else if (specifier == 'o' || specifier == 'u' || specifier == 'x' || specifier == 'X') {
 		format_modifiers->precision = format_modifiers->precision == -1 ? 1 : format_modifiers->precision;
-		res = doxtoa(format_modifiers->length == 'h' ? va_arg(*params, unsigned short) : format_modifiers->length == 'l' ? va_arg(*params, unsigned long) : va_arg(*params, unsigned), specifier == 'o' ? 8 : specifier == 'u' ? 10 : 16, specifier == 'X');
+		res = doxtoa(format_modifiers->length == 'h' ? (unsigned short)va_arg(*params, unsigned int) : format_modifiers->length == 'l' ? va_arg(*params, unsigned long) : va_arg(*params, unsigned), specifier == 'o' ? 8 : specifier == 'u' ? 10 : 16, specifier == 'X');
 	} else if (specifier == 's') {
 		res = get_s(params, format_modifiers->length);
 	} else if (specifier == 'p') {
