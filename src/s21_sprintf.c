@@ -99,7 +99,7 @@ char *process_specifier(char specifier, const int len, va_list *params, print_mo
 		res = get_s(params, format_modifiers->length);
 	} else if (specifier == 'p') {
 		format_modifiers->precision = format_modifiers->precision == -1 ? 1 : format_modifiers->precision;
-		res = doxtoa(va_arg(*params, unsigned long), 16, false);
+		res = get_p(va_arg(*params, unsigned long));
 	} else if (specifier == 'n') {
 		int *n = va_arg(*params, int *);
 		*n = len;
@@ -177,7 +177,7 @@ char* get_f(va_list* params, char length) {
 char* edge_case(bool inf, bool negative) {
 	char* res = (char*)calloc(4 + negative, sizeof(char));
 	res = negative ? s21_strncat(res, "-", 1) : res;
-	res = inf ? s21_strncat(res, "inf", 3) : s21_strncat(res, "nan", 3);
+	res = s21_strncat(res, inf ? "inf" : "nan", 3);
 
     return res;
 }
@@ -449,6 +449,18 @@ char* get_s(va_list* params, char length) {
 	}
 	
 	return res;
+}
+
+char* get_p(unsigned long address) {
+    char* res;
+
+    if (address) res = doxtoa(address, 16, false);
+    else {
+        res = (char*) calloc(6, sizeof(char));
+        res = s21_strncat(res, "(nil)", 5);
+    }
+
+    return res;
 }
 
 char* clear_nulls(char* str) {

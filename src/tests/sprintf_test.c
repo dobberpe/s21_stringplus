@@ -567,6 +567,239 @@ START_TEST(test_my_sprintf_wstring_empty)
 }
 END_TEST
 
+START_TEST(test_my_sprintf_f_edgecase)
+{
+    double inf = INFINITY;
+    double nan = NAN;
+    long double inf_l = powl(2, 16384);
+    long double nan_l = nanl("");
+    char expected_output[MAX_BUFFER_SIZE];
+    char buffer[MAX_BUFFER_SIZE];
+
+    // Бесконечность для чиcла двойной точности
+    sprintf(expected_output, "Inf double: %f", inf);
+    s21_sprintf(buffer, "Inf double: %f", inf);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Минус бесконечность для чиcла двойной точности
+    sprintf(expected_output, "Inf double: %f", -inf);
+    s21_sprintf(buffer, "Inf double: %f", -inf);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Нечисло двойной точности
+    sprintf(expected_output, "Nan double: %f", nan);
+    s21_sprintf(buffer, "Nan double: %f", nan);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Минус нечисло двойной точности
+    sprintf(expected_output, "Nan double: %f", -nan);
+    s21_sprintf(buffer, "Nan double: %f", -nan);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Бесконечность для чиcла повышенной точности
+    sprintf(expected_output, "Inf double: %Lf", inf_l);
+    s21_sprintf(buffer, "Inf double: %Lf", inf_l);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Минус бесконечность для чиcла повышенной точности
+    sprintf(expected_output, "Inf double: %Lf", -inf_l);
+    s21_sprintf(buffer, "Inf double: %Lf", -inf_l);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Нечисло повышенной точности
+    sprintf(expected_output, "Nan double: %Lf", nan_l);
+    s21_sprintf(buffer, "Nan double: %Lf", nan_l);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Минус нечисло повышенной точности
+    sprintf(expected_output, "Nan double: %Lf", -nan_l);
+    s21_sprintf(buffer, "Nan double: %Lf", -nan_l);
+    ck_assert_str_eq(buffer, expected_output);
+}
+END_TEST
+
+START_TEST(test_my_sprintf_e_edgecase)
+{
+    double inf = INFINITY;
+    double nan = NAN;
+    long double inf_l = powl(2, 16384);
+    long double nan_l = nanl("");
+    char expected_output[MAX_BUFFER_SIZE];
+    char buffer[MAX_BUFFER_SIZE];
+
+    // Бесконечность для чиcла двойной точности
+    sprintf(expected_output, "Inf double: %e", inf);
+    s21_sprintf(buffer, "Inf double: %e", inf);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Бесконечность в верхнем регистре для чиcла двойной точности
+    sprintf(expected_output, "Inf double: %E", inf);
+    s21_sprintf(buffer, "Inf double: %E", inf);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Минус бесконечность для чиcла двойной точности
+    sprintf(expected_output, "Inf double: %e", -inf);
+    s21_sprintf(buffer, "Inf double: %e", -inf);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Минус бесконечность в верхнем регистре для чиcла двойной точности
+    sprintf(expected_output, "Inf double: %E", -inf);
+    s21_sprintf(buffer, "Inf double: %E", -inf);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Нечисло двойной точности
+    sprintf(expected_output, "Nan double: %e", nan);
+    s21_sprintf(buffer, "Nan double: %e", nan);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Нечисло двойной точности в верхнем регистре
+    sprintf(expected_output, "Nan double: %E", nan);
+    s21_sprintf(buffer, "Nan double: %E", nan);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Минус нечисло двойной точности
+    sprintf(expected_output, "Nan double: %e", -nan);
+    s21_sprintf(buffer, "Nan double: %e", -nan);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Минус нечисло двойной точности в верхнем регистре
+    sprintf(expected_output, "Nan double: %E", -nan);
+    s21_sprintf(buffer, "Nan double: %E", -nan);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Бесконечность для чиcла повышенной точности
+    sprintf(expected_output, "Inf double: %Le", inf_l);
+    s21_sprintf(buffer, "Inf double: %Le", inf_l);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Бесконечность в верхнем регистре для чиcла повышенной точности
+    sprintf(expected_output, "Inf double: %LE", inf_l);
+    s21_sprintf(buffer, "Inf double: %LE", inf_l);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Минус бесконечность для чиcла повышенной точности
+    sprintf(expected_output, "Inf double: %Le", -inf_l);
+    s21_sprintf(buffer, "Inf double: %Le", -inf_l);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Минус бесконечность в верхнем регистре для чиcла повышенной точности
+    sprintf(expected_output, "Inf double: %LE", -inf_l);
+    s21_sprintf(buffer, "Inf double: %LE", -inf_l);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Нечисло повышенной точности
+    sprintf(expected_output, "Nan double: %Le", nan_l);
+    s21_sprintf(buffer, "Nan double: %Le", nan_l);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Нечисло повышенной точности в верхнем регистре
+    sprintf(expected_output, "Nan double: %LE", nan_l);
+    s21_sprintf(buffer, "Nan double: %LE", nan_l);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Минус нечисло повышенной точности
+    sprintf(expected_output, "Nan double: %Le", -nan_l);
+    s21_sprintf(buffer, "Nan double: %Le", -nan_l);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Минус нечисло повышенной точности в верхнем регистре
+    sprintf(expected_output, "Nan double: %LE", -nan_l);
+    s21_sprintf(buffer, "Nan double: %LE", -nan_l);
+    ck_assert_str_eq(buffer, expected_output);
+}
+END_TEST
+
+START_TEST(test_my_sprintf_g_edgecase)
+{
+    double inf = INFINITY;
+    double nan = NAN;
+    long double inf_l = powl(2, 16384);
+    long double nan_l = nanl("");
+    char expected_output[MAX_BUFFER_SIZE];
+    char buffer[MAX_BUFFER_SIZE];
+
+    // Бесконечность для чиcла двойной точности
+    sprintf(expected_output, "Inf double: %g", inf);
+    s21_sprintf(buffer, "Inf double: %g", inf);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Бесконечность в верхнем регистре для чиcла двойной точности
+    sprintf(expected_output, "Inf double: %G", inf);
+    s21_sprintf(buffer, "Inf double: %G", inf);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Минус бесконечность для чиcла двойной точности
+    sprintf(expected_output, "Inf double: %G", -inf);
+    s21_sprintf(buffer, "Inf double: %G", -inf);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Минус бесконечность в верхнем регистре для чиcла двойной точности
+    sprintf(expected_output, "Inf double: %G", -inf);
+    s21_sprintf(buffer, "Inf double: %G", -inf);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Нечисло двойной точности
+    sprintf(expected_output, "Nan double: %g", nan);
+    s21_sprintf(buffer, "Nan double: %g", nan);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Нечисло двойной точности в верхнем регистре
+    sprintf(expected_output, "Nan double: %G", nan);
+    s21_sprintf(buffer, "Nan double: %G", nan);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Минус нечисло двойной точности
+    sprintf(expected_output, "Nan double: %g", -nan);
+    s21_sprintf(buffer, "Nan double: %g", -nan);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Минус нечисло двойной точности в верхнем регистре
+    sprintf(expected_output, "Nan double: %G", -nan);
+    s21_sprintf(buffer, "Nan double: %G", -nan);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Бесконечность для чиcла повышенной точности
+    sprintf(expected_output, "Inf double: %Lg", inf_l);
+    s21_sprintf(buffer, "Inf double: %Lg", inf_l);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Бесконечность в верхнем регистре для чиcла повышенной точности
+    sprintf(expected_output, "Inf double: %LG", inf_l);
+    s21_sprintf(buffer, "Inf double: %LG", inf_l);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Минус бесконечность для чиcла повышенной точности
+    sprintf(expected_output, "Inf double: %Lg", -inf_l);
+    s21_sprintf(buffer, "Inf double: %Lg", -inf_l);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Минус бесконечность в верхнем регистре для чиcла повышенной точности
+    sprintf(expected_output, "Inf double: %LG", -inf_l);
+    s21_sprintf(buffer, "Inf double: %LG", -inf_l);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Нечисло повышенной точности
+    sprintf(expected_output, "Nan double: %Lg", nan_l);
+    s21_sprintf(buffer, "Nan double: %Lg", nan_l);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Нечисло повышенной точности в верхнем регистре
+    sprintf(expected_output, "Nan double: %LG", nan_l);
+    s21_sprintf(buffer, "Nan double: %LG", nan_l);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Минус нечисло повышенной точности
+    sprintf(expected_output, "Nan double: %Lg", -nan_l);
+    s21_sprintf(buffer, "Nan double: %Lg", -nan_l);
+    ck_assert_str_eq(buffer, expected_output);
+
+    // Минус нечисло повышенной точности в верхнем регистре
+    sprintf(expected_output, "Nan double: %LG", -nan_l);
+    s21_sprintf(buffer, "Nan double: %LG", -nan_l);
+    ck_assert_str_eq(buffer, expected_output);
+}
+END_TEST
+
 Suite *s21_sprintf_suite() {
   Suite *suite;
   TCase *tc_core;
@@ -602,6 +835,9 @@ Suite *s21_sprintf_suite() {
   tcase_add_test(tc_core, test_my_sprintf_pointer);
   tcase_add_test(tc_core, test_my_sprintf_wstring_empty);
   tcase_add_test(tc_core, test_my_sprintf_wstring_flags);
+  tcase_add_test(tc_core, test_my_sprintf_f_edgecase);
+  tcase_add_test(tc_core, test_my_sprintf_e_edgecase);
+  tcase_add_test(tc_core, test_my_sprintf_g_edgecase);
   
   suite_add_tcase(suite, tc_core);
   return suite;

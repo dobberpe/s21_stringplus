@@ -102,6 +102,7 @@ char* add_width(char *str, int num, char value, bool right_alignment);
 char* stradd(char *l_str, char *r_str);
 char* get_s(va_list* params, char length);
 int point_position(char *str);
+char* get_p(unsigned long address);
 char *apply_format(char *str, print_modifiers format_modifiers, char specifier);
 char *double_round(char *str, print_modifiers format_modifiers, char specifier);
 char *set_precision(char *str, print_modifiers format_modifiers, char specifier);
