@@ -627,7 +627,7 @@ char *set_precision(char *str, print_modifiers format_modifiers, char specifier)
 		} else {
 			str = double_round(str, format_modifiers, specifier);
 		}
-	} else if (specifier == 'p') {
+	} else if (specifier == 'p' && *str != '(') {
 		int zeros_no = format_modifiers.precision - str_len;
 		if (zeros_no > 0) str = add_width(str, zeros_no, '0', true);
 	}
@@ -639,7 +639,7 @@ char *set_hex_notation(char *str, print_modifiers format_modifiers, char specifi
 	if ((format_modifiers.oct_hex_notation && s21_strchr("oxXeEfgG", specifier)) || specifier == 'p') {
 		if (specifier == 'o' && *str != 0 && *str != '0') {
 			str = add_width(str, 1, '0', true);
-		} else if ((specifier == 'x' && *str != 0 && is_zero != '0') || specifier == 'p') {
+		} else if ((specifier == 'x' && *str != 0 && is_zero != '0') || (specifier == 'p' && *str != '(')) {
 			str = add_width(str, 1, 'x', true);
 			str = add_width(str, 1, '0', true);
 		} else if (specifier == 'X' && *str != 0 && is_zero != '0') {
@@ -661,7 +661,7 @@ char *set_hex_notation(char *str, print_modifiers format_modifiers, char specifi
 char *set_width(char *str, print_modifiers format_modifiers, char specifier) {
 	size_t str_len = s21_strlen(str);
 	if (*str == '\0' && format_modifiers.width && specifier != 's') format_modifiers.width--; 
-	if (format_modifiers.width > str_len && !format_modifiers.fill_with_nulls) {
+	if (format_modifiers.width > str_len && (!format_modifiers.fill_with_nulls || s21_strchr("(in", *str) || (*str != '\0' && str[1] != '\0' && s21_strchr("(in", str[1])))) {
 		str = add_width(str, format_modifiers.width - str_len, ' ', !format_modifiers.left_alignment);
 	}
 	else if (format_modifiers.width > str_len && format_modifiers.fill_with_nulls) {
