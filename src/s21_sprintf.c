@@ -12,7 +12,7 @@ int s21_sprintf(char *str, const char *format, ...) {
 
 	while (format[++i]) {
 		if (format[i] == '%') {
-			i = process_format(format, i, str, j + 1, &params, &format_modifiers);
+			i = process_format(format, i, str, &params, &format_modifiers);
 			j = s21_strlen(str) - 1;
 		} else {
 			str[++j] = format[i];
@@ -40,7 +40,7 @@ void reset_mods(print_modifiers* format_modifiers) {
 	format_modifiers->length = 0;
 }
 
-int process_format(const char *format, int i, char *str, const int j, va_list *params, print_modifiers *format_modifiers) {
+int process_format(const char *format, int i, char *str, va_list *params, print_modifiers *format_modifiers) {
 	int percent_position = i;
 
 	while (format[++i] && s21_strchr("-+ #0", format[i])) {
@@ -131,12 +131,12 @@ char *doxtoa(long long d, const int radix, const bool uppercase) {
 	int i = doxlen(d, radix);
 	char *str = (char *)calloc(i + 1, sizeof(char));
 
-	while (abs(d / radix)) {
-		str[--i] = abs(d % radix);
+	while (abs((int)(d / radix))) {
+		str[--i] = abs((int)(d % radix));
 		str[i] += str[i] < 10 ? 48 : uppercase ? 55 : 87;
 		d /= radix;
 	}
-	str[--i] = abs(d % radix);
+	str[--i] = abs((int)(d % radix));
 	str[i] += str[i] < 10 ? 48 : uppercase ? 55 : 87;
 	str[0] = (d < 0 && radix == 10) ? '-' : str[0];
 
@@ -224,7 +224,6 @@ char *calculate_int_part(char *integer, const int e, const unsigned long long bi
 char* augment_int(char* integer, int p, char** power_of_2, int* prev_p) {
     char *tmp = integer;
     char *addendum = raise_power_of_2(*power_of_2, p - *prev_p + 1);
-    int addlen = s21_strlen(addendum);
     *power_of_2 = addendum;
     *prev_p = p;
     integer = stradd(integer, addendum);
@@ -272,7 +271,6 @@ char* augment_frac(char* fraction, int e, char** power_of_5, int* prev_p) {
 }
 
 char* join_frac_to_int(char* integer, char* fraction, bool negative) {
-    int i = s21_strlen(integer);
     char* res = negative ? add_width(integer, 1, '-', true) : integer;
     res = add_width(res, 1, '.', false);
     res = (char*)realloc(res, (s21_strlen(res) + s21_strlen(fraction) + 1) * sizeof(char));
@@ -604,7 +602,7 @@ char *double_round(char *str, print_modifiers format_modifiers, char specifier) 
 }
 
 char *set_precision(char *str, print_modifiers format_modifiers, char specifier) {
-	size_t str_len = s21_strlen(str);
+	int str_len = (int)s21_strlen(str);
 	if (specifier == 's' && format_modifiers.precision >= 0 && str_len > format_modifiers.precision) {
 		str[format_modifiers.precision] = '\0';
 	} else if (s21_strchr("diouxX", specifier) && str_len < format_modifiers.precision) {
@@ -658,7 +656,7 @@ char *set_hex_notation(char *str, print_modifiers format_modifiers, char specifi
 }
 
 char *set_width(char *str, print_modifiers format_modifiers, char specifier) {
-	size_t str_len = s21_strlen(str);
+	int str_len = (int)s21_strlen(str);
 	if (*str == '\0' && format_modifiers.width && specifier != 's') format_modifiers.width--; 
 	if (format_modifiers.width > str_len && (!format_modifiers.fill_with_nulls || s21_strchr("(in", *str) || (*str != '\0' && str[1] != '\0' && s21_strchr("(in", str[1])))) {
 		str = add_width(str, format_modifiers.width - str_len, ' ', !format_modifiers.left_alignment);
@@ -673,8 +671,8 @@ char *set_width(char *str, print_modifiers format_modifiers, char specifier) {
 			} else {
 				tmp = s21_strpbrk(str, "xX") + 1;
 			}
-			size_t diff = tmp - str;
-			size_t offset = format_modifiers.width - str_len;
+			int diff = tmp - str;
+			int offset = format_modifiers.width - str_len;
 			str = (char *)realloc(str, (str_len + 1 + offset) * sizeof(char));
 			for (int j = str_len; j >= diff; j--) str[j + offset] = str[j];
 			for (int j = 0; j < offset; j++) str[(diff) + j] = '0';

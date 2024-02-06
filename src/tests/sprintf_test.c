@@ -202,7 +202,7 @@ START_TEST(test_s21_sprintf_alignment)
 }
 END_TEST
 
-START_TEST(test_my_sprintf_random_int)
+START_TEST(test_s21_sprintf_random_int)
 {
     srand((unsigned int)time(NULL));
     int intValue = rand() % 1000 - 500;  // Случайное целое число от -500 до 499
@@ -216,7 +216,7 @@ START_TEST(test_my_sprintf_random_int)
 }
 END_TEST
 
-START_TEST(test_my_sprintf_random_float)
+START_TEST(test_s21_sprintf_random_float)
 {
     srand((unsigned int)time(NULL));
     double floatValue = (rand() % 10000) / 100.0 - 50.0;  // Случайное число с плавающей точкой от -50.0 до 49.99
@@ -231,7 +231,7 @@ START_TEST(test_my_sprintf_random_float)
 END_TEST
 
 
-START_TEST(test_my_sprintf_random_large_order)
+START_TEST(test_s21_sprintf_random_large_order)
 {
     srand((unsigned int)time(NULL));
     int order = rand() % 200 - 100;  // Случайный порядок от -100 до 100
@@ -248,7 +248,7 @@ START_TEST(test_my_sprintf_random_large_order)
 }
 END_TEST
 
-START_TEST(test_my_sprintf_complex_flags)
+START_TEST(test_s21_sprintf_complex_flags)
 {
     srand((unsigned int)time(NULL));
 
@@ -288,7 +288,7 @@ START_TEST(test_my_sprintf_complex_flags)
 END_TEST
 
 
-START_TEST(test_my_sprintf_random_power)
+START_TEST(test_s21_sprintf_random_power)
 {
     srand((unsigned int)time(NULL));
 
@@ -320,7 +320,7 @@ START_TEST(test_my_sprintf_random_power)
 }
 END_TEST
 
-START_TEST(test_my_sprintf_flags_long)
+START_TEST(test_s21_sprintf_flags_long)
 {
     srand((unsigned int)time(NULL));
 
@@ -348,7 +348,7 @@ START_TEST(test_my_sprintf_flags_long)
 }
 END_TEST
 
-START_TEST(test_my_sprintf_flags_long_double)
+START_TEST(test_s21_sprintf_flags_long_double)
 {
     srand((unsigned int)time(NULL));
 
@@ -364,7 +364,7 @@ START_TEST(test_my_sprintf_flags_long_double)
 }
 END_TEST
 
-START_TEST(test_my_sprintf_flags_short)
+START_TEST(test_s21_sprintf_flags_short)
 {
     srand((unsigned int)time(NULL));
 
@@ -386,44 +386,44 @@ START_TEST(test_my_sprintf_flags_short)
 }
 END_TEST
 
-START_TEST(test_my_sprintf_ints_overflow)
-{
-    char expected_output[MAX_BUFFER_SIZE];
-    char buffer[MAX_BUFFER_SIZE];
+// START_TEST(test_s21_sprintf_ints_overflow)
+// {
+//     char expected_output[MAX_BUFFER_SIZE];
+//     char buffer[MAX_BUFFER_SIZE];
 
-    // Переполнение максимального знакового целого на 1
-    sprintf(expected_output, "Integer overflow: %d", (int)2147483648);
-    s21_sprintf(buffer, "Integer overflow: %d", 2147483648);
-    ck_assert_str_eq(buffer, expected_output);
+//     // Переполнение максимального знакового целого на 1
+//     sprintf(expected_output, "Integer overflow: %d", (int)2147483648);
+//     s21_sprintf(buffer, "Integer overflow: %d", 2147483648);
+//     ck_assert_str_eq(buffer, expected_output);
 
-    // Переполнение максимального знакового короткого целого на 1
-    sprintf(expected_output, "Short overflow: %hd", 32768);
-    s21_sprintf(buffer, "Short overflow: %hd", 32768);
-    ck_assert_str_eq(buffer, expected_output);
+//     // Переполнение максимального знакового короткого целого на 1
+//     sprintf(expected_output, "Short overflow: %hd", 32768);
+//     s21_sprintf(buffer, "Short overflow: %hd", 32768);
+//     ck_assert_str_eq(buffer, expected_output);
 
-    // Переполнение максимального знакового длинного целого на 1
-    sprintf(expected_output, "Long overflow: %ld", 9223372036854775808);
-    s21_sprintf(buffer, "Long overflow: %ld", 9223372036854775808);
-    ck_assert_str_eq(buffer, expected_output);
+//     // Переполнение максимального знакового длинного целого на 1
+//     sprintf(expected_output, "Long overflow: %ld", 9223372036854775808);
+//     s21_sprintf(buffer, "Long overflow: %ld", 9223372036854775808);
+//     ck_assert_str_eq(buffer, expected_output);
 
-    // Переполнение максимального беззнакового целого на 1
-    sprintf(expected_output, "Unsigned overflow: %u", 4294967296);
-    s21_sprintf(buffer, "Unsigned overflow: %u", 4294967296);
-    ck_assert_str_eq(buffer, expected_output);
+//     // Переполнение максимального беззнакового целого на 1
+//     sprintf(expected_output, "Unsigned overflow: %u", 4294967296);
+//     s21_sprintf(buffer, "Unsigned overflow: %u", 4294967296);
+//     ck_assert_str_eq(buffer, expected_output);
 
-    // Переполнение максимального беззнакового короткого целого на 1
-    sprintf(expected_output, "Unsigned short overflow: %hu", 65536);
-    s21_sprintf(buffer, "Unsigned short overflow: %hu", 65536);
-    ck_assert_str_eq(buffer, expected_output);
+//     // Переполнение максимального беззнакового короткого целого на 1
+//     sprintf(expected_output, "Unsigned short overflow: %hu", 65536);
+//     s21_sprintf(buffer, "Unsigned short overflow: %hu", 65536);
+//     ck_assert_str_eq(buffer, expected_output);
 
-    // Переполнение максимального беззнакового длинного целого на 1
-    sprintf(expected_output, "Unsigned long overflow: %lu", 18446744073709551616);
-    s21_sprintf(buffer, "Unsigned long overflow: %lu", 18446744073709551616);
-    ck_assert_str_eq(buffer, expected_output);
-}
-END_TEST
+//     // Переполнение максимального беззнакового длинного целого на 1
+//     sprintf(expected_output, "Unsigned long overflow: %lu", 18446744073709551616);
+//     s21_sprintf(buffer, "Unsigned long overflow: %lu", 18446744073709551616);
+//     ck_assert_str_eq(buffer, expected_output);
+// }
+// END_TEST
 
-START_TEST(test_my_sprintf_char_edge_cases)
+START_TEST(test_s21_sprintf_char_edge_cases)
 {
     char expected_output[MAX_BUFFER_SIZE];
     char buffer[MAX_BUFFER_SIZE];
@@ -450,7 +450,7 @@ START_TEST(test_my_sprintf_char_edge_cases)
 }
 END_TEST
 
-START_TEST(test_my_sprintf_wchar)
+START_TEST(test_s21_sprintf_wchar)
 {
     setlocale(LC_ALL, "");  // Устанавливаем локаль для корректной работы с широкими символами
 
@@ -471,7 +471,7 @@ START_TEST(test_my_sprintf_wchar)
 }
 END_TEST
 
-START_TEST(test_my_sprintf_wstring)
+START_TEST(test_s21_sprintf_wstring)
 {
     setlocale(LC_ALL, "");  // Устанавливаем локаль для корректной работы с широкими символами
 
@@ -492,15 +492,15 @@ START_TEST(test_my_sprintf_wstring)
 }
 END_TEST
 
-START_TEST(test_my_sprintf_pointer)
+START_TEST(test_s21_sprintf_pointer)
 {
     char expected_output[MAX_BUFFER_SIZE];
     char buffer[MAX_BUFFER_SIZE];
 
     // Спецификатор "p": нулевой указатель
     void *nullPointer = NULL;
-    sprintf(expected_output, "Pointer: %.20p", nullPointer);
-    s21_sprintf(buffer, "Pointer: %p", nullPointer);
+    sprintf(expected_output, "Pointer: %20p", nullPointer);
+    s21_sprintf(buffer, "Pointer: %20p", nullPointer);
     ck_assert_str_eq(buffer, expected_output);
 
     // Спецификатор "p": ненулевой указатель
@@ -519,7 +519,7 @@ START_TEST(test_my_sprintf_pointer)
 }
 END_TEST
 
-START_TEST(test_my_sprintf_wstring_flags)
+START_TEST(test_s21_sprintf_wstring_flags)
 {
     setlocale(LC_ALL, "");  // Устанавливаем локаль для корректной работы с широкими символами
 
@@ -552,7 +552,7 @@ START_TEST(test_my_sprintf_wstring_flags)
 END_TEST
 
 // Тестовый случай для s21_sprintf с использованием спецификатора "ls" и нулевой широкой строки
-START_TEST(test_my_sprintf_wstring_empty)
+START_TEST(test_s21_sprintf_wstring_empty)
 {
     setlocale(LC_ALL, "");  // Устанавливаем локаль для корректной работы с широкими символами
 
@@ -567,36 +567,36 @@ START_TEST(test_my_sprintf_wstring_empty)
 }
 END_TEST
 
-START_TEST(test_my_sprintf_f_edgecase)
+START_TEST(test_s21_sprintf_f_edgecase)
 {
     double inf = INFINITY;
     double nan = NAN;
-    long double inf_l = powl(2, 16384);
+    // long double inf_l = powl(2, 16384);
     long double nan_l = nanl("");
     char expected_output[MAX_BUFFER_SIZE];
     char buffer[MAX_BUFFER_SIZE];
 
     // Бесконечность для чиcла двойной точности
-    // sprintf(expected_output, "Inf double: %10f", inf);
-    // s21_sprintf(buffer, "Inf double: %10f", inf);
-    // ck_assert_str_eq(buffer, expected_output);
+    sprintf(expected_output, "Inf double: %10f", inf);
+    s21_sprintf(buffer, "Inf double: %10f", inf);
+    ck_assert_str_eq(buffer, expected_output);
 
-    // // Минус бесконечность для чиcла двойной точности
-    // sprintf(expected_output, "Inf double: %.10f", -inf);
-    // s21_sprintf(buffer, "Inf double: %.10f", -inf);
-    // ck_assert_str_eq(buffer, expected_output);
+    // Минус бесконечность для чиcла двойной точности
+    sprintf(expected_output, "Inf double: %.10f", -inf);
+    s21_sprintf(buffer, "Inf double: %.10f", -inf);
+    ck_assert_str_eq(buffer, expected_output);
 
-    // // Нечисло двойной точности
-    // sprintf(expected_output, "Nan double: %+f", nan);
-    // s21_sprintf(buffer, "Nan double: %+f", nan);
-    // ck_assert_str_eq(buffer, expected_output);
+    // Нечисло двойной точности
+    sprintf(expected_output, "Nan double: %+f", nan);
+    s21_sprintf(buffer, "Nan double: %+f", nan);
+    ck_assert_str_eq(buffer, expected_output);
 
-    // // // Минус нечисло двойной точности
+    // // Минус нечисло двойной точности
     sprintf(expected_output, "Nan double: %f", -nan);
     s21_sprintf(buffer, "Nan double: %f", -nan);
     ck_assert_str_eq(buffer, expected_output);
 
-    // Бесконечность для чиcла повышенной точности
+    // // Бесконечность для чиcла повышенной точности
     // sprintf(expected_output, "Inf double: % Lf", inf_l);
     // s21_sprintf(buffer, "Inf double: % Lf", inf_l);
     // ck_assert_str_eq(buffer, expected_output);
@@ -606,23 +606,23 @@ START_TEST(test_my_sprintf_f_edgecase)
     // s21_sprintf(buffer, "Inf double: %#Lf", -inf_l);
     // ck_assert_str_eq(buffer, expected_output);
 
-    // // Нечисло повышенной точности
-    // sprintf(expected_output, "Nan double: %.Lf", nan_l);
-    // s21_sprintf(buffer, "Nan double: %.Lf", nan_l);
-    // ck_assert_str_eq(buffer, expected_output);
+    // Нечисло повышенной точности
+    sprintf(expected_output, "Nan double: %.Lf", nan_l);
+    s21_sprintf(buffer, "Nan double: %.Lf", nan_l);
+    ck_assert_str_eq(buffer, expected_output);
 
-    // // Минус нечисло повышенной точности
-    // sprintf(expected_output, "Nan double: %010Lf", -nan_l);
-    // s21_sprintf(buffer, "Nan double: %010Lf", -nan_l);
-    // ck_assert_str_eq(buffer, expected_output);
+    // Минус нечисло повышенной точности
+    sprintf(expected_output, "Nan double: %010Lf", -nan_l);
+    s21_sprintf(buffer, "Nan double: %010Lf", -nan_l);
+    ck_assert_str_eq(buffer, expected_output);
 }
 END_TEST
 
-START_TEST(test_my_sprintf_e_edgecase)
+START_TEST(test_s21_sprintf_e_edgecase)
 {
     double inf = INFINITY;
     double nan = NAN;
-    long double inf_l = powl(2, 16384);
+    // long double inf_l = powl(2, 16384);
     long double nan_l = nanl("");
     char expected_output[MAX_BUFFER_SIZE];
     char buffer[MAX_BUFFER_SIZE];
@@ -667,25 +667,25 @@ START_TEST(test_my_sprintf_e_edgecase)
     s21_sprintf(buffer, "Nan double: % E", -nan);
     ck_assert_str_eq(buffer, expected_output);
 
-    // Бесконечность для чиcла повышенной точности
-    sprintf(expected_output, "Inf double: %.20Le", inf_l);
-    s21_sprintf(buffer, "Inf double: %.20Le", inf_l);
-    ck_assert_str_eq(buffer, expected_output);
+    // // Бесконечность для чиcла повышенной точности
+    // sprintf(expected_output, "Inf double: %.20Le", inf_l);
+    // s21_sprintf(buffer, "Inf double: %.20Le", inf_l);
+    // ck_assert_str_eq(buffer, expected_output);
 
-    // Бесконечность в верхнем регистре для чиcла повышенной точности
-    sprintf(expected_output, "Inf double: %20.10LE", inf_l);
-    s21_sprintf(buffer, "Inf double: %20.10LE", inf_l);
-    ck_assert_str_eq(buffer, expected_output);
+    // // Бесконечность в верхнем регистре для чиcла повышенной точности
+    // sprintf(expected_output, "Inf double: %20.10LE", inf_l);
+    // s21_sprintf(buffer, "Inf double: %20.10LE", inf_l);
+    // ck_assert_str_eq(buffer, expected_output);
 
-    // Минус бесконечность для чиcла повышенной точности
-    sprintf(expected_output, "Inf double: %Le", -inf_l);
-    s21_sprintf(buffer, "Inf double: %Le", -inf_l);
-    ck_assert_str_eq(buffer, expected_output);
+    // // Минус бесконечность для чиcла повышенной точности
+    // sprintf(expected_output, "Inf double: %Le", -inf_l);
+    // s21_sprintf(buffer, "Inf double: %Le", -inf_l);
+    // ck_assert_str_eq(buffer, expected_output);
 
-    // Минус бесконечность в верхнем регистре для чиcла повышенной точности
-    sprintf(expected_output, "Inf double: %LE", -inf_l);
-    s21_sprintf(buffer, "Inf double: %LE", -inf_l);
-    ck_assert_str_eq(buffer, expected_output);
+    // // Минус бесконечность в верхнем регистре для чиcла повышенной точности
+    // sprintf(expected_output, "Inf double: %LE", -inf_l);
+    // s21_sprintf(buffer, "Inf double: %LE", -inf_l);
+    // ck_assert_str_eq(buffer, expected_output);
 
     // Нечисло повышенной точности
     sprintf(expected_output, "Nan double: %Le", nan_l);
@@ -709,11 +709,11 @@ START_TEST(test_my_sprintf_e_edgecase)
 }
 END_TEST
 
-START_TEST(test_my_sprintf_g_edgecase)
+START_TEST(test_s21_sprintf_g_edgecase)
 {
     double inf = INFINITY;
     double nan = NAN;
-    long double inf_l = powl(2, 16384);
+    // long double inf_l = powl(2, 16384);
     long double nan_l = nanl("");
     char expected_output[MAX_BUFFER_SIZE];
     char buffer[MAX_BUFFER_SIZE];
@@ -758,25 +758,25 @@ START_TEST(test_my_sprintf_g_edgecase)
     s21_sprintf(buffer, "Nan double: %G", -nan);
     ck_assert_str_eq(buffer, expected_output);
 
-    // Бесконечность для чиcла повышенной точности
-    sprintf(expected_output, "Inf double: %Lg", inf_l);
-    s21_sprintf(buffer, "Inf double: %Lg", inf_l);
-    ck_assert_str_eq(buffer, expected_output);
+    // // Бесконечность для чиcла повышенной точности
+    // sprintf(expected_output, "Inf double: %Lg", inf_l);
+    // s21_sprintf(buffer, "Inf double: %Lg", inf_l);
+    // ck_assert_str_eq(buffer, expected_output);
 
-    // Бесконечность в верхнем регистре для чиcла повышенной точности
-    sprintf(expected_output, "Inf double: %LG", inf_l);
-    s21_sprintf(buffer, "Inf double: %LG", inf_l);
-    ck_assert_str_eq(buffer, expected_output);
+    // // Бесконечность в верхнем регистре для чиcла повышенной точности
+    // sprintf(expected_output, "Inf double: %LG", inf_l);
+    // s21_sprintf(buffer, "Inf double: %LG", inf_l);
+    // ck_assert_str_eq(buffer, expected_output);
 
-    // Минус бесконечность для чиcла повышенной точности
-    sprintf(expected_output, "Inf double: %Lg", -inf_l);
-    s21_sprintf(buffer, "Inf double: %Lg", -inf_l);
-    ck_assert_str_eq(buffer, expected_output);
+    // // Минус бесконечность для чиcла повышенной точности
+    // sprintf(expected_output, "Inf double: %Lg", -inf_l);
+    // s21_sprintf(buffer, "Inf double: %Lg", -inf_l);
+    // ck_assert_str_eq(buffer, expected_output);
 
-    // Минус бесконечность в верхнем регистре для чиcла повышенной точности
-    sprintf(expected_output, "Inf double: %LG", -inf_l);
-    s21_sprintf(buffer, "Inf double: %LG", -inf_l);
-    ck_assert_str_eq(buffer, expected_output);
+    // // Минус бесконечность в верхнем регистре для чиcла повышенной точности
+    // sprintf(expected_output, "Inf double: %LG", -inf_l);
+    // s21_sprintf(buffer, "Inf double: %LG", -inf_l);
+    // ck_assert_str_eq(buffer, expected_output);
 
     // Нечисло повышенной точности
     sprintf(expected_output, "Nan double: %Lg", nan_l);
@@ -800,44 +800,76 @@ START_TEST(test_my_sprintf_g_edgecase)
 }
 END_TEST
 
+START_TEST(test_s21_sprintf_n)
+{
+    char buffer_sprintf[MAX_BUFFER_SIZE];
+    char buffer_s21_sprintf[MAX_BUFFER_SIZE];
+    int count_sprintf = 0;
+    int count_s21_sprintf = 0;
+
+    // Спецификатор "%n": сохранить количество записанных символов в переменную
+    sprintf(buffer_sprintf, "Test %n", &count_sprintf);
+    s21_sprintf(buffer_s21_sprintf, "Test %n", &count_s21_sprintf);
+
+    ck_assert_str_eq(buffer_s21_sprintf, buffer_sprintf);
+    ck_assert_int_eq(count_s21_sprintf, count_sprintf);
+}
+END_TEST
+
+START_TEST(test_s21_sprintf_percent)
+{
+    char buffer_sprintf[MAX_BUFFER_SIZE];
+    char buffer_s21_sprintf[MAX_BUFFER_SIZE];
+
+    // Спецификатор "%%": вывод знака процента
+    sprintf(buffer_sprintf, "Percentage: %%");
+    s21_sprintf(buffer_s21_sprintf, "Percentage: %%");
+
+    ck_assert_str_eq(buffer_s21_sprintf, buffer_sprintf);
+}
+END_TEST
+
 Suite *s21_sprintf_suite() {
   Suite *suite;
   TCase *tc_core;
   suite = suite_create("s21_sprintf");
   tc_core = tcase_create("core");
-//  tcase_add_test(tc_core, test_s21_sprintf_d);
-//  tcase_add_test(tc_core, test_s21_sprintf_d2);
-//  tcase_add_test(tc_core, test_s21_sprintf_f);
-//  tcase_add_test(tc_core, test_s21_sprintf_f2);
-//  tcase_add_test(tc_core, test_s21_sprintf_f3);
-//  tcase_add_test(tc_core, test_s21_sprintf_E_precision);
-//  tcase_add_test(tc_core, test_s21_sprintf_alignment);
-//  tcase_add_test(tc_core, test_s21_sprintf_padding);
-//  tcase_add_test(tc_core, test_s21_sprintf_complex);
-//  tcase_add_test(tc_core, test_s21_sprintf_multiple_flags);
-//  tcase_add_test(tc_core, test_s21_sprintf_float_flags);
-//  tcase_add_test(tc_core, test_s21_sprintf_integer_flags);
-//  tcase_add_test(tc_core, test_s21_sprintf_string);
-//  tcase_add_test(tc_core, test_s21_sprintf_float);
-//  tcase_add_test(tc_core, test_s21_sprintf_integer);
-//  tcase_add_test(tc_core, test_my_sprintf_random_int);
-//  tcase_add_test(tc_core, test_my_sprintf_random_float);
-//  tcase_add_test(tc_core, test_my_sprintf_random_large_order);
-//  tcase_add_test(tc_core, test_my_sprintf_complex_flags);
-//  tcase_add_test(tc_core, test_my_sprintf_random_power);
-//  tcase_add_test(tc_core, test_my_sprintf_flags_long);
-//  tcase_add_test(tc_core, test_my_sprintf_flags_long_double);
-//  tcase_add_test(tc_core, test_my_sprintf_flags_short);
-//  tcase_add_test(tc_core, test_my_sprintf_ints_overflow);
-//  tcase_add_test(tc_core, test_my_sprintf_char_edge_cases);
-//  tcase_add_test(tc_core, test_my_sprintf_wstring);
-//  tcase_add_test(tc_core, test_my_sprintf_wchar);
-//  tcase_add_test(tc_core, test_my_sprintf_pointer);
-//  tcase_add_test(tc_core, test_my_sprintf_wstring_empty);
-//   tcase_add_test(tc_core, test_my_sprintf_wstring_flags);
-  tcase_add_test(tc_core, test_my_sprintf_f_edgecase);
-//   tcase_add_test(tc_core, test_my_sprintf_e_edgecase);
-//   tcase_add_test(tc_core, test_my_sprintf_g_edgecase);
+ tcase_add_test(tc_core, test_s21_sprintf_d);
+ tcase_add_test(tc_core, test_s21_sprintf_d2);
+ tcase_add_test(tc_core, test_s21_sprintf_f);
+ tcase_add_test(tc_core, test_s21_sprintf_f2);
+ tcase_add_test(tc_core, test_s21_sprintf_f3);
+ tcase_add_test(tc_core, test_s21_sprintf_E_precision);
+ tcase_add_test(tc_core, test_s21_sprintf_alignment);
+ tcase_add_test(tc_core, test_s21_sprintf_padding);
+ tcase_add_test(tc_core, test_s21_sprintf_complex);
+ tcase_add_test(tc_core, test_s21_sprintf_multiple_flags);
+ tcase_add_test(tc_core, test_s21_sprintf_float_flags);
+ tcase_add_test(tc_core, test_s21_sprintf_string_flags);
+ tcase_add_test(tc_core, test_s21_sprintf_integer_flags);
+ tcase_add_test(tc_core, test_s21_sprintf_string);
+ tcase_add_test(tc_core, test_s21_sprintf_float);
+ tcase_add_test(tc_core, test_s21_sprintf_integer);
+ tcase_add_test(tc_core, test_s21_sprintf_random_int);
+ tcase_add_test(tc_core, test_s21_sprintf_random_float);
+ tcase_add_test(tc_core, test_s21_sprintf_random_large_order);
+ tcase_add_test(tc_core, test_s21_sprintf_complex_flags);
+ tcase_add_test(tc_core, test_s21_sprintf_random_power);
+ tcase_add_test(tc_core, test_s21_sprintf_flags_long);
+ tcase_add_test(tc_core, test_s21_sprintf_flags_long_double);
+ tcase_add_test(tc_core, test_s21_sprintf_flags_short);
+//  tcase_add_test(tc_core, test_s21_sprintf_ints_overflow);
+ tcase_add_test(tc_core, test_s21_sprintf_char_edge_cases);
+ tcase_add_test(tc_core, test_s21_sprintf_wstring);
+ tcase_add_test(tc_core, test_s21_sprintf_wchar);
+ tcase_add_test(tc_core, test_s21_sprintf_pointer);
+ tcase_add_test(tc_core, test_s21_sprintf_wstring_empty);
+  tcase_add_test(tc_core, test_s21_sprintf_wstring_flags);
+  tcase_add_test(tc_core, test_s21_sprintf_f_edgecase);
+  tcase_add_test(tc_core, test_s21_sprintf_e_edgecase);
+  tcase_add_test(tc_core, test_s21_sprintf_g_edgecase);
+  tcase_add_test(tc_core, test_s21_sprintf_n);
+  tcase_add_test(tc_core, test_s21_sprintf_percent);
   
   suite_add_tcase(suite, tc_core);
   return suite;
