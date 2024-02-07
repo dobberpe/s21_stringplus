@@ -35,24 +35,9 @@ typedef struct {
 
 typedef struct {
 	bool assignment;
+    int width;
 	char length;
 } scan_modifiers;
-
-typedef union {
-	char c;
-	wchar_t lc;
-	char* s;
-	wchar_t* ls;
-	int d;
-	short hd;
-	long ld;
-	unsigned u;
-	unsigned short hu;
-	unsigned long lu;
-    float f;
-	double lf;
-	long double llf;
-} scan_result;
 
 void *s21_memchr(const void *str, int c, size_t n);
 int s21_memcmp(const void *str1, const void *str2, size_t n);
@@ -112,12 +97,12 @@ char *set_width(char *str, print_modifiers format_modifiers, char specifier);
 
 int s21_sscanf(const char *str, const char *format, ...);
 void reset_scan_mods(scan_modifiers* format_modifiers);
-bool process_scan(const char* format, int* i, char** str, const int printed, va_list *params, scan_modifiers *format_modifiers);
-bool set_c(char** str, va_list *params, scan_modifiers* format_modifiers, bool before_percent);
-bool set_di(const char specifier, char** str, va_list *params, scan_modifiers* format_modifiers);
-bool set_feg(char** str, va_list *params, scan_modifiers* format_modifiers);
-bool set_uox(const char specifier, char** str, va_list *params, scan_modifiers* format_modifiers);
-bool set_s(char** str, va_list *params, scan_modifiers* format_modifiers);
-bool set_p(char** str, va_list *params, scan_modifiers* format_modifiers);
+bool process_scan(const char* format, int* i, char** str, const int read, int* counter, va_list *params, scan_modifiers *format_modifiers);
+bool set_c(char** str, int* counter, va_list *params, scan_modifiers* format_modifiers, bool before_percent);
+bool set_di(const char specifier, char** str, int* counter, va_list *params, scan_modifiers* format_modifiers);
+bool set_feg(char** str, int* counter, va_list *params, scan_modifiers* format_modifiers);
+bool set_uox(const char specifier, char** str, int* counter, va_list *params, scan_modifiers* format_modifiers);
+bool set_s(char** str, int* counter, va_list *params, scan_modifiers* format_modifiers);
+bool set_p(char** str, int* counter, va_list *params, scan_modifiers* format_modifiers);
 
 #endif
