@@ -40,5 +40,6 @@ Suite *s21_insert_suite();
 Suite *s21_trim_suite();
 Suite *s21_sprintf_suite();
 Suite *s21_apply_format_suite();
+Suite *s21_sscanf_suite();
 
 #endif

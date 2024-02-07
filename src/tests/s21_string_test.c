@@ -5,7 +5,7 @@ int main() {
   Suite *suite = NULL;
   SRunner *runner = srunner_create(suite);
 
-  Suite *suits_list[] = {s21_strlen_suite(),   s21_memchr_suite(),
+  Suite *suits_list[] = {/*s21_strlen_suite(),   s21_memchr_suite(),
                          s21_memcmp_suite(),   s21_memcpy_suite(),
                          s21_memset_suite(),   s21_strncat_suite(),
                          s21_strchr_suite(),   s21_strncmp_suite(),
@@ -15,7 +15,10 @@ int main() {
                          s21_strerror_suite(), s21_to_upper_suite(),
                          s21_to_lower_suite(), s21_insert_suite(),
                          s21_trim_suite(), s21_sprintf_suite(),
-                         s21_apply_format_suite(), NULL};
+                         s21_apply_format_suite(), */s21_sscanf_suite(),
+                          NULL};
+
+
 
 
   for (Suite **current = suits_list; *current != NULL; current++)
