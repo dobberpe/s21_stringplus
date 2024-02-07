@@ -38,7 +38,7 @@ typedef struct {
 	char length;
 } scan_modifiers;
 
-typedef struct {
+typedef union {
 	char c;
 	wchar_t lc;
 	char* s;
@@ -49,8 +49,9 @@ typedef struct {
 	unsigned u;
 	unsigned short hu;
 	unsigned long lu;
-	double f;
-	long double lf;
+    float f;
+	double lf;
+	long double llf;
 } scan_result;
 
 void *s21_memchr(const void *str, int c, size_t n);
@@ -111,12 +112,12 @@ char *set_width(char *str, print_modifiers format_modifiers, char specifier);
 
 int s21_sscanf(const char *str, const char *format, ...);
 void reset_scan_mods(scan_modifiers* format_modifiers);
-int process_scan_format(const char* format, int i, const char* str, int* j, va_list *params, scan_modifiers *format_modifiers);
-int process_scan_specifier(char specifier, const char* str, int len, va_list *params, scan_modifiers *format_modifiers);
-int skip_spaces(char* str);
-int skip_dox(char* str, char radix);
-int skip_feg(char* str);
-int skip_s(char* str);
-void assign(scan_result* res, va_list* params, char specifier, char length);
+bool process_scan(const char* format, int* i, char** str, const int printed, va_list *params, scan_modifiers *format_modifiers);
+bool set_c(char** str, va_list *params, scan_modifiers* format_modifiers, bool before_percent);
+bool set_di(const char specifier, char** str, va_list *params, scan_modifiers* format_modifiers);
+bool set_feg(char** str, va_list *params, scan_modifiers* format_modifiers);
+bool set_uox(const char specifier, char** str, va_list *params, scan_modifiers* format_modifiers);
+bool set_s(char** str, va_list *params, scan_modifiers* format_modifiers);
+bool set_p(char** str, va_list *params, scan_modifiers* format_modifiers);
 
 #endif
