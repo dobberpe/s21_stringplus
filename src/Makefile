@@ -3,7 +3,7 @@ CFLAGS = -Wall -Werror -Wextra
 TFLAGS = -lcheck -lsubunit -lm
 GFLAGS = -fprofile-arcs -ftest-coverage
 LIB_NAME = s21_string.a
-LIB_SRC = s21_string.c s21_sprintf.c
+LIB_SRC = s21_string.c s21_sprintf.c s21_sscanf.c
 LIB_OBJ = $(LIB_SRC:.c=.o)
 TEST_SRC = $(wildcard ./tests/*.c)
 # TEST_SRC = tests/s21_string_test.c tests/apply_format_test.c tests/s21_sprintf.c
