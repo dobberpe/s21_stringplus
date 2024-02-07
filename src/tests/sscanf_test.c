@@ -677,6 +677,136 @@ START_TEST(test_s21_sscanf_percent_n)
     ck_assert_int_eq(value_my, chars_read_my);
 }
 
+// Тестовый случай для s21_sscanf с использованием спецификатора %p для указателя
+START_TEST(test_s21_sscanf_pointer)
+{
+    intptr_t value_original = (intptr_t)0x12345678;  // Произвольное значение указателя
+    intptr_t value_my = 0;
+
+    // Создание строки с указателем
+    char input_str[20];
+    snprintf(input_str, sizeof(input_str), "%p", (void *)value_original);
+
+    // Сравнение с оригинальной функцией sscanf
+    int original_result = sscanf(input_str, "%p", (void **)&value_my);
+
+    // Проверка результатов
+    ck_assert_int_eq(original_result, 1);
+    ck_assert_int_eq(value_my, value_original);
+}
+
+// Тестовый случай для s21_sscanf с использованием флага h для целочисленного значения
+START_TEST(test_s21_sscanf_short_integer)
+{
+    short value_my = 0;
+    short value_original = 0;
+
+    const char *input_str = "12345";
+    
+    // Сравнение с оригинальной функцией sscanf
+    int original_result = sscanf(input_str, "%hd", &value_original);
+    int my_result = s21_sscanf(input_str, "%hd", &value_my);
+
+    // Сравнение результатов
+    ck_assert_int_eq(my_result, original_result);
+    // Проверка значений
+    ck_assert_int_eq(value_my, value_original);
+}
+
+// Тестовый случай для s21_sscanf с использованием флага l для целочисленного значения
+START_TEST(test_s21_sscanf_long_integer)
+{
+    long value_my = 0;
+    long value_original = 0;
+
+    const char *input_str = "123456789012345";
+    
+    // Сравнение с оригинальной функцией sscanf
+    int original_result = sscanf(input_str, "%ld", &value_original);
+    int my_result = s21_sscanf(input_str, "%ld", &value_my);
+
+    // Сравнение результатов
+    ck_assert_int_eq(my_result, original_result);
+    // Проверка значений
+    ck_assert_int_eq(value_my, value_original);
+}
+
+// Тестовый случай для s21_sscanf с использованием флага L для целочисленного значения
+START_TEST(test_s21_sscanf_long_long_integer)
+{
+    long long value_my = 0;
+    long long value_original = 0;
+
+    const char *input_str = "12345678901234567890";
+    
+    // Сравнение с оригинальной функцией sscanf
+    int original_result = sscanf(input_str, "%Ld", &value_original);
+    int my_result = s21_sscanf(input_str, "%Ld", &value_my);
+
+    // Сравнение результатов
+    ck_assert_int_eq(my_result, original_result);
+    // Проверка значений
+    ck_assert_int_eq(value_my, value_original);
+}
+
+// Тестовый случай для s21_sscanf с использованием флага l для значения типа double
+START_TEST(test_s21_sscanf_double)
+{
+    double value_my = 0.0;
+    double value_original = 0.0;
+
+    const char *input_str = "4.3291991e+18";
+    
+    // Сравнение с оригинальной функцией sscanf
+    int original_result = sscanf(input_str, "%lf", &value_original);
+    int my_result = s21_sscanf(input_str, "%lf", &value_my);
+
+    // Сравнение результатов
+    ck_assert_int_eq(my_result, original_result);
+    // Проверка значений
+    ck_assert_double_eq(value_my, value_original);
+}
+
+// Тестовый случай для s21_sscanf с использованием флага L для значения типа long double
+START_TEST(test_s21_sscanf_long_double)
+{
+    long double value_my = 0.0;
+    long double value_original = 0.0;
+
+    const char *input_str = "-3e-29";
+    
+    // Сравнение с оригинальной функцией sscanf
+    int original_result = sscanf(input_str, "%Lf", &value_original);
+    int my_result = s21_sscanf(input_str, "%Lf", &value_my);
+
+    // Сравнение результатов
+    ck_assert_int_eq(my_result, original_result);
+    // Проверка значений
+    ck_assert_ldouble_eq(value_my, value_original);
+}
+
+// Тестовый случай для s21_sscanf с использованием флага * для игнорирования считанных значений
+START_TEST(test_s21_sscanf_ignore_values)
+{
+    int value1_my, value2_my = 0;
+    int value1_original, value2_original = 0;
+
+    const char *input_str = "123 456";
+    
+    // Сравнение с оригинальной функцией sscanf, но с использованием *
+    int original_result = sscanf(input_str, "%d %*d", &value1_original, &value2_original);
+    int my_result = s21_sscanf(input_str, "%d %*d", &value1_my, &value2_my);
+
+    // Сравнение результатов
+    ck_assert_int_eq(my_result, original_result);
+    // Проверка значений (игнорирование второго числа)
+    ck_assert_int_eq(value1_my, value1_original);
+    // Второе значение не считывается, поэтому оно должно остаться неизменным
+    ck_assert_int_eq(value2_my, value2_original);
+}
+
+
+
 Suite *s21_sscanf_suite() {
   Suite *suite;
   TCase *tc_core;
@@ -720,10 +850,13 @@ Suite *s21_sscanf_suite() {
     tcase_add_test(tc_core, test_s21_sscanf_hexadecimal_integer_uppercase);
     tcase_add_test(tc_core, test_s21_sscanf_octal_integer);
     tcase_add_test(tc_core, test_s21_sscanf_percent_n);
-
-
-    
-    // Добавьте другие тесты как необходимо
+    tcase_add_test(tc_core, test_s21_sscanf_pointer);
+    tcase_add_test(tc_core, test_s21_sscanf_short_integer);
+    tcase_add_test(tc_core, test_s21_sscanf_long_integer);
+    tcase_add_test(tc_core, test_s21_sscanf_long_long_integer);
+    tcase_add_test(tc_core, test_s21_sscanf_double);
+    tcase_add_test(tc_core, test_s21_sscanf_long_double);
+    tcase_add_test(tc_core, test_s21_sscanf_ignore_values);
 
   suite_add_tcase(suite, tc_core);
   return suite;
