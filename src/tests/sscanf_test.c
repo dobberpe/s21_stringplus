@@ -18,7 +18,7 @@ START_TEST(test_s21_sscanf_integer)
 }
 
 // Тестовый случай для s21_sscanf с использованием краевого случая: пустая строка
-START_TEST(test_s21_sscanf_empty_string)
+START_TEST(test_s21_sscanf_empty_string_edge_case)
 {
     const char *input_str = "";
     int value_my = -1;
@@ -27,23 +27,6 @@ START_TEST(test_s21_sscanf_empty_string)
     // Сравнение с оригинальной функцией sscanf
     int original_result = sscanf(input_str, "%d", &value_original);
     int my_result = s21_sscanf(input_str, "%d", &value_my);
-
-    // Проверка результатов
-    ck_assert_int_eq(my_result, original_result);
-    // Проверка значений (должно быть не изменено)
-    ck_assert_int_eq(value_my, value_original);
-}
-
-// Тестовый случай для s21_sscanf с использованием краевого случая: нулевой формат
-START_TEST(test_s21_sscanf_empty_format)
-{
-    const char *input_str = "123";
-    int value_my = -1;
-    int value_original = -1;
-
-    // Сравнение с оригинальной функцией sscanf
-    int original_result = sscanf(input_str, "", &value_original);
-    int my_result = s21_sscanf(input_str, "", &value_my);
 
     // Проверка результатов
     ck_assert_int_eq(my_result, original_result);
@@ -658,7 +641,6 @@ START_TEST(test_s21_sscanf_octal_integer)
 START_TEST(test_s21_sscanf_percent_n)
 {
     int value_my = 0;
-    int value_original = 0;
 
     const char *input_str = "Hello World";
     int chars_read_my = 0;
@@ -791,17 +773,16 @@ START_TEST(test_s21_sscanf_ignore_values)
     int value1_my, value2_my = 0;
     int value1_original, value2_original = 0;
 
-    const char *input_str = "123 456";
+    const char *input_str = "123 456 -3";
     
     // Сравнение с оригинальной функцией sscanf, но с использованием *
-    int original_result = sscanf(input_str, "%d %*d", &value1_original, &value2_original);
-    int my_result = s21_sscanf(input_str, "%d %*d", &value1_my, &value2_my);
+    int original_result = sscanf(input_str, "%d %*d %d", &value1_original, &value2_original);
+    int my_result = s21_sscanf(input_str, "%d %*d %d", &value1_my, &value2_my);
 
     // Сравнение результатов
     ck_assert_int_eq(my_result, original_result);
     // Проверка значений (игнорирование второго числа)
     ck_assert_int_eq(value1_my, value1_original);
-    // Второе значение не считывается, поэтому оно должно остаться неизменным
     ck_assert_int_eq(value2_my, value2_original);
 }
 
@@ -813,8 +794,7 @@ Suite *s21_sscanf_suite() {
   suite = suite_create("s21_sscanf");
   tc_core = tcase_create("core");
     tcase_add_test(tc_core, test_s21_sscanf_integer);
-    tcase_add_test(tc_core, test_s21_sscanf_empty_string);
-    tcase_add_test(tc_core, test_s21_sscanf_empty_format);
+    tcase_add_test(tc_core, test_s21_sscanf_empty_string_edge_case);
     tcase_add_test(tc_core, test_s21_sscanf_multiple_values);
     tcase_add_test(tc_core, test_s21_sscanf_char);
     tcase_add_test(tc_core, test_s21_sscanf_char_empty_string);
@@ -857,7 +837,7 @@ Suite *s21_sscanf_suite() {
     tcase_add_test(tc_core, test_s21_sscanf_double);
     tcase_add_test(tc_core, test_s21_sscanf_long_double);
     tcase_add_test(tc_core, test_s21_sscanf_ignore_values);
-
+    tcase_add_test(tc_core, test_s21_sscanf_integer_max_hexadecimal);
   suite_add_tcase(suite, tc_core);
   return suite;
 }
