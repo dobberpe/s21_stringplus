@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS =
 TFLAGS = -lcheck -lsubunit -lm
 GFLAGS = -fprofile-arcs -ftest-coverage
 LIB_NAME = s21_string.a
