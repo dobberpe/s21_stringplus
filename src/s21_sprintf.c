@@ -186,7 +186,8 @@ char *ftoa(const f_representation* f) {
 	char *fraction = doxtoa(0, 10, false);
 
 	integer = e >= 0 ? calculate_int_part(integer, e, f->bits, e > 52 ? 1 : mask >> (e - 1)) : integer;
-	fraction = mask ? calculate_frac_part(fraction, e, f->bits, e > 0 ? mask >> e : mask) : fraction;
+    mask = e > 0 ? mask >> e : mask;
+	fraction = mask ? calculate_frac_part(fraction, e, f->bits, mask) : fraction;
 
 	char* res = join_frac_to_int(integer, fraction, negative);
 
@@ -199,7 +200,7 @@ int extract_exp(unsigned long long bits) {
 	int power = 11;
 
 	while (--power >= 0) {
-		e += bits & mask ? pow(2, power) : 0;
+		e += (bits & mask) ? pow(2, power) : 0;
 		mask >>= 1;
 	}
 
@@ -273,8 +274,10 @@ char* augment_frac(char* fraction, int e, char** power_of_5, int* prev_p) {
 char* join_frac_to_int(char* integer, char* fraction, bool negative) {
     char* res = negative ? add_width(integer, 1, '-', true) : integer;
     res = add_width(res, 1, '.', false);
+    char* tmp = res;
     res = (char*)realloc(res, (s21_strlen(res) + s21_strlen(fraction) + 1) * sizeof(char));
-    s21_strncat(res, fraction, s21_strlen(fraction));
+    if (!res) free(tmp);
+    else s21_strncat(res, fraction, s21_strlen(fraction));
     free(fraction);
 
     return res;
@@ -301,7 +304,7 @@ int extract_exp_long(const unsigned short bits) {
     int power = 15;
 
     while (--power >= 0) {
-        e += bits & mask ? pow(2, power) : 0;
+        e += (bits & mask) ? pow(2, power) : 0;
         mask >>= 1;
     }
 
