@@ -482,7 +482,6 @@ char *clear_last_nulls(char *str) {
 char *etoa(char* f_str, print_modifiers format_modifiers, char specifier) {
     int point = s21_strchr(f_str, '.') - f_str;
     int integer_part = -1;
-    
     while (f_str[++integer_part] && f_str[integer_part] < '1');
     int exp = point > integer_part ? point - integer_part - 1 : point - integer_part;
     if (point > integer_part + 1) {
@@ -497,30 +496,7 @@ char *etoa(char* f_str, print_modifiers format_modifiers, char specifier) {
         }
     }
     f_str[point] = '.';
-
-	if (!s21_strchr(f_str, '.')) f_str = add_width(f_str, 1, '.', false);
-	if (f_str[s21_strlen(f_str) - 1] == '.') f_str = add_width(f_str, 1, '0', false);
-    f_str = clear_nulls(f_str);
-	if (*f_str == '0') exp = 0;
-	char k = *f_str;
-	f_str = double_round(f_str, format_modifiers, specifier);
-
-	if (f_str[1] == '0' || (k == '9' && *f_str == '1')) {
-		if (format_modifiers.precision && f_str[2] != '\0') {
-			f_str[1] = '.';
-			f_str[2] = '0';
-			f_str[s21_strlen(f_str) - 1] = '\0';
-		} else if (!format_modifiers.oct_hex_notation || !format_modifiers.precision) {
-			f_str[1] = '\0';
-		} else {
-			f_str[1] = '.';
-			f_str = add_width(f_str, 1, '0', false);
-		}
-		exp += 1;
-	}
-	if (s21_strchr("gG", specifier) && !format_modifiers.oct_hex_notation)
-		f_str = clear_last_nulls(f_str);
-
+	f_str = string_format(f_str, &exp, format_modifiers, specifier);
     int flen = s21_strlen(f_str);
     char *e_str = doxtoa(abs(exp), 10, false);
     e_str = s21_strlen(e_str) > 1 ? e_str : add_width(e_str, 1, '0', true);
@@ -528,10 +504,8 @@ char *etoa(char* f_str, print_modifiers format_modifiers, char specifier) {
     f_str = (char *)realloc(f_str, (flen + elen + 3) * sizeof(char));
 	if (specifier == 'g') specifier = 'e';
 	if (specifier == 'G') specifier = 'E';
-
 	char *o = "e";
 	if (s21_strchr("EG", specifier)) o = "E";
-
     s21_strncat(f_str, o, 1);
     s21_strncat(f_str, exp < 0 ? "-" : "+", 1);
     s21_strncat(f_str, e_str, elen);
@@ -539,31 +513,57 @@ char *etoa(char* f_str, print_modifiers format_modifiers, char specifier) {
     return f_str;
 }
 
-char *double_round(char *str, print_modifiers format_modifiers, char specifier) {
-	int i = 0;
-	char *tmp;
-	if (s21_strchr("gG", specifier)) {
-		tmp = str;
-		bool dot_find = false;
-		while (*tmp < '1' && *tmp != '\0') {
-			if (*tmp == '.') dot_find = true;
-			tmp++;
-		}
-		if (*tmp == '\0') {
-			format_modifiers.precision -= 1;
+char *string_format(char *str, int *exp, print_modifiers format_modifiers, char specifier) {
+	if (!s21_strchr(str, '.')) str = add_width(str, 1, '.', false);
+	if (str[s21_strlen(str) - 1] == '.') str = add_width(str, 1, '0', false);
+    str = clear_nulls(str);
+	if (*str == '0') *exp = 0;
+	char k = *str;
+	str = double_round(str, format_modifiers, specifier);
+	if (str[1] == '0' || (k == '9' && *str == '1')) {
+		if (format_modifiers.precision && str[2] != '\0') {
+			str[1] = '.';
+			str[2] = '0';
+			str[s21_strlen(str) - 1] = '\0';
+		} else if (!format_modifiers.oct_hex_notation || !format_modifiers.precision) {
+			str[1] = '\0';
 		} else {
-			if (dot_find) {
-				if (format_modifiers.precision == 0) format_modifiers.precision += 1;
-				format_modifiers.precision += tmp - s21_strchr(str, '.') - format_modifiers.oct_hex_notation;
-			} else {
-				size_t offset = s21_strchr(str, '.') - tmp;
-				format_modifiers.precision = format_modifiers.precision - offset;
-				if (format_modifiers.precision < 0) format_modifiers.precision = 0;
-			}
+			str[1] = '.';
+			str = add_width(str, 1, '0', false);
+		}
+		*exp += 1;
+	}
+	if (s21_strchr("gG", specifier) && !format_modifiers.oct_hex_notation)
+		str = clear_last_nulls(str);
+	return str;
+}
+
+void g_precision_calc(char *str, print_modifiers *format_modifiers) {
+	char *tmp = str;
+	bool dot_find = false;
+	while (*tmp < '1' && *tmp != '\0') {
+		if (*tmp == '.') dot_find = true;
+		tmp++;
+	}
+	if (*tmp == '\0') {
+		format_modifiers->precision -= 1;
+	} else {
+		if (dot_find) {
+			if (format_modifiers->precision == 0) format_modifiers->precision += 1;
+			format_modifiers->precision += tmp - s21_strchr(str, '.') - format_modifiers->oct_hex_notation;
+		} else {
+			size_t offset = s21_strchr(str, '.') - tmp;
+			format_modifiers->precision = format_modifiers->precision - offset;
+			if (format_modifiers->precision < 0) format_modifiers->precision = 0;
 		}
 	}
 
-	tmp = s21_strchr(str, '.') + 1;
+}
+
+char *double_round(char *str, print_modifiers format_modifiers, char specifier) {
+	if (s21_strchr("gG", specifier)) g_precision_calc(str, &format_modifiers);
+	char *tmp = s21_strchr(str, '.') + 1;
+	int i = 0;
 	while (*tmp >= '0' && *tmp <= '9') {
 		i++;
 		tmp++;
@@ -593,7 +593,6 @@ char *double_round(char *str, print_modifiers format_modifiers, char specifier) 
 			str = tmp;
 		}
 	}
-
 	if (s21_strchr("gG", specifier) && !format_modifiers.oct_hex_notation)
 		str = clear_last_nulls(str);
 	if (s21_strchr(str, '.') == &str[s21_strlen(str) - 1])
@@ -682,9 +681,6 @@ char *set_width(char *str, print_modifiers format_modifiers, char specifier) {
 }
 
 char *apply_format(char *str, print_modifiers format_modifiers, char specifier) {
-		
-	// printf("%s\n", str);
-
 	char is_zero = *str;
 	size_t str_len = s21_strlen(str);
 
@@ -707,7 +703,6 @@ char *apply_format(char *str, print_modifiers format_modifiers, char specifier) 
 		str = tmp;
 	}
 
-
 	// знак
 	str_len = s21_strlen(str);
 	if (negative) {
@@ -720,45 +715,5 @@ char *apply_format(char *str, print_modifiers format_modifiers, char specifier) 
 
 	// ширина
 	str = set_width(str, format_modifiers, specifier);
-
 	return str;
 }
-
-
-// int main() {
-// 	// modifiers mod = {0};
-// 	// mod.left_alignment = false;
-// 	// mod.positive_sign = false;
-// 	// mod.space_instead_of_sign = false;
-// 	// mod.oct_hex_notation = true;
-// 	// mod.fill_with_nulls = false;
-// 	// mod.width = 9;
-// 	// mod.precision = 2;
-// 	// mod.length = 0;
-
-
-// 	// char *src = "99999.957";
-// 	// char *val = malloc(100);
-// 	// s21_strncpy(val, src, 100);
-
-// 	// printf("%s\n", val = apply_format(val, mod, 'g'));
-// 	// printf("%s\n", val = etoa(val));
-// 	// printf("%#9.2g\n", 99999.957);
-
-// 	// free(val);
-
-
-//     int intValue = 123;
-//     double floatValue = 456.789;
-//     const char *stringValue = "Align";
-//     char expected_output[555];
-//     char buffer[555];
-
-//     // Выравнивание по центру
-//     sprintf(expected_output, "Int: %*d, Float: %*.2f, String: %*s", 8, intValue, 10, floatValue, 15, stringValue);
-//     s21_sprintf(buffer, "Int: %*d, Float: %*.2f, String: %*s", 8, intValue, 10, floatValue, 15, stringValue);
-// 	printf("%s\n", expected_output);
-// 	printf("%s\n", buffer);
-	
-// 	return 0;
-// }
