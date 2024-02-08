@@ -760,7 +760,7 @@ START_TEST(test_s21_sscanf_percent_percent)
     int my_result = s21_sscanf(input_str, "Hello %%%19s", buffer_my);
     printf("\nor: %d %s\nmy: %d %s\n\n", original_result, buffer_original, my_result, buffer_my);
     // Сравнение результатов
-    ck_assert_int_ne(my_result, original_result);
+    ck_assert_int_eq(my_result, original_result);
     // Проверка значений
     ck_assert_str_eq(buffer_my, buffer_original);
 }
@@ -860,6 +860,42 @@ START_TEST(test_s21_sscanf_percent_n_with_int)
 
 }
 
+// Тестовый случай для s21_sscanf с использованием спецификатора %5f
+START_TEST(test_s21_sscanf_fixed_width_float)
+{
+    float value_my;
+    float value_original;
+
+    const char *input_str = "123.456";
+    
+    // Сравнение с оригинальной функцией sscanf
+    int original_result = sscanf(input_str, "%5f", &value_original);
+    int my_result = s21_sscanf(input_str, "%5f", &value_my);
+
+    // Сравнение результатов
+    ck_assert_int_eq(my_result, original_result);
+    // Проверка значений
+    ck_assert_float_eq(value_my, value_original);
+}
+
+// Тестовый случай для s21_sscanf с использованием спецификатора %3d
+START_TEST(test_s21_sscanf_fixed_width_integer)
+{
+    int value_my;
+    int value_original;
+
+    const char *input_str = "123456";
+    
+    // Сравнение с оригинальной функцией sscanf
+    int original_result = sscanf(input_str, "%3d", &value_original);
+    int my_result = s21_sscanf(input_str, "%3d", &value_my);
+
+    // Сравнение результатов
+    ck_assert_int_eq(my_result, original_result);
+    // Проверка значений
+    ck_assert_int_eq(value_my, value_original);
+}
+
 
 Suite *s21_sscanf_suite() {
   Suite *suite;
@@ -914,6 +950,8 @@ Suite *s21_sscanf_suite() {
    tcase_add_test(tc_core, test_s21_sscanf_percent_n);
    tcase_add_test(tc_core, test_s21_sscanf_percent_n_with_string);
    tcase_add_test(tc_core, test_s21_sscanf_percent_n_with_int);
+   tcase_add_test(tc_core, test_s21_sscanf_fixed_width_float);
+   tcase_add_test(tc_core, test_s21_sscanf_fixed_width_integer);
 
   suite_add_tcase(suite, tc_core);
   return suite;
