@@ -176,17 +176,32 @@ bool set_feg(char** str, int* counter, va_list *params, scan_modifiers* format_m
 
 bool set_uox(const char specifier, char** str, int* counter, va_list *params, scan_modifiers* format_modifiers) {
     bool fail = false;
+    char* str_p;
 
-    char* end;
-    unsigned long res = strtoul(*str, &end, specifier == 'u' ? 10 : specifier == 'o' ? 8 : 16);
-    if (end == *str) fail = true;
-    else if (format_modifiers->assignment) {
-        if (format_modifiers->length == 'h') *(unsigned short*)va_arg(*params, void*) = (unsigned short)res;
-        else if (format_modifiers->length == 'l') *(unsigned long*)va_arg(*params, void*) = res;
-        else *(unsigned int*)va_arg(*params, void*) = (unsigned int)res;
-        ++(*counter);
+    while ((str_p = s21_strchr(" \n\t\r\x0B\f", **str)) && *str_p) ++(*str);
+    if (!(**str)) fail = true;
+    else {
+        str_p = *str;
+        if (format_modifiers->width && format_modifiers->width < (int)s21_strlen(str_p)) {
+            str_p = (char*)calloc(format_modifiers->width + 1, sizeof(char));
+            str_p = s21_strncat(str_p, *str, format_modifiers->width);
+        }
+
+        char *end;
+        unsigned long res = strtoul(str_p, &end, specifier == 'u' ? 10 : specifier == 'o' ? 8 : 16);
+        if (end == str_p) fail = true;
+        else if (format_modifiers->assignment) {
+            if (format_modifiers->length == 'h') *(unsigned short *) va_arg(*params,
+            void*) = (unsigned short) res;
+            else if (format_modifiers->length == 'l') *(unsigned long *) va_arg(*params,
+            void*) = res;
+            else *(unsigned int *) va_arg(*params,
+            void*) = (unsigned int) res;
+            ++(*counter);
+        }
+        *str += end - str_p;
+        if (format_modifiers->width && format_modifiers->width < (int)s21_strlen(str_p)) free(str_p);
     }
-    *str = end;
 
     return fail;
 }
