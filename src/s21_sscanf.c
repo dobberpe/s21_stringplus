@@ -18,7 +18,7 @@ int s21_sscanf(const char *str, const char *format, ...) {
 	}
 	va_end(params);
 
-	return counter;
+	return counter ? counter : -1;
 }
 
 void reset_scan_mods(scan_modifiers* format_modifiers) {
