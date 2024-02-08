@@ -21,7 +21,7 @@ int s21_sprintf(char *str, const char *format, ...) {
 	}
 	va_end(params);
 
-	return 0;
+	return j + 1;
 }
 
 //void init_str(char* str) {
