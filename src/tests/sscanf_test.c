@@ -637,28 +637,6 @@ START_TEST(test_s21_sscanf_octal_integer)
     ck_assert_uint_eq(value_my, value_original);
 }
 
-// Тестовый случай для s21_sscanf с использованием спецификатора %n
-START_TEST(test_s21_sscanf_percent_n)
-{
-    int value_my = 0;
-
-    const char *input_str = "Hello World";
-    int chars_read_my = 0;
-    int chars_read_original = 0;
-
-    // Сравнение с оригинальной функцией sscanf
-    int original_result = sscanf(input_str, "Hello%n", &chars_read_original);
-    int my_result = s21_sscanf(input_str, "Hello%n", &chars_read_my);
-
-    // Сравнение результатов
-    ck_assert_int_eq(my_result, original_result);
-    // Проверка значения %n
-    ck_assert_int_eq(chars_read_my, chars_read_original);
-
-    // Проверка, что значение %n записалось в переменную
-    ck_assert_int_eq(value_my, chars_read_my);
-}
-
 // Тестовый случай для s21_sscanf с использованием спецификатора %p для указателя
 START_TEST(test_s21_sscanf_pointer)
 {
@@ -786,6 +764,119 @@ START_TEST(test_s21_sscanf_ignore_values)
     ck_assert_int_eq(value2_my, value2_original);
 }
 
+// Тестовый случай для s21_sscanf с использованием спецификатора %%
+START_TEST(test_s21_sscanf_percent_percent)
+{
+    const char *input_str = "Hello %% World";
+    
+    // Переменные для хранения считанных значений
+    char buffer_my[20];
+    char buffer_original[20];
+
+    // Сравнение с оригинальной функцией sscanf
+    int original_result = sscanf(input_str, "Hello %%%s", buffer_original);
+    int my_result = s21_sscanf(input_str, "Hello %%%s", buffer_my);
+
+    // Сравнение результатов
+    ck_assert_int_ne(my_result, original_result);
+    // Проверка значений
+    ck_assert_str_eq(buffer_my, buffer_original);
+}
+
+// Тестовый случай для s21_sscanf с использованием целочисленных знаковых спецификаторов
+START_TEST(test_s21_sscanf_integer_with_error)
+{
+    const char *input_str = "123 418d 312";
+    int value_my1 = -1;
+    int value_my2 = -1;
+    int value_my3 = -1;
+    int value_original1 = -1;
+    int value_original2 = -1;
+    int value_original3 = -1;
+
+    // Сравнение с оригинальной функцией sscanf
+    int original_result = sscanf(input_str, "%d%d%d", &value_original1, &value_original2, &value_original3);
+    int my_result = s21_sscanf(input_str, "%d%d%d", &value_my1, &value_my2, &value_my3);
+
+    // Проверка результатов
+    ck_assert_int_eq(my_result, original_result);
+    // Проверка значений
+    ck_assert_int_eq(value_my1, value_original1);
+    ck_assert_int_eq(value_my2, value_original2);
+    ck_assert_int_eq(value_my3, value_original3);
+}
+
+// Тестовый случай для s21_sscanf с использованием спецификатора %n
+START_TEST(test_s21_sscanf_percent_n)
+{
+    const char *input_str = "Hello World";
+    int chars_read_my = 0;
+    int chars_read_original = 0;
+
+    // Сравнение с оригинальной функцией sscanf
+    int original_result = sscanf(input_str, "Hello%n", &chars_read_original);
+    int my_result = s21_sscanf(input_str, "Hello%n", &chars_read_my);
+
+    // Сравнение результатов
+    ck_assert_int_eq(my_result, original_result);
+    // Проверка значения %n
+    ck_assert_int_eq(chars_read_my, chars_read_original);
+
+}
+
+// Тестовый случай для s21_sscanf с использованием спецификатора %n
+START_TEST(test_s21_sscanf_percent_n_with_string)
+{
+
+    const char *input_str = "Hello World";
+    char buffer_my[20];
+    char buffer_original[20];
+    int chars_read_my = 0;
+    int chars_read_original = 0;
+
+    // Сравнение с оригинальной функцией sscanf
+    int original_result = sscanf(input_str, "%s%n", buffer_original, &chars_read_original);
+    int my_result = s21_sscanf(input_str, "%s%n", buffer_my, &chars_read_my);
+
+    // Сравнение результатов
+    ck_assert_int_eq(my_result, original_result);
+    // Сравнение строк
+    ck_assert_str_eq(buffer_my, buffer_original);
+    // Проверка значения %n
+    ck_assert_int_eq(chars_read_my, chars_read_original);
+
+}
+
+// Тестовый случай для s21_sscanf с использованием спецификатора %n
+START_TEST(test_s21_sscanf_percent_n_with_int)
+{
+    const char *input_str = "   123 qwe914";
+    int n_my1 = 0;
+    int n_my2 = 0;
+    int n_my3 = 0;
+    int n_orig1 = 0;
+    int n_orig2 = 0;
+    int n_orig3 = 0;
+    int val_my1 = 0;
+    int val_my2 = 0;
+    int val_orig1 = 0;
+    int val_orig2 = 0;
+
+    // Сравнение с оригинальной функцией sscanf
+    int original_result = sscanf(input_str, "%n%d%n qwe%d%n", &n_orig1, &val_orig1, &n_orig2, &val_orig2, &n_orig3);
+    int my_result = s21_sscanf(input_str, "%n%d%n qwe%d%n", &n_my1, &val_my1, &n_my2, &val_my2, &n_my3);
+
+    // Сравнение результатов
+    ck_assert_int_eq(my_result, original_result);
+    // Проверка значения %n
+    ck_assert_int_eq(n_my1, n_orig1);
+    ck_assert_int_eq(n_my2, n_orig2);
+    ck_assert_int_eq(n_my3, n_orig3);
+    // Проверка значений %d
+    ck_assert_int_eq(val_my1, val_orig1);
+    ck_assert_int_eq(val_my2, val_orig2);
+
+}
 
 
 Suite *s21_sscanf_suite() {
@@ -793,51 +884,56 @@ Suite *s21_sscanf_suite() {
   TCase *tc_core;
   suite = suite_create("s21_sscanf");
   tc_core = tcase_create("core");
-//    tcase_add_test(tc_core, test_s21_sscanf_integer);
-//    tcase_add_test(tc_core, test_s21_sscanf_empty_string_edge_case);
-//    tcase_add_test(tc_core, test_s21_sscanf_multiple_values);
-//    tcase_add_test(tc_core, test_s21_sscanf_char);
-//    tcase_add_test(tc_core, test_s21_sscanf_char_empty_string);
-//    tcase_add_test(tc_core, test_s21_sscanf_char_whitespace);
-//    tcase_add_test(tc_core, test_s21_sscanf_multiple_chars);
-//    tcase_add_test(tc_core, test_s21_sscanf_char_no_delim);
-//    tcase_add_test(tc_core, test_s21_sscanf_char_ignore_whitespace);
-//    tcase_add_test(tc_core, test_s21_sscanf_integer_decimal);
-//    tcase_add_test(tc_core, test_s21_sscanf_integer_octal);
-//    tcase_add_test(tc_core, test_s21_sscanf_integer_hexadecimal);
-//    tcase_add_test(tc_core, test_s21_sscanf_integer_min_value);
-//    tcase_add_test(tc_core, test_s21_sscanf_integer_max_value);
-//    tcase_add_test(tc_core, test_s21_sscanf_integer_min_octal);
-//    tcase_add_test(tc_core, test_s21_sscanf_integer_max_octal);
-//    tcase_add_test(tc_core, test_s21_sscanf_integer_min_hexadecimal);
-//    tcase_add_test(tc_core, test_s21_sscanf_decimal_zero_value);
-//    tcase_add_test(tc_core, test_s21_sscanf_octal_zero_value);
-//    tcase_add_test(tc_core, test_s21_sscanf_hexadecimal_zero_value);
-//    tcase_add_test(tc_core, test_s21_sscanf_decimal_float_exponential);
-//    tcase_add_test(tc_core, test_s21_sscanf_decimal_float);
-//    tcase_add_test(tc_core, test_s21_sscanf_decimal_float_exponential_uppercase);
-//    tcase_add_test(tc_core, test_s21_sscanf_decimal_float_general);
-//    tcase_add_test(tc_core, test_s21_sscanf_decimal_float_general_uppercase);
-//    tcase_add_test(tc_core, test_s21_sscanf_string_no_whitespace);
-//    tcase_add_test(tc_core, test_s21_sscanf_string_with_whitespace);
-//    tcase_add_test(tc_core, test_s21_sscanf_string_with_width);
-//    tcase_add_test(tc_core, test_s21_sscanf_empty_string);
-//    tcase_add_test(tc_core, test_s21_sscanf_single_char_string);
-//    tcase_add_test(tc_core, test_s21_sscanf_string_with_leading_spaces);
-//    tcase_add_test(tc_core, test_s21_sscanf_string_with_leading_spaces_and_width);
-//    tcase_add_test(tc_core, test_s21_sscanf_unsigned_integer);
-//    tcase_add_test(tc_core, test_s21_sscanf_hexadecimal_integer);
-//    tcase_add_test(tc_core, test_s21_sscanf_hexadecimal_integer_uppercase);
-//    tcase_add_test(tc_core, test_s21_sscanf_octal_integer);
-    tcase_add_test(tc_core, test_s21_sscanf_percent_n);
-//    tcase_add_test(tc_core, test_s21_sscanf_pointer);
-//    tcase_add_test(tc_core, test_s21_sscanf_short_integer);
-//    tcase_add_test(tc_core, test_s21_sscanf_long_integer);
-//    tcase_add_test(tc_core, test_s21_sscanf_long_long_integer);
-//    tcase_add_test(tc_core, test_s21_sscanf_double);
-//    tcase_add_test(tc_core, test_s21_sscanf_long_double);
-//    tcase_add_test(tc_core, test_s21_sscanf_ignore_values);
-//    tcase_add_test(tc_core, test_s21_sscanf_integer_max_hexadecimal);
+   tcase_add_test(tc_core, test_s21_sscanf_integer);
+   tcase_add_test(tc_core, test_s21_sscanf_empty_string_edge_case);
+   tcase_add_test(tc_core, test_s21_sscanf_multiple_values);
+   tcase_add_test(tc_core, test_s21_sscanf_char);
+   tcase_add_test(tc_core, test_s21_sscanf_char_empty_string);
+   tcase_add_test(tc_core, test_s21_sscanf_char_whitespace);
+   tcase_add_test(tc_core, test_s21_sscanf_multiple_chars);
+   tcase_add_test(tc_core, test_s21_sscanf_char_no_delim);
+   tcase_add_test(tc_core, test_s21_sscanf_char_ignore_whitespace);
+   tcase_add_test(tc_core, test_s21_sscanf_integer_decimal);
+   tcase_add_test(tc_core, test_s21_sscanf_integer_octal);
+   tcase_add_test(tc_core, test_s21_sscanf_integer_hexadecimal);
+   tcase_add_test(tc_core, test_s21_sscanf_integer_min_value);
+   tcase_add_test(tc_core, test_s21_sscanf_integer_max_value);
+   tcase_add_test(tc_core, test_s21_sscanf_integer_min_octal);
+   tcase_add_test(tc_core, test_s21_sscanf_integer_max_octal);
+   tcase_add_test(tc_core, test_s21_sscanf_integer_min_hexadecimal);
+   tcase_add_test(tc_core, test_s21_sscanf_decimal_zero_value);
+   tcase_add_test(tc_core, test_s21_sscanf_octal_zero_value);
+   tcase_add_test(tc_core, test_s21_sscanf_hexadecimal_zero_value);
+   tcase_add_test(tc_core, test_s21_sscanf_decimal_float_exponential);
+   tcase_add_test(tc_core, test_s21_sscanf_decimal_float);
+   tcase_add_test(tc_core, test_s21_sscanf_decimal_float_exponential_uppercase);
+   tcase_add_test(tc_core, test_s21_sscanf_decimal_float_general);
+   tcase_add_test(tc_core, test_s21_sscanf_decimal_float_general_uppercase);
+   tcase_add_test(tc_core, test_s21_sscanf_string_no_whitespace);
+   tcase_add_test(tc_core, test_s21_sscanf_string_with_whitespace);
+   tcase_add_test(tc_core, test_s21_sscanf_string_with_width);
+   tcase_add_test(tc_core, test_s21_sscanf_empty_string);
+   tcase_add_test(tc_core, test_s21_sscanf_single_char_string);
+   tcase_add_test(tc_core, test_s21_sscanf_string_with_leading_spaces);
+   tcase_add_test(tc_core, test_s21_sscanf_string_with_leading_spaces_and_width);
+   tcase_add_test(tc_core, test_s21_sscanf_unsigned_integer);
+   tcase_add_test(tc_core, test_s21_sscanf_hexadecimal_integer);
+   tcase_add_test(tc_core, test_s21_sscanf_hexadecimal_integer_uppercase);
+   tcase_add_test(tc_core, test_s21_sscanf_octal_integer);
+   tcase_add_test(tc_core, test_s21_sscanf_pointer);
+   tcase_add_test(tc_core, test_s21_sscanf_short_integer);
+   tcase_add_test(tc_core, test_s21_sscanf_long_integer);
+   tcase_add_test(tc_core, test_s21_sscanf_long_long_integer);
+   tcase_add_test(tc_core, test_s21_sscanf_double);
+   tcase_add_test(tc_core, test_s21_sscanf_long_double);
+   tcase_add_test(tc_core, test_s21_sscanf_ignore_values);
+   tcase_add_test(tc_core, test_s21_sscanf_integer_max_hexadecimal);
+   tcase_add_test(tc_core, test_s21_sscanf_percent_percent);
+   tcase_add_test(tc_core, test_s21_sscanf_integer_with_error);
+   tcase_add_test(tc_core, test_s21_sscanf_percent_n);
+   tcase_add_test(tc_core, test_s21_sscanf_percent_n_with_string);
+   tcase_add_test(tc_core, test_s21_sscanf_percent_n_with_int);
+
   suite_add_tcase(suite, tc_core);
   return suite;
 }

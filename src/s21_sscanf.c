@@ -100,7 +100,7 @@ bool set_di(const char specifier, char** str, int* counter, va_list *params, sca
     if (!(**str)) fail = true;
     else {
         str_p = *str;
-        if (format_modifiers->width && format_modifiers->width < s21_strlen(str_p)) {
+        if (format_modifiers->width && format_modifiers->width < (int)s21_strlen(str_p)) {
             str_p = (char*)calloc(format_modifiers->width + 1, sizeof(char));
             str_p = s21_strncat(str_p, *str, format_modifiers->width);
         }
@@ -115,7 +115,7 @@ bool set_di(const char specifier, char** str, int* counter, va_list *params, sca
             ++(*counter);
         }
         *str += end - str_p;
-        if (format_modifiers->width && format_modifiers->width < s21_strlen(str_p)) free(str_p);
+        if (format_modifiers->width && format_modifiers->width < (int)s21_strlen(str_p)) free(str_p);
     }
 
     return fail;
@@ -177,7 +177,7 @@ bool set_s(char** str, int* counter, va_list *params, scan_modifiers* format_mod
     if (!(**str)) fail = true;
     else {
         str_p = *str;
-        if (format_modifiers->width && format_modifiers->width < s21_strlen(str_p)) {
+        if (format_modifiers->width && format_modifiers->width < (int)s21_strlen(str_p)) {
             str_p = (char*)calloc(format_modifiers->width + 1, sizeof(char));
             str_p = s21_strncat(str_p, *str, format_modifiers->width);
         }
@@ -197,7 +197,7 @@ bool set_s(char** str, int* counter, va_list *params, scan_modifiers* format_mod
             }
         }
         *str += end - str_p;
-        if (format_modifiers->width && format_modifiers->width < s21_strlen(str_p)) free(str_p);
+        if (format_modifiers->width && format_modifiers->width < (int)s21_strlen(str_p)) free(str_p);
     }
 
     return fail;
