@@ -896,6 +896,96 @@ START_TEST(test_s21_sscanf_fixed_width_integer)
     ck_assert_int_eq(value_my, value_original);
 }
 
+// Тестовый случай для s21_sscanf с использованием спецификаторов %3d%d
+START_TEST(test_s21_sscanf_multiple_specifiers)
+{
+    int value1_my, value2_my;
+    int value1_original, value2_original;
+
+    const char *input_str = "123456";
+    
+    // Сравнение с оригинальной функцией sscanf
+    int original_result = sscanf(input_str, "%3d%d", &value1_original, &value2_original);
+    int my_result = s21_sscanf(input_str, "%3d%d", &value1_my, &value2_my);
+
+    // Сравнение результатов
+    ck_assert_int_eq(my_result, original_result);
+    // Проверка значений
+    ck_assert_int_eq(value1_my, value1_original);
+    ck_assert_int_eq(value2_my, value2_original);
+}
+
+// Тестовый случай для s21_sscanf с использованием спецификатора %5x (ширина без префикса)
+START_TEST(test_s21_sscanf_fixed_width_hex)
+{
+    unsigned int value_my;
+    unsigned int value_original;
+
+    const char *input_str = "1a2b3c";
+    
+    // Сравнение с оригинальной функцией sscanf
+    int original_result = sscanf(input_str, "%5x", &value_original);
+    int my_result = s21_sscanf(input_str, "%5x", &value_my);
+
+    // Сравнение результатов
+    ck_assert_int_eq(my_result, original_result);
+    // Проверка значений
+    ck_assert_int_eq(value_my, value_original);
+}
+
+// Тестовый случай для s21_sscanf с использованием спецификатора %#5x (ширина с префиксом)
+START_TEST(test_s21_sscanf_fixed_width_hex_with_prefix)
+{
+    unsigned int value_my;
+    unsigned int value_original;
+
+    const char *input_str = "0x1a2b3c";
+    
+    // Сравнение с оригинальной функцией sscanf
+    int original_result = sscanf(input_str, "%5x", &value_original);
+    int my_result = s21_sscanf(input_str, "%5x", &value_my);
+
+    // Сравнение результатов
+    ck_assert_int_eq(my_result, original_result);
+    // Проверка значений
+    ck_assert_int_eq(value_my, value_original);
+}
+
+// Тестовый случай для s21_sscanf с использованием спецификатора %5o (ширина без префикса)
+START_TEST(test_s21_sscanf_fixed_width_octal)
+{
+    unsigned int value_my;
+    unsigned int value_original;
+
+    const char *input_str = "123456";
+    
+    // Сравнение с оригинальной функцией sscanf
+    int original_result = sscanf(input_str, "%5o", &value_original);
+    int my_result = s21_sscanf(input_str, "%5o", &value_my);
+
+    // Сравнение результатов
+    ck_assert_int_eq(my_result, original_result);
+    // Проверка значений
+    ck_assert_int_eq(value_my, value_original);
+}
+
+// Тестовый случай для s21_sscanf с использованием спецификатора %#5o (ширина с префиксом)
+START_TEST(test_s21_sscanf_fixed_width_octal_with_prefix)
+{
+    unsigned int value_my;
+    unsigned int value_original;
+
+    const char *input_str = "0123456";
+    
+    // Сравнение с оригинальной функцией sscanf
+    int original_result = sscanf(input_str, "%5o", &value_original);
+    int my_result = s21_sscanf(input_str, "%5o", &value_my);
+
+    // Сравнение результатов
+    ck_assert_int_eq(my_result, original_result);
+    // Проверка значений
+    ck_assert_int_eq(value_my, value_original);
+}
 
 Suite *s21_sscanf_suite() {
   Suite *suite;
@@ -952,6 +1042,11 @@ Suite *s21_sscanf_suite() {
    tcase_add_test(tc_core, test_s21_sscanf_percent_n_with_int);
    tcase_add_test(tc_core, test_s21_sscanf_fixed_width_float);
    tcase_add_test(tc_core, test_s21_sscanf_fixed_width_integer);
+   tcase_add_test(tc_core, test_s21_sscanf_multiple_specifiers);
+   tcase_add_test(tc_core, test_s21_sscanf_fixed_width_hex);
+   tcase_add_test(tc_core, test_s21_sscanf_fixed_width_hex_with_prefix);
+   tcase_add_test(tc_core, test_s21_sscanf_fixed_width_octal);
+   tcase_add_test(tc_core, test_s21_sscanf_fixed_width_octal_with_prefix);
 
   suite_add_tcase(suite, tc_core);
   return suite;
