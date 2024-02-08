@@ -758,7 +758,7 @@ START_TEST(test_s21_sscanf_percent_percent)
     // Сравнение с оригинальной функцией sscanf
     int original_result = sscanf(input_str, "Hello %%%19s", buffer_original);
     int my_result = s21_sscanf(input_str, "Hello %%%19s", buffer_my);
-    printf("\nor: %d %s\nmy: %d %s\n\n", original_result, buffer_original, my_result, buffer_my);
+
     // Сравнение результатов
     ck_assert_int_eq(my_result, original_result);
     // Проверка значений

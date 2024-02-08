@@ -130,31 +130,46 @@ bool set_di(const char specifier, char** str, int* counter, va_list *params, sca
 
 bool set_feg(char** str, int* counter, va_list *params, scan_modifiers* format_modifiers) {
     bool fail = false;
+    char* str_p;
 
-    char* end;
-    if (format_modifiers->length == 'L') {
-        long double res = strtold(*str, &end);
-        if (end == *str) fail = true;
-        else if (format_modifiers->assignment) {
-            *(long double*)va_arg(*params, void*) = res;
-            ++(*counter);
+    while ((str_p = s21_strchr(" \n\t\r\x0B\f", **str)) && *str_p) ++(*str);
+    if (!(**str)) fail = true;
+    else {
+        str_p = *str;
+        if (format_modifiers->width && format_modifiers->width < (int)s21_strlen(str_p)) {
+            str_p = (char*)calloc(format_modifiers->width + 1, sizeof(char));
+            str_p = s21_strncat(str_p, *str, format_modifiers->width);
         }
-    } else if (format_modifiers->length == 'l') {
-        double res = strtod(*str, &end);
-        if (end == *str) fail = true;
-        else if (format_modifiers->assignment) {
-            *(double*)va_arg(*params, void*) = res;
-            ++(*counter);
+
+        char *end;
+        if (format_modifiers->length == 'L') {
+            long double res = strtold(str_p, &end);
+            if (end == str_p) fail = true;
+            else if (format_modifiers->assignment) {
+                *(long double *) va_arg(*params,
+                void*) = res;
+                ++(*counter);
+            }
+        } else if (format_modifiers->length == 'l') {
+            double res = strtod(str_p, &end);
+            if (end == str_p) fail = true;
+            else if (format_modifiers->assignment) {
+                *(double *) va_arg(*params,
+                void*) = res;
+                ++(*counter);
+            }
+        } else {
+            float res = strtof(str_p, &end);
+            if (end == str_p) fail = true;
+            else if (format_modifiers->assignment) {
+                *(float *) va_arg(*params,
+                void*) = res;
+                ++(*counter);
+            }
         }
-    } else {
-        float res = strtof(*str, &end);
-        if (end == *str) fail = true;
-        else if (format_modifiers->assignment) {
-            *(float*)va_arg(*params, void*) = res;
-            ++(*counter);
-        }
+        *str += end - str_p;
+        if (format_modifiers->width && format_modifiers->width < (int)s21_strlen(str_p)) free(str_p);
     }
-    *str = end;
 
     return fail;
 }
