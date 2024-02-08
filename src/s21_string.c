@@ -100,9 +100,9 @@ size_t s21_strlen(const char *str) {
 }
 
 char *s21_strpbrk(const char *str1, const char *str2) {
-  const char *tmp;
   char *res = NULL;
   while (*str1 != '\0' && res == NULL) {
+    const char *tmp;
     tmp = str2;
     while (*tmp != '\0' && res == NULL) {
       if (*str1 == *tmp) res = (char *)str1;

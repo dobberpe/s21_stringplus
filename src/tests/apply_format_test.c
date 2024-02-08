@@ -620,8 +620,8 @@ Suite *s21_apply_format_suite() {
 
 void test_all_falgs_d(print_modifiers mod, char *src, int src2, char spec) {
     char *str2 = (char *)malloc(2000);
-    char *format;
     for (int i = 0; i < 32; i++) {
+        char *format;
         char *str = (char *)malloc((strlen(src) + 1) * sizeof(char));
         mod.left_alignment = i & 1;
         mod.positive_sign = (i >> 1) & 1;
@@ -647,8 +647,8 @@ void test_all_falgs_d(print_modifiers mod, char *src, int src2, char spec) {
 
 void test_all_falgs_double(print_modifiers mod, char *src, double src2, char spec) {
     char *str2 = (char *)malloc(2000);
-    char *format;
     for (int i = 0; i < 32; i++) {
+        char *format;
         char *str = (char *)malloc((strlen(src) + 1) * sizeof(char));
         mod.left_alignment = i & 1;
         mod.positive_sign = (i >> 1) & 1;
@@ -677,8 +677,8 @@ void test_all_falgs_double(print_modifiers mod, char *src, double src2, char spe
 
 void test_all_falgs_string(print_modifiers mod, char *src, char *src2, char spec) {
     char *str2 = (char *)malloc(2000);
-    char *format;
     for (int i = 0; i < 32; i++) {
+        char *format;
         char *str = (char *)malloc((strlen(src) + 1) * sizeof(char));
         mod.left_alignment = i & 1;
         mod.positive_sign = (i >> 1) & 1;

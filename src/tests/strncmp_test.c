@@ -3,7 +3,7 @@
 START_TEST(test_s21_strncmp_equal) {
   const char str1[] = "Hello, World!";
   const char str2[] = "Hello, World!";
-  size_t n = sizeof(str1) - 1;
+  size_t n = strlen(str1);
   ck_assert_int_eq(s21_strncmp(str1, str2, n), strncmp(str1, str2, n));
 }
 END_TEST
@@ -11,7 +11,7 @@ END_TEST
 START_TEST(test_s21_strncmp_less) {
   const char str1[] = "Hello,";
   const char str2[] = "Hello, Universe!";
-  size_t n = sizeof(str2) - 1;
+  size_t n = strlen(str2);
   ck_assert_int_lt(strncmp(str1, str2, n), 0);
   ck_assert_int_lt(s21_strncmp(str1, str2, n), 0);
 }
@@ -20,7 +20,7 @@ END_TEST
 START_TEST(test_s21_strncmp_greater) {
   const char str1[] = "Hello, World!";
   const char str2[] = "Hello, Galaxy!";
-  size_t n = sizeof(str2) - 1;
+  size_t n = strlen(str2);
   ck_assert_int_gt(strncmp(str1, str2, n), 0);
   ck_assert_int_gt(s21_strncmp(str1, str2, n), 0);
 }

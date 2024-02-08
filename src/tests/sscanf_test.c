@@ -458,8 +458,8 @@ START_TEST(test_s21_sscanf_string_no_whitespace)
     char buffer_original[20] = "";
 
     // Сравнение с оригинальной функцией sscanf
-    int original_result = sscanf(input_str, "%s", buffer_original);
-    int my_result = s21_sscanf(input_str, "%s", buffer_my);
+    int original_result = sscanf(input_str, "%19s", buffer_original);
+    int my_result = s21_sscanf(input_str, "%19s", buffer_my);
 
     // Проверка результатов
     ck_assert_int_eq(my_result, original_result);
@@ -475,8 +475,8 @@ START_TEST(test_s21_sscanf_string_with_whitespace)
     char buffer_original[20] = "";
 
     // Сравнение с оригинальной функцией sscanf
-    int original_result = sscanf(input_str, "%s", buffer_original);
-    int my_result = s21_sscanf(input_str, "%s", buffer_my);
+    int original_result = sscanf(input_str, "%19s", buffer_original);
+    int my_result = s21_sscanf(input_str, "%19s", buffer_my);
 
     // Проверка результатов
     ck_assert_int_eq(my_result, original_result);
@@ -509,8 +509,8 @@ START_TEST(test_s21_sscanf_empty_string)
     char buffer_original[20] = "Hello";  // Исходное значение буфера
 
     // Сравнение с оригинальной функцией sscanf
-    int original_result = sscanf(input_str, "%s", buffer_original);
-    int my_result = s21_sscanf(input_str, "%s", buffer_my);
+    int original_result = sscanf(input_str, "%19s", buffer_original);
+    int my_result = s21_sscanf(input_str, "%19s", buffer_my);
 
     // Проверка результатов
     ck_assert_int_eq(my_result, original_result);
@@ -526,8 +526,8 @@ START_TEST(test_s21_sscanf_single_char_string)
     char buffer_original[20] = "Hello";  // Исходное значение буфера
 
     // Сравнение с оригинальной функцией sscanf
-    int original_result = sscanf(input_str, "%s", buffer_original);
-    int my_result = s21_sscanf(input_str, "%s", buffer_my);
+    int original_result = sscanf(input_str, "%19s", buffer_original);
+    int my_result = s21_sscanf(input_str, "%19s", buffer_my);
 
     // Проверка результатов
     ck_assert_int_eq(my_result, original_result);
@@ -543,8 +543,8 @@ START_TEST(test_s21_sscanf_string_with_leading_spaces)
     char buffer_original[20] = "";  // Исходное значение буфера
 
     // Сравнение с оригинальной функцией sscanf
-    int original_result = sscanf(input_str, "%s", buffer_original);
-    int my_result = s21_sscanf(input_str, "%s", buffer_my);
+    int original_result = sscanf(input_str, "%19s", buffer_original);
+    int my_result = s21_sscanf(input_str, "%19s", buffer_my);
 
     // Проверка результатов
     ck_assert_int_eq(my_result, original_result);
@@ -774,8 +774,8 @@ START_TEST(test_s21_sscanf_percent_percent)
     char buffer_original[20];
 
     // Сравнение с оригинальной функцией sscanf
-    int original_result = sscanf(input_str, "Hello %%%s", buffer_original);
-    int my_result = s21_sscanf(input_str, "Hello %%%s", buffer_my);
+    int original_result = sscanf(input_str, "Hello %%%19s", buffer_original);
+    int my_result = s21_sscanf(input_str, "Hello %%%19s", buffer_my);
 
     // Сравнение результатов
     ck_assert_int_ne(my_result, original_result);
@@ -835,8 +835,8 @@ START_TEST(test_s21_sscanf_percent_n_with_string)
     int chars_read_original = 0;
 
     // Сравнение с оригинальной функцией sscanf
-    int original_result = sscanf(input_str, "%s%n", buffer_original, &chars_read_original);
-    int my_result = s21_sscanf(input_str, "%s%n", buffer_my, &chars_read_my);
+    int original_result = sscanf(input_str, "%19s%n", buffer_original, &chars_read_original);
+    int my_result = s21_sscanf(input_str, "%19s%n", buffer_my, &chars_read_my);
 
     // Сравнение результатов
     ck_assert_int_eq(my_result, original_result);
