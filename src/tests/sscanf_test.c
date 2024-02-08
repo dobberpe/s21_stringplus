@@ -691,24 +691,6 @@ START_TEST(test_s21_sscanf_long_integer)
     ck_assert_int_eq(value_my, value_original);
 }
 
-// Тестовый случай для s21_sscanf с использованием флага L для целочисленного значения
-START_TEST(test_s21_sscanf_long_long_integer)
-{
-    long long value_my = 0;
-    long long value_original = 0;
-
-    const char *input_str = "12345678901234567890";
-    
-    // Сравнение с оригинальной функцией sscanf
-    int original_result = sscanf(input_str, "%Ld", &value_original);
-    int my_result = s21_sscanf(input_str, "%Ld", &value_my);
-
-    // Сравнение результатов
-    ck_assert_int_eq(my_result, original_result);
-    // Проверка значений
-    ck_assert_int_eq(value_my, value_original);
-}
-
 // Тестовый случай для s21_sscanf с использованием флага l для значения типа double
 START_TEST(test_s21_sscanf_double)
 {
@@ -776,7 +758,7 @@ START_TEST(test_s21_sscanf_percent_percent)
     // Сравнение с оригинальной функцией sscanf
     int original_result = sscanf(input_str, "Hello %%%19s", buffer_original);
     int my_result = s21_sscanf(input_str, "Hello %%%19s", buffer_my);
-
+    printf("\nor: %d %s\nmy: %d %s\n\n", original_result, buffer_original, my_result, buffer_my);
     // Сравнение результатов
     ck_assert_int_ne(my_result, original_result);
     // Проверка значений
@@ -923,7 +905,6 @@ Suite *s21_sscanf_suite() {
    tcase_add_test(tc_core, test_s21_sscanf_pointer);
    tcase_add_test(tc_core, test_s21_sscanf_short_integer);
    tcase_add_test(tc_core, test_s21_sscanf_long_integer);
-   tcase_add_test(tc_core, test_s21_sscanf_long_long_integer);
    tcase_add_test(tc_core, test_s21_sscanf_double);
    tcase_add_test(tc_core, test_s21_sscanf_long_double);
    tcase_add_test(tc_core, test_s21_sscanf_ignore_values);

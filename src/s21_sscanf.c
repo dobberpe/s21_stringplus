@@ -13,8 +13,13 @@ int s21_sscanf(const char *str, const char *format, ...) {
 
 	while (format[++i] && !fail) {
 		if (format[i] == '%') {
-			fail = process_scan(format, &i, &str_p, str - str_p, &counter, &params, &format_modifiers);
-		}
+			fail = process_scan(format, &i, &str_p, str_p - str, &counter, &params, &format_modifiers);
+		} else if (!s21_strchr(" \n\t\r\x0B\f", format[i])) {
+            char *p;
+            while ((p = s21_strchr(" \n\t\r\x0B\f", *str_p)) && *p) ++str_p;
+            if (format[i] == *str_p) ++str_p;
+            else fail = true;
+        }
 	}
 	va_end(params);
 
@@ -59,6 +64,8 @@ bool process_scan(const char* format, int* i, char** str, const int read, int* c
     } else if (specifier == 'n') {
         *(int*)va_arg(*params, void*) = read;
     } else if (specifier == '%') {
+        char *str_p;
+        while ((str_p = s21_strchr(" \n\t\r\x0B\f", **str)) && *str_p) ++(*str);
         if (**str != '%') fail = true;
         else ++(*str);
     } else fail = true;
