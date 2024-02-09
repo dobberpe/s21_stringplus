@@ -90,13 +90,13 @@ char *process_specifier(char specifier, const int len, va_list *params, print_mo
 		res = get_c(params, format_modifiers->length, fail);
 	} else if (specifier == 'd' || specifier == 'i') {
 		format_modifiers->precision = format_modifiers->precision == -1 ? 1 : format_modifiers->precision;
-		res = doxtoa(format_modifiers->length == 'h' ? (short)va_arg(*params, int) : format_modifiers->length == 'l' ? va_arg(*params, long) : va_arg(*params, int), 10, false);
+		res = ditoa(format_modifiers->length == 'h' ? (short)va_arg(*params, int) : format_modifiers->length == 'l' ? va_arg(*params, long) : va_arg(*params, int));
 	} else if (specifier == 'e' || specifier == 'E' || specifier == 'f' || specifier == 'g' || specifier == 'G') {
 		format_modifiers->precision = format_modifiers->precision == -1 ? 6 : format_modifiers->precision;
 		res = get_f(params, format_modifiers->length);
 	} else if (specifier == 'o' || specifier == 'u' || specifier == 'x' || specifier == 'X') {
 		format_modifiers->precision = format_modifiers->precision == -1 ? 1 : format_modifiers->precision;
-		res = doxtoa(format_modifiers->length == 'h' ? (unsigned short)va_arg(*params, unsigned int) : format_modifiers->length == 'l' ? va_arg(*params, unsigned long) : va_arg(*params, unsigned), specifier == 'o' ? 8 : specifier == 'u' ? 10 : 16, specifier == 'X');
+		res = uoxtoa(format_modifiers->length == 'h' ? (unsigned short)va_arg(*params, unsigned int) : format_modifiers->length == 'l' ? va_arg(*params, unsigned long) : va_arg(*params, unsigned), specifier == 'o' ? 8 : specifier == 'u' ? 10 : 16, specifier == 'X');
 	} else if (specifier == 's') {
 		res = get_s(params, format_modifiers->length, fail);
 	} else if (specifier == 'p') {
@@ -125,13 +125,39 @@ char* get_c(va_list* params, char length, bool* fail) {
 	} else {
 		res = (char *)calloc(2, sizeof(char));
 		res[0] = (char)va_arg(*params, int);
+		if (!s21_strlen(res)) *fail = true;
 	}
 
 	return res;
 }
 
-char *doxtoa(long long d, const int radix, const bool uppercase) {
-	int i = doxlen(d, radix);
+char *ditoa(long d) {
+	int i = dilen(d);
+	char *str = (char *)calloc(i + 1, sizeof(char));
+
+	while (abs((int)(d / 10))) {
+		str[--i] = abs((int)(d % 10));
+		str[i] += 48;
+		d /= 10;
+	}
+	str[--i] = abs((int)(d % 10));
+	str[i] += 48;
+	str[0] = d < 0 ? '-' : str[0];
+
+	return str;
+}
+
+int dilen(long d) {
+	int i = d < 0 ? 2 : 1;
+	while (d / 10) {
+		++i;
+		d /= 10;
+	}
+	return i;
+}
+
+char *uoxtoa(unsigned long d, const int radix, const bool uppercase) {
+	int i = uoxlen(d, radix);
 	char *str = (char *)calloc(i + 1, sizeof(char));
 
 	while (abs((int)(d / radix))) {
@@ -146,7 +172,7 @@ char *doxtoa(long long d, const int radix, const bool uppercase) {
 	return str;
 }
 
-int doxlen(long long d, const int radix) {
+int uoxlen(unsigned long d, const int radix) {
 	int i = (d < 0 && radix == 10) ? 2 : 1;
 	while (d / radix) {
 		++i;
@@ -185,8 +211,8 @@ char *ftoa(const f_representation* f) {
 	bool negative = f->bits & 0x8000000000000000;
 	int e = extract_exp(f->bits);
 	unsigned long long mask = (unsigned long long)1 << 51;
-	char *integer = doxtoa(0, 10, false);
-	char *fraction = doxtoa(0, 10, false);
+	char *integer = ditoa(0);
+	char *fraction = ditoa(0);
 
 	if (f->full) {
 		integer = e >= 0 ? calculate_int_part(integer, e, f->bits, e > 52 ? 1 : mask >> (e - 1)) : integer;
@@ -214,7 +240,7 @@ int extract_exp(unsigned long long bits) {
 
 char *calculate_int_part(char *integer, const int e, const unsigned long long bits, unsigned long long mask) {
 	int p = e > 52 ? e - 53 : -1;
-	char* power_of_2 = doxtoa(1, 10, false);
+	char* power_of_2 = ditoa(1);
 	int prev_p = 0;
 	while (++p <= e) {
 		if (bits & mask || p == e) {
@@ -239,7 +265,7 @@ char* augment_int(char* integer, int p, char** power_of_2, int* prev_p) {
 }
 
 char *calculate_frac_part(char *fraction, int e, const unsigned long long bits, unsigned long long mask) {
-	char* power_of_5 = doxtoa(5, 10, false);
+	char* power_of_5 = ditoa(5);
 	int prev_p = 1;
     if (e < 0) {
         e = abs(e);
@@ -291,8 +317,8 @@ char* join_frac_to_int(char* integer, char* fraction, bool negative) {
 char *lftoa(const fl_representation* f) {
 	bool negative = f->bits[4] & 0x8000;
 	int e = extract_exp_long(f->bits[4]);
-	char *integer = doxtoa(0, 10, false);
-	char *fraction = doxtoa(0, 10, false);
+	char *integer = ditoa(0);
+	char *fraction = ditoa(0);
 
 	if (f->full) {
 		integer = e >= 0 ? calculate_int_part_long(integer, e, f->bits, e > 62 ? 1 : 0x8000 >> (e % 16)) : integer;
@@ -320,7 +346,7 @@ int extract_exp_long(const unsigned short bits) {
 
 char *calculate_int_part_long(char *integer, const int e, const unsigned short *bits, unsigned short mask) {
 	int p = e > 64 ? e - 63 : 0;
-	char* power_of_2 = doxtoa(1, 10, false);
+	char* power_of_2 = ditoa(1);
 	int prev_p = 0;
 	int i = 2 - e / 16;
 	i = i < -1 ? -1 : i;
@@ -343,7 +369,7 @@ char *calculate_frac_part_long(char *fraction, int e, const unsigned short *bits
 	int i = 3 - e / 16 + 1;
 	i = i > 4 ? 4 : i;
 	e = e >= 0 ? 1 : abs(e);
-	char* power_of_5 = doxtoa(5, 10, false);
+	char* power_of_5 = ditoa(5);
 	int prev_p = 1;
 	while (--i >= 0) {
 		while (mask) {
@@ -458,7 +484,7 @@ char* get_s(va_list* params, char length, bool* fail) {
 char* get_p(unsigned long address) {
     char* res;
 
-    if (address) res = doxtoa(address, 16, false);
+    if (address) res = uoxtoa(address, 16, false);
     else {
         res = (char*) calloc(6, sizeof(char));
         res = s21_strncat(res, "(nil)", 5);
@@ -509,7 +535,7 @@ char *etoa(char* f_str, print_modifiers format_modifiers, char specifier) {
     f_str[point] = '.';
 	f_str = string_format(f_str, &exp, format_modifiers, specifier);
     int flen = s21_strlen(f_str);
-    char *e_str = doxtoa(abs(exp), 10, false);
+    char *e_str = ditoa(abs(exp));
     e_str = s21_strlen(e_str) > 1 ? e_str : add_width(e_str, 1, '0', true);
     int elen = s21_strlen(e_str);
     f_str = (char *)realloc(f_str, (flen + elen + 3) * sizeof(char));
