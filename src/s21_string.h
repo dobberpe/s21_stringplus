@@ -72,6 +72,7 @@ int uoxlen(unsigned long d, const int radix);
 char *etoa(char *f_str, print_modifiers format_modifiers, char specifier);
 char *clear_nulls(char *str);
 char *get_f(va_list *params, char length);
+bool isinfnanl(fl_representation* f);
 char *edge_case(bool inf, bool negative);
 char *ftoa(const f_representation *f);
 int extract_exp(unsigned long long bits);

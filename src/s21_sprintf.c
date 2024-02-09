@@ -206,8 +206,8 @@ char *get_f(va_list *params, char length) {
   if (length == 'L') {
     fl_representation f;
     f.full = va_arg(*params, long double);
-    if (isinfl(f.full) || isnanl(f.full))
-      res = edge_case(isinfl(f.full), f.bits[4] & 0x8000);
+    if (isinfnanl(&f))
+      res = edge_case(f.bits[3] != 49152, f.bits[4] & 0x8000);
     else
       res = lftoa(&f);
   } else {
@@ -220,6 +220,10 @@ char *get_f(va_list *params, char length) {
   }
 
   return res;
+}
+
+bool isinfnanl(fl_representation* f) {
+    return extract_exp_long(f->bits[4]) == 16384;
 }
 
 char *edge_case(bool inf, bool negative) {
