@@ -6,13 +6,14 @@ int s21_sprintf(char *str, const char *format, ...) {
 	print_modifiers format_modifiers;
 	int i = -1;
 	int j = -1;
+	bool fail = false;
 
 	str[0] = '\0';
 	reset_mods(&format_modifiers);
 
 	while (format[++i]) {
 		if (format[i] == '%') {
-			i = process_format(format, i, str, &params, &format_modifiers);
+			fail = process_format(format, &i, str, &params, &format_modifiers);
 			j = s21_strlen(str) - 1;
 		} else {
 			str[++j] = format[i];
@@ -21,7 +22,7 @@ int s21_sprintf(char *str, const char *format, ...) {
 	}
 	va_end(params);
 
-	return j + 1;
+	return fail ? -1 : j + 1;
 }
 
 //void init_str(char* str) {
@@ -40,52 +41,53 @@ void reset_mods(print_modifiers* format_modifiers) {
 	format_modifiers->length = 0;
 }
 
-int process_format(const char *format, int i, char *str, va_list *params, print_modifiers *format_modifiers) {
+int process_format(const char *format, int* i, char *str, va_list *params, print_modifiers *format_modifiers) {
 	int percent_position = i;
 
-	while (format[++i] && s21_strchr("-+ #0", format[i])) {
-		if (format[i] == '-') format_modifiers->left_alignment = true;
-		if (format[i] == '+') format_modifiers->positive_sign = true;
-		if (format[i] == ' ') format_modifiers->space_instead_of_sign = true;
-		if (format[i] == '#') format_modifiers->oct_hex_notation = true;
-		if (format[i] == '0') format_modifiers->fill_with_nulls = true;
+	while (format[++(*i)] && s21_strchr("-+ #0", format[*i])) {
+		if (format[*i] == '-') format_modifiers->left_alignment = true;
+		if (format[*i] == '+') format_modifiers->positive_sign = true;
+		if (format[*i] == ' ') format_modifiers->space_instead_of_sign = true;
+		if (format[*i] == '#') format_modifiers->oct_hex_notation = true;
+		if (format[*i] == '0') format_modifiers->fill_with_nulls = true;
 	}
-	if (format[i] >= '1' && format[i] <= '9') {
-		format_modifiers->width = atoi(format + i);
-		while (format[++i] && format[i] >= '0' && format[i] <= '9');
-	} else if (format[i] == '*') {
+	if (format[*i] >= '1' && format[*i] <= '9') {
+		format_modifiers->width = atoi(format + *i);
+		while (format[++(*i)] && format[*i] >= '0' && format[*i] <= '9');
+	} else if (format[*i] == '*') {
 		format_modifiers->width = va_arg(*params, int);
-		++i;
+		++(*i);
 	}
-	if (format[i] == '.') {
-		if (format[++i] == '*') {
+	if (format[*i] == '.') {
+		if (format[++(*i)] == '*') {
 			format_modifiers->precision = va_arg(*params, int);
-            ++i;
-		} else if (format[i] >= '0' && format[i] <= '9') {
-			format_modifiers->precision = atoi(format + i);
-			while (format[++i] && format[i] >= '0' && format[i] <= '9');
+            ++(*i);
+		} else if (format[*i] >= '0' && format[*i] <= '9') {
+			format_modifiers->precision = atoi(format + *i);
+			while (format[++(*i)] && format[*i] >= '0' && format[*i] <= '9');
 		} else format_modifiers->precision = 0;
 	}
-	if (format[i] == 'h' || format[i] == 'l' || format[i] == 'L') {
-		format_modifiers->length = format[i];
-		++i;
+	if (format[*i] == 'h' || format[*i] == 'l' || format[*i] == 'L') {
+		format_modifiers->length = format[*i];
+		++(*i);
 	}
 
-	char *res = process_specifier(format[i], s21_strlen(str), params, format_modifiers);
+	bool fail = false;
+	char *res = process_specifier(format[*i], s21_strlen(str), params, format_modifiers, &fail);
 	if (res) {
 		s21_strncat(str, res, s21_strlen(res));
 		free(res);
-	} else i = percent_position;
+	} else *i = percent_position;
 
 	reset_mods(format_modifiers);
 	
-	return i;
+	return fail;
 }
 
-char *process_specifier(char specifier, const int len, va_list *params, print_modifiers *format_modifiers) {
+char *process_specifier(char specifier, const int len, va_list *params, print_modifiers *format_modifiers, bool* fail) {
 	char *res = NULL;
 	if (specifier == 'c') {
-		res = get_c(params, format_modifiers->length);
+		res = get_c(params, format_modifiers->length, fail);
 	} else if (specifier == 'd' || specifier == 'i') {
 		format_modifiers->precision = format_modifiers->precision == -1 ? 1 : format_modifiers->precision;
 		res = doxtoa(format_modifiers->length == 'h' ? (short)va_arg(*params, int) : format_modifiers->length == 'l' ? va_arg(*params, long) : va_arg(*params, int), 10, false);
@@ -96,7 +98,7 @@ char *process_specifier(char specifier, const int len, va_list *params, print_mo
 		format_modifiers->precision = format_modifiers->precision == -1 ? 1 : format_modifiers->precision;
 		res = doxtoa(format_modifiers->length == 'h' ? (unsigned short)va_arg(*params, unsigned int) : format_modifiers->length == 'l' ? va_arg(*params, unsigned long) : va_arg(*params, unsigned), specifier == 'o' ? 8 : specifier == 'u' ? 10 : 16, specifier == 'X');
 	} else if (specifier == 's') {
-		res = get_s(params, format_modifiers->length);
+		res = get_s(params, format_modifiers->length, fail);
 	} else if (specifier == 'p') {
 		format_modifiers->precision = format_modifiers->precision == -1 ? 1 : format_modifiers->precision;
 		res = get_p(va_arg(*params, unsigned long));
@@ -112,13 +114,14 @@ char *process_specifier(char specifier, const int len, va_list *params, print_mo
 	return res && specifier != '%' && specifier != 'n' ? apply_format(res, *format_modifiers, specifier) : res;
 }
 
-char* get_c(va_list* params, char length) {
+char* get_c(va_list* params, char length, bool* fail) {
 	char* res;
 
 	if (length == 'l') {
 		wchar_t c = va_arg(*params, wchar_t);
         res = (char*)calloc(1, sizeof(wchar_t) + sizeof(char));
 		wcstombs(res, &c,   sizeof(wchar_t));
+		if (!s21_strlen(res)) *fail = true;
 	} else {
 		res = (char *)calloc(2, sizeof(char));
 		res[0] = (char)va_arg(*params, int);
@@ -185,9 +188,11 @@ char *ftoa(const f_representation* f) {
 	char *integer = doxtoa(0, 10, false);
 	char *fraction = doxtoa(0, 10, false);
 
-	integer = e >= 0 ? calculate_int_part(integer, e, f->bits, e > 52 ? 1 : mask >> (e - 1)) : integer;
-    mask = e > 0 ? mask >> e : mask;
-	fraction = mask ? calculate_frac_part(fraction, e, f->bits, mask) : fraction;
+	if (f->full) {
+		integer = e >= 0 ? calculate_int_part(integer, e, f->bits, e > 52 ? 1 : mask >> (e - 1)) : integer;
+    	mask = e > 0 ? mask >> e : mask;
+		fraction = mask ? calculate_frac_part(fraction, e, f->bits, mask) : fraction;
+	}
 
 	char* res = join_frac_to_int(integer, fraction, negative);
 
@@ -289,9 +294,11 @@ char *lftoa(const fl_representation* f) {
 	char *integer = doxtoa(0, 10, false);
 	char *fraction = doxtoa(0, 10, false);
 
-	integer = e >= 0 ? calculate_int_part_long(integer, e, f->bits, e > 62 ? 1 : 0x8000 >> (e % 16)) : integer;
-	unsigned short mask = 0x8000 >> (e % 16 + 1);
-	fraction = e < 63 ? calculate_frac_part_long(fraction, e, f->bits, mask ? mask : 0x8000) : fraction;
+	if (f->full) {
+		integer = e >= 0 ? calculate_int_part_long(integer, e, f->bits, e > 62 ? 1 : 0x8000 >> (e % 16)) : integer;
+		unsigned short mask = 0x8000 >> (e % 16 + 1);
+		fraction = e < 63 ? calculate_frac_part_long(fraction, e, f->bits, mask ? mask : 0x8000) : fraction;
+	}
 
 	char* res = join_frac_to_int(integer, fraction, negative);
 
@@ -431,13 +438,14 @@ int point_position(char *str) {
     return str[i] ? i : 0;
 }
 
-char* get_s(va_list* params, char length) {
+char* get_s(va_list* params, char length, bool* fail) {
 	char* res;
 
 	if (length == 'l') {
 		wchar_t* s = va_arg(*params, wchar_t*);
 		res = (char*)calloc(1, wcslen(s) * sizeof(wchar_t) + sizeof(char));
 		wcstombs(res, s, wcslen(s) * sizeof(wchar_t));
+		if (!s21_strlen(res)) *fail = true;
 	} else {
 		char* s = va_arg(*params, char*);
 		res = (char*)calloc(s21_strlen(s) + 1, sizeof(char));
