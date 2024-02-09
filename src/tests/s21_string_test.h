@@ -4,20 +4,21 @@
 #define MAX_BUFFER_SIZE 512
 
 #include <check.h>
+#include <locale.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <stdlib.h>
 #include <wchar.h>
-#include <locale.h>
-
 
 #include "../s21_string.h"
 
 char *format_maker(print_modifiers *mod, char ch, char len);
 void test_all_falgs_d(print_modifiers mod, char *src, int src2, char spec);
-void test_all_falgs_double(print_modifiers mod, char *src, double src2, char spec);
-void test_all_falgs_string(print_modifiers mod, char *src, char *src2, char spec);
+void test_all_falgs_double(print_modifiers mod, char *src, double src2,
+                           char spec);
+void test_all_falgs_string(print_modifiers mod, char *src, char *src2,
+                           char spec);
 
 Suite *s21_strlen_suite();
 Suite *s21_memchr_suite();

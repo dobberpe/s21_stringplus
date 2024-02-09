@@ -5,8 +5,8 @@ GFLAGS = -fprofile-arcs -ftest-coverage
 LIB_NAME = s21_string.a
 LIB_SRC = s21_string.c s21_sprintf.c s21_sscanf.c
 LIB_OBJ = $(LIB_SRC:.c=.o)
-# TEST_SRC = $(wildcard ./tests/*.c)
-TEST_SRC = tests/SUITE_aux__3.c
+TEST_SRC = $(wildcard ./tests/*.c)
+#TEST_SRC = tests/ot/SUITE_aux__1.c
 TEST_GCDA = $(LIB_SRC:.c=.gcda)
 TEST_OBJ = $(TEST_SRC:.c=.o)
 
