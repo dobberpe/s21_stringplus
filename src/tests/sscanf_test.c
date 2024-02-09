@@ -1030,6 +1030,23 @@ START_TEST(test_s21_sscanf_fixed_width_octal_with_prefix) {
   ck_assert_int_eq(value_my, value_original);
 }
 
+// Тестовый случай для sscanf с использованием спецификатора %p
+START_TEST(test_sscanf_pointer) {
+  void *value_my;
+  void *value_original;
+
+  const char *input_str = "0x7ffeefbf2a10";
+
+  // Сравнение с оригинальной функцией sscanf
+  int original_result = sscanf(input_str, "%p", &value_original);
+  int my_result = s21_sscanf(input_str, "%p", &value_my);
+
+  // Сравнение результатов
+  ck_assert_int_eq(my_result, original_result);
+  // Проверка значений
+  ck_assert_ptr_eq(value_my, value_original);
+}
+
 Suite *s21_sscanf_suite() {
   Suite *suite;
   TCase *tc_core;
@@ -1091,7 +1108,7 @@ Suite *s21_sscanf_suite() {
   tcase_add_test(tc_core, test_s21_sscanf_fixed_width_hex_with_prefix);
   tcase_add_test(tc_core, test_s21_sscanf_fixed_width_octal);
   tcase_add_test(tc_core, test_s21_sscanf_fixed_width_octal_with_prefix);
-
+  tcase_add_test(tc_core, test_sscanf_pointer);
   suite_add_tcase(suite, tc_core);
   return suite;
 }
