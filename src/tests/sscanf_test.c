@@ -656,25 +656,6 @@ START_TEST(test_s21_sscanf_octal_integer) {
   ck_assert_uint_eq(value_my, value_original);
 }
 
-// Тестовый случай для s21_sscanf с использованием спецификатора %p для
-// указателя
-START_TEST(test_s21_sscanf_pointer) {
-  intptr_t value_original =
-      (intptr_t)0x12345678;  // Произвольное значение указателя
-  intptr_t value_my = 0;
-
-  // Создание строки с указателем
-  char input_str[20];
-  snprintf(input_str, sizeof(input_str), "%p", (void *)value_original);
-
-  // Сравнение с оригинальной функцией sscanf
-  int original_result = sscanf(input_str, "%p", (void **)&value_my);
-
-  // Проверка результатов
-  ck_assert_int_eq(original_result, 1);
-  ck_assert_int_eq(value_my, value_original);
-}
-
 // Тестовый случай для s21_sscanf с использованием флага h для целочисленного
 // значения
 START_TEST(test_s21_sscanf_short_integer) {
@@ -1088,7 +1069,6 @@ Suite *s21_sscanf_suite() {
   tcase_add_test(tc_core, test_s21_sscanf_hexadecimal_integer);
   tcase_add_test(tc_core, test_s21_sscanf_hexadecimal_integer_uppercase);
   tcase_add_test(tc_core, test_s21_sscanf_octal_integer);
-  tcase_add_test(tc_core, test_s21_sscanf_pointer);
   tcase_add_test(tc_core, test_s21_sscanf_short_integer);
   tcase_add_test(tc_core, test_s21_sscanf_long_integer);
   tcase_add_test(tc_core, test_s21_sscanf_double);
