@@ -11,7 +11,7 @@ int s21_sprintf(char *str, const char *format, ...) {
 	str[0] = '\0';
 	reset_mods(&format_modifiers);
 
-	while (format[++i]) {
+	while (format[++i] && !fail) {
 		if (format[i] == '%') {
 			fail = process_format(format, &i, str, &params, &format_modifiers);
 			j = s21_strlen(str) - 1;
