@@ -222,8 +222,8 @@ char *get_f(va_list *params, char length) {
   return res;
 }
 
-bool isinfnanl(fl_representation* f) {
-    return extract_exp_long(f->bits[4]) == 16384;
+bool isinfnanl(fl_representation *f) {
+  return extract_exp_long(f->bits[4]) == 16384;
 }
 
 char *edge_case(bool inf, bool negative) {
