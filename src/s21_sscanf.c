@@ -23,7 +23,7 @@ int s21_sscanf(const char *str, const char *format, ...) {
 	}
 	va_end(params);
 
-	return *str == '\0' ? -1 : counter;
+	return isblank((char*)str) ? -1 : counter;
 }
 
 void reset_scan_mods(scan_modifiers* format_modifiers) {
@@ -35,7 +35,7 @@ void reset_scan_mods(scan_modifiers* format_modifiers) {
 bool process_scan(const char* format, int* i, char** str, const int read, int* counter, va_list *params, scan_modifiers *format_modifiers) {
     bool before_percent = s21_strchr(" \n\t\r\x0B\f", *i ? format[*i - 1] : 'a');
 
-    if (format[++(*i)] >= '1' && format[*i] <= '9') {
+    if (format[++(*i)] >= '0' && format[*i] <= '9') {
         format_modifiers->width = atoi(format + *i);
         while (format[++(*i)] && format[*i] >= '0' && format[*i] <= '9');
     } else if (format[*i] == '*') {
@@ -62,7 +62,7 @@ bool process_scan(const char* format, int* i, char** str, const int read, int* c
     } else if (specifier == 'p') {
         fail = set_p(str, counter, params, format_modifiers);
     } else if (specifier == 'n') {
-        *(int*)va_arg(*params, void*) = read;
+        set_n(str, params, read);
     } else if (specifier == '%') {
         char *str_p;
         while ((str_p = s21_strchr(" \n\t\r\x0B\f", **str)) && *str_p) ++(*str);
@@ -74,6 +74,11 @@ bool process_scan(const char* format, int* i, char** str, const int read, int* c
 	
 	return fail;
 }
+
+// void skip_spacing(char** str) {
+//     char *str_p;
+//     while ((str_p = s21_strchr(" \n\t\r\x0B\f", **str)) && *str_p) ++(*str);
+// }
 
 bool set_c(char** str, int* counter, va_list *params, scan_modifiers* format_modifiers, bool before_percent) {
     bool fail = false;
@@ -91,9 +96,11 @@ bool set_c(char** str, int* counter, va_list *params, scan_modifiers* format_mod
         }
         *str += 2;
     } else {
-        if (format_modifiers->assignment) *va_arg(*params, char*) = **str;
+        if (format_modifiers->assignment) {
+            *va_arg(*params, char*) = **str;
+            ++(*counter);
+        }
         ++(*str);
-        ++(*counter);
     }
 
     return fail;
@@ -193,12 +200,9 @@ bool set_uox(const char specifier, char** str, int* counter, va_list *params, sc
         unsigned long res = strtoul(str_p, &end, specifier == 'u' ? 10 : specifier == 'o' ? 8 : 16);
         if (end == str_p) fail = true;
         else if (format_modifiers->assignment) {
-            if (format_modifiers->length == 'h') *(unsigned short *) va_arg(*params,
-            void*) = (unsigned short) res;
-            else if (format_modifiers->length == 'l') *(unsigned long *) va_arg(*params,
-            void*) = res;
-            else *(unsigned int *) va_arg(*params,
-            void*) = (unsigned int) res;
+            if (format_modifiers->length == 'h') *(unsigned short *) va_arg(*params, void*) = (unsigned short) res;
+            else if (format_modifiers->length == 'l') *(unsigned long *) va_arg(*params, void*) = res;
+            else *(unsigned int *) va_arg(*params, void*) = (unsigned int) res;
             ++(*counter);
         }
         char* tmp = *str;
@@ -221,18 +225,18 @@ bool set_s(char** str, int* counter, va_list *params, scan_modifiers* format_mod
             str_p = (char*)calloc(format_modifiers->width + 1, sizeof(char));
             str_p = s21_strncat(str_p, *str, format_modifiers->width);
         }
-
+        
         char* end = s21_strpbrk(str_p, " \n\t\r\x0B\f");
         end = !end ? str_p + s21_strlen(str_p) : end;
         if (format_modifiers->assignment) {
             if (format_modifiers->length == 'l') {
-                int res = mbstowcs(va_arg(*params, wchar_t*), str_p, end - *str);
+                int res = mbstowcs(va_arg(*params, wchar_t*), str_p, end - str_p);
                 if (res == -1 || !res) fail = true;
                 ++(*counter);
             } else {
                 char* res = va_arg(*params, char*);
                 res[0] = '\0';
-                s21_strncat(res, str_p, end - *str);
+                s21_strncat(res, str_p, end - str_p);
                 ++(*counter);
             }
         }
@@ -257,4 +261,21 @@ bool set_p(char** str, int* counter, va_list *params, scan_modifiers* format_mod
     *str = end;
 
     return fail;
+}
+
+void set_n(char** str, va_list* params, const int read) {
+    int spacing = 0;
+    char *str_p;
+    while ((str_p = s21_strchr(" \n\t\r\x0B\f", **str)) && *str_p) {
+        ++(*str);
+        ++spacing;
+    }
+    *(int*)va_arg(*params, void*) = read + spacing;
+}
+
+bool isblank(char* str) {
+    char* str_p;
+    while ((str_p = s21_strchr(" \n\t\r\x0B\f", *str)) && *str_p) ++str;
+    
+    return !(*str);
 }

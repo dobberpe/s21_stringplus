@@ -106,5 +106,7 @@ bool set_feg(char** str, int* counter, va_list *params, scan_modifiers* format_m
 bool set_uox(const char specifier, char** str, int* counter, va_list *params, scan_modifiers* format_modifiers);
 bool set_s(char** str, int* counter, va_list *params, scan_modifiers* format_modifiers);
 bool set_p(char** str, int* counter, va_list *params, scan_modifiers* format_modifiers);
+void set_n(char** str, va_list* params, const int read);
+bool isblank(char* str);
 
 #endif
