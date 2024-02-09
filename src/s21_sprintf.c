@@ -560,8 +560,9 @@ void g_precision_calc(char *str, print_modifiers *format_modifiers) {
 		format_modifiers->precision -= 1;
 	} else {
 		if (dot_find) {
-			if (format_modifiers->precision == 0) format_modifiers->precision += 1;
-			format_modifiers->precision += tmp - s21_strchr(str, '.') - format_modifiers->oct_hex_notation;
+			size_t offset = tmp - s21_strchr(str, '.');
+			if (format_modifiers->precision == 0 && offset != 1) format_modifiers->precision += 1;
+			format_modifiers->precision += offset - format_modifiers->oct_hex_notation;
 		} else {
 			size_t offset = s21_strchr(str, '.') - tmp;
 			format_modifiers->precision = format_modifiers->precision - offset;
@@ -725,6 +726,8 @@ char *apply_format(char *str, print_modifiers format_modifiers, char specifier) 
 	}
 
 	// ширина
-	str = set_width(str, format_modifiers, specifier);
+	if (!(*str == 0 && ((specifier == 'c' && format_modifiers.left_alignment) || (specifier == 's' && format_modifiers.length == 'l')))) {
+		str = set_width(str, format_modifiers, specifier);
+	}
 	return str;
 }
