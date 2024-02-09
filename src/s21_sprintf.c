@@ -694,7 +694,8 @@ char *set_hex_notation(char *str, print_modifiers format_modifiers, char specifi
 
 char *set_width(char *str, print_modifiers format_modifiers, char specifier) {
 	int str_len = (int)s21_strlen(str);
-	if (*str == '\0' && format_modifiers.width && specifier != 's') format_modifiers.width--; 
+
+	if (*str == '\0' && format_modifiers.width && !s21_strchr("sdiuxXo", specifier)) format_modifiers.width--; 
 	if (format_modifiers.width > str_len && (!format_modifiers.fill_with_nulls || s21_strchr("(in", *str) || (*str != '\0' && str[1] != '\0' && s21_strchr("(in", str[1])))) {
 		str = add_width(str, format_modifiers.width - str_len, ' ', !format_modifiers.left_alignment);
 	}
@@ -750,7 +751,6 @@ char *apply_format(char *str, print_modifiers format_modifiers, char specifier) 
 	} else if (format_modifiers.space_instead_of_sign && !format_modifiers.positive_sign && s21_strchr("dieEfgG", specifier)) {
 		str = add_width(str, 1, ' ', true);
 	}
-
 	// ширина
 	if (!(*str == 0 && ((specifier == 'c' && format_modifiers.left_alignment) || (specifier == 's' && format_modifiers.length == 'l')))) {
 		str = set_width(str, format_modifiers, specifier);
