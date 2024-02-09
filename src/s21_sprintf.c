@@ -763,7 +763,6 @@ char *set_hex_notation(char *str, print_modifiers format_modifiers,
 
 char *set_width(char *str, print_modifiers format_modifiers, char specifier) {
   int str_len = (int)s21_strlen(str);
-
   if (*str == '\0' && format_modifiers.width &&
       !s21_strchr("sdiuxXo", specifier))
     format_modifiers.width--;
@@ -797,17 +796,16 @@ char *apply_format(char *str, print_modifiers format_modifiers,
                    char specifier) {
   char is_zero = *str;
   size_t str_len = s21_strlen(str);
-
-  // убираем минус
   bool negative = false;
   if (s21_strchr("dieEfgG", specifier)) {
     negative = *str == '-' ? true : false;
     if (negative) {
-      memmove(str, str + 1, str_len);
-      str = (char *)realloc(str, str_len);
+      char *tmp = (char *)malloc(str_len * sizeof(char));
+      s21_strncpy(tmp, str + 1, str_len);
+      free(str);
+      str = tmp;
     }
   }
-
   if (*str != 'n' && *str != 'i') {
     str = set_precision(str, format_modifiers, specifier);
     str = set_hex_notation(str, format_modifiers, specifier, is_zero);
@@ -816,9 +814,6 @@ char *apply_format(char *str, print_modifiers format_modifiers,
     free(str);
     str = tmp;
   }
-
-  // знак
-  str_len = s21_strlen(str);
   if (negative) {
     str = add_width(str, 1, '-', true);
   } else if (format_modifiers.positive_sign &&
@@ -829,7 +824,6 @@ char *apply_format(char *str, print_modifiers format_modifiers,
              s21_strchr("dieEfgG", specifier)) {
     str = add_width(str, 1, ' ', true);
   }
-  // ширина
   if (!(*str == 0 && ((specifier == 'c' && format_modifiers.left_alignment) ||
                       (specifier == 's' && format_modifiers.length == 'l')))) {
     str = set_width(str, format_modifiers, specifier);

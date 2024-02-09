@@ -839,10 +839,10 @@ START_TEST(test_s21_sscanf_percent_n2) {
   const char *input_str =
       "cbobErobM fl? asdfasdflkasdf asdfasdf asdfasdf 88888";
 
-  int original_result = sscanf(input_str, "%s %s %n %s", s1_original,
+  int original_result = sscanf(input_str, "%19s %19s %n %19s", s1_original,
                                s2_original, &n1_original, s3_original);
   int my_result =
-      s21_sscanf(input_str, "%s %s %n %s", s1_my, s2_my, &n1_my, s3_my);
+      s21_sscanf(input_str, "%19s %19s %n %19s", s1_my, s2_my, &n1_my, s3_my);
 
   ck_assert_int_eq(original_result, my_result);
 
