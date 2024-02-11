@@ -10,7 +10,7 @@ TEST_SRC = $(wildcard ./tests/*.c)
 TEST_GCDA = $(LIB_SRC:.c=.gcda)
 TEST_OBJ = $(TEST_SRC:.c=.o)
 
-all: $(LIB_NAME) test
+all: $(LIB_NAME)
 
 test: $(TEST_OBJ) $(LIB_NAME)
 	$(CC) $(CFLAGS) $(TEST_OBJ) -o test -L. -l:$(LIB_NAME) $(TFLAGS)
